@@ -1,21 +1,22 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import os
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
 import math
 
 # training and test set - {monk1 - monk2 - monk3}
-TRAINMONK1 = "../monks-1.train"
-TRAINMONK2 = "../monks-2.train"
-TRAINMONK3 = "../monks-3.train"
-TRAINCUP = "../ML-CUP22-TR.csv"
+TRAINMONK1 = "/monks-1.train"
+TRAINMONK2 = "/monks-2.train"
+TRAINMONK3 = "/monks-3.train"
+TRAINCUP = "/ML-CUP22-TR.csv"
 
-TESTMONK1 = "../monks-1.test"
-TESTMONK2 = "../monks-2.test"
-TESTMONK3 = "../monks-3.test"
-TESTCUP= "../ML-CUP22-TS.csv"
+TESTMONK1 = "/monks-1.test"
+TESTMONK2 = "/monks-2.test"
+TESTMONK3 = "/monks-3.test"
+TESTCUP= "/ML-CUP22-TS.csv"
 
 def get_train_Monk_1():
     return read_monk(TRAINMONK1)
@@ -44,7 +45,7 @@ def get_test_CUP():
 def read_monk(name):
     # read the dataset
     col_names = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'Id']
-    monk_dataset = pd.read_csv(str(name), sep=' ', names=col_names)
+    monk_dataset = pd.read_csv(f'../MonkDatasets/{name}', sep=' ', names=col_names)
     monk_dataset.set_index('Id', inplace=True)
     
     # shuffle the DataFrame rows
@@ -68,9 +69,9 @@ def read_cup(name):
     col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'target_x', 'target_y']
 
     if name == TRAINCUP:
-        cup_dataset = pd.read_csv(str(name), sep=',', skiprows=range(7), names=col_names)
+        cup_dataset = pd.read_csv(f'../CupDatasets/{name}', sep=',', skiprows=range(7), names=col_names)
     else:
-        cup_dataset = pd.read_csv(str(name), sep=',', skiprows=range(7), names=col_names[:-2])
+        cup_dataset = pd.read_csv(f'../CupDatasets/{name}', sep=',', skiprows=range(7), names=col_names[:-2])
 
     cup_dataset.set_index('Id', inplace=True)
     # shuffle the DataFrame rows
@@ -91,7 +92,7 @@ def get_cup_house_test(perc=0.25):
     targets=[]
     # read csv
     col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'target_x', 'target_y']
-    cup_dataset = pd.read_csv(TRAINCUP, sep=',', skiprows=range(7), names=col_names)
+    cup_dataset = pd.read_csv(f'../CupDatasets{TRAINCUP}', sep=',', skiprows=range(7), names=col_names)
     
     cup_dataset.set_index('Id', inplace=True)
     # shuffle the DataFrame rows

@@ -73,7 +73,7 @@ class KfoldCV:
         # Path
         path = os.path.join(parent_dir, directory)
         if not os.path.exists(path):
-            os.mkdir(path)
+            os.makedirs(path)
         plot_path=f'../plot/{timestr}/{namefile}'
         model = dnn(**hyperparameters,plot=plot_path)
         #train
@@ -167,6 +167,8 @@ class KfoldCV:
         create_candidate,total= grid_search.grid_search(hyperparameters=self.candidates_hyperparameters, coarse=True)
             # Writing to file
         timestr = time.strftime("%d%m%Y-%H%M")
+        if(not(os.path.isdir('../KFoldCV'))):
+            os.makedirs('../KFoldCV')
         with open("../KFoldCV/Gridsearch"+timestr+".txt", "w") as file1:
             for i,theta in enumerate(create_candidate.get_all_candidates_dict()):
                 print("----\nEstimate error for model #"+str(i)+" of "+str(total)+"\n----")
