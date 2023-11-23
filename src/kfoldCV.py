@@ -9,14 +9,13 @@ import os
 import grid_search
 
 class KfoldCV:
-    candidates=Candidates_Hyperparameters()
-    def __init__(self,inputs,targets, kfolds, candidates_hyperparameters=candidates):
-        self.history_error=[]
-        self.kfolds=kfolds
-        self.candidates_hyperparameters=candidates_hyperparameters
-        self.inputs=inputs
-        self.targets=targets
-        self.models_error=[]
+    def __init__(self, inputs, targets, kfolds, candidates_hyperparameters = Candidates_Hyperparameters()):
+        self.history_error = []
+        self.kfolds = kfolds
+        self.candidates_hyperparameters = candidates_hyperparameters
+        self.inputs = inputs
+        self.targets = targets
+        self.models_error = []
 
     '''
     Compute the splitting in fold and build a dictionary with the hyperparameters
@@ -159,8 +158,8 @@ class KfoldCV:
         return theta[lower_mean]
 
     
-    def validate(self, default="",FineGS=False):
-        if default == "monk" or "cup":
+    def validate(self, default = "monk", FineGS = False):
+        if default == "monk" or default == "cup":
             self.candidates_hyperparameters.set_project_hyperparameters(default)
         """ K-Fold Cross Validation """
         # a first coarse Grid Search, values differ in order of magnitude
@@ -171,13 +170,13 @@ class KfoldCV:
             os.makedirs('../KFoldCV')
         with open("../KFoldCV/Gridsearch"+timestr+".txt", "w") as file1:
             for i,theta in enumerate(create_candidate.get_all_candidates_dict()):
-                print("----\nEstimate error for model #"+str(i)+" of "+str(total)+"\n----")
-                file1.write("----\nEstimate error for model #"+str(i)+" of "+str(total)+"\n----")
+                print(f"----\n Estimate error for model #{i} of {total} \n----")
+                file1.write(f"----\n Estimate error for model #{i} of {total} \n----")
                 self.estimate_model_error(theta,file1,candidatenumber=i,timestr="Coarse"+timestr)
             
             winner=Candidate(self.the_winner_is())
-            print("---THE WINNER IS...\n",winner.to_string())
-            file1.write("---THE WINNER IS...\n"+winner.to_string())
+            print(f"---THE WINNER IS...\n {winner.to_string()}")
+            file1.write(f"---THE WINNER IS...\n {winner.to_string()}")
             file1.write("Try to do better... with fine grid search")
 
         if FineGS:

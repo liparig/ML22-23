@@ -62,6 +62,23 @@ def read_monk(name):
 
     return monk_dataset, monk_targets
 
+def read_monk_Tr_Vl(name:str = TRAINMONK1, perc:float = 0.25, num_outuput:int = 1):
+    # read csv
+    col_names = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'Id']
+    monk_dataset = pd.read_csv(f'../MonkDatasets/{name}', sep = ' ', names = col_names)
+    monk_dataset.set_index('Id', inplace = True)
+
+    # shuffle the DataFrame rows
+    monk_dataset = monk_dataset.sample(frac = 1)
+    dim = math.ceil(len(monk_dataset) * perc)
+    inputs = monk_dataset.to_numpy(dtype=np.float32)[: -dim,:]
+    val_inputs = monk_dataset.to_numpy(dtype=np.float32)[-dim:,:]
+    # get targets aside
+    inputs, targets = inputs[:, :-num_outuput], inputs[:, -num_outuput:]
+    val_inputs, val_targets = val_inputs[:, :-num_outuput], val_inputs[:, -num_outuput:]
+
+    return inputs, targets,val_inputs,val_targets
+
 def read_cup(name):
     # get directory
     targets=[]
@@ -86,18 +103,19 @@ def read_cup(name):
     # transform labels from pandas dataframe to numpy ndarray
     
     return inputs, targets
+
 def get_cup_house_test(perc=0.25):
     
     # get directory
     targets=[]
     # read csv
     col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'target_x', 'target_y']
-    cup_dataset = pd.read_csv(f'../CupDatasets{TRAINCUP}', sep=',', skiprows=range(7), names=col_names)
+    cup_dataset = pd.read_csv(f'../CupDatasets{TRAINCUP}', sep=',', skiprows = range(7), names = col_names)
     
     cup_dataset.set_index('Id', inplace=True)
     # shuffle the DataFrame rows
     cup_dataset = cup_dataset.sample(frac = 1)
-    dim= math.ceil(len(cup_dataset) * perc)
+    dim = math.ceil(len(cup_dataset) * perc)
     inputs = cup_dataset.to_numpy(dtype=np.float32)[: -dim,:]
     val_inputs =cup_dataset.to_numpy(dtype=np.float32)[-dim:,:]
     # get targets aside

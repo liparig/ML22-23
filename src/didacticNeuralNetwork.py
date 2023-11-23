@@ -16,7 +16,6 @@ from numpy.random import Generator, PCG64
 R_SEEDS=30
 EPS=0.7
 BIAS=0
-SIGMOID=[SIGMOID]
 BATCH=0
 ETA=0.5
 TAU=(False,False)
@@ -48,7 +47,7 @@ class DidacticNeuralNetwork:
     2. check dimensions of layers array and activation functions array
     3. init random weights 
     """
-    def __init__(self, l_dim:list[int], a_functions:str=SIGMOID, l_function:str=MSE, eta:float=ETA, tau=TAU, epochs:int=EPOCHS, batch_shuffle:bool=True, reg=REG, momentum=MOMENTUM,classification:bool=False, early_stop:bool=True, patience:int=PATIENCE, treshold_variance:float=TRESHOLDVARIANCE, dim_batch:int=0, plot=None, seed=R_SEEDS, **kwargs):
+    def __init__(self, l_dim:list[int], a_functions:list[str] = [SIGMOID], l_function:str = MSE, eta:float = ETA, tau = TAU, epochs:int = EPOCHS, batch_shuffle:bool = True, reg = REG, momentum = MOMENTUM, classification:bool = False, early_stop:bool = True, patience:int = PATIENCE, treshold_variance:float = TRESHOLDVARIANCE, dim_batch:int = 0, plot = None, seed = R_SEEDS, **kwargs):
         self.gen = Generator(PCG64(seed))
         self.a_functions = a_functions
         self.__check_init__(l_dim, a_functions)
@@ -110,7 +109,7 @@ class DidacticNeuralNetwork:
     :param eps: eps value  between 0 and 1 for  Weight decrement default 0.1 if random distribution, if uniform it's the high extreme of interval
     :param bias: - value for the biases
     '''
-    def init_wb(self,l_dim, distribution:str=UNIFORM, eps=EPS, bias=BIAS):
+    def init_wb(self, l_dim, distribution:str = UNIFORM, eps = EPS, bias = BIAS):
         wb = {}
         #num_layers network deep
         num_layers:int = len(l_dim)
@@ -133,17 +132,17 @@ class DidacticNeuralNetwork:
     :parm update: If true update the network nets and outputs of the inputs. Default:False 
     :return in_out: return the output value of the network 
     '''
-    def forward_propagation(self, inputs, update:bool=False):            
-        in_out=inputs
+    def forward_propagation(self, inputs, update:bool = False):            
+        in_out = inputs
         #forward propagation of the inputta pattern in the network
         for l in range(1,len(self.l_dim)):
             name_layer:str = str(l)
-            w=self.wb[f'W{name_layer}']
-            b=self.wb[f'b{name_layer}']
+            w = self.wb[f'W{name_layer}']
+            b = self.wb[f'b{name_layer}']
             #apply linear function
             net = np.asarray(self.linear(w,in_out,b))
             #apply activation function to the net
-            af=activations[self.a_functions[l-1]]
+            af = activations[self.a_functions[l-1]]
             #traspose the result row unit column pattern
             in_out = np.asarray(af(net).T)
             #if update true record the net and out of the units on the layer
@@ -272,34 +271,34 @@ class DidacticNeuralNetwork:
         #train start    
         for e in range(self.epochs):
             #initialize variable for partial error and loss
-            batch_terror ,batch_tloss=0,0
+            batch_terror, batch_tloss = 0, 0
             #if learning decay used update of eta
-            if self.learning_decay and self.decay_step >=e:
-                self.eta=(1-(e/self.decay_step))*eta_0 + (e/self.decay_step)* self.eta_tau
-            #if mini-batch and shuffled true  index of the set are shuffled
+            if self.learning_decay and self.decay_step >= e:
+                self.eta = (1-(e/self.decay_step)) * eta_0 + (e/self.decay_step) * self.eta_tau
+            #if mini-batch and shuffled true index of the set are shuffled
             if self.dim_batch != self.dataset['p_tx'] and self.shuffle:
                 newindex = list(range(self.dataset['p_tx']))
                 self.gen.shuffle(newindex)
                 x_dev = x_dev[newindex]
                 y_dev = y_dev[newindex]    
-            #if mini-batch  loop the divided input set
+            #if mini-batch loop the divided input set
             for b in range(math.ceil(self.dataset['p_tx'] / self.dim_batch)):
                 #initialize penalty term for loss calculation of each mini-batch
-                p_term=0
+                p_term = 0
                 #initialize index for dataset partition
                 start = b * self.dim_batch
                 end = start + self.dim_batch
                 batch_x = np.asarray(x_dev[start: end])
                 batch_y = np.asarray(y_dev[start: end])
                 #propagation on network layer
-                out=self.forward_propagation(batch_x.copy(),update=True)
+                out = self.forward_propagation(batch_x.copy(),update=True)
                 #print("\n\n\nOUT\n\n\n",out,"\n\n\n\n----\n\n\n")
                 #if it's used nesterov or regularization, walk the network for compute penalty term and intermediate w
-                if self.regular or self.momentum=='nesterov':        
+                if self.regular or self.momentum == 'nesterov':        
                     for l in range(1,len(self.l_dim)):
                         if self.regular:
-                            p_term+=self.regular.penalty(self.lambdar,self.wb["W"+str(l)])+self.regular.penalty(self.lambdar,self.wb["b"+str(l)])
-                        if self.momentum=='nesterov' and "wold"+str(l) in self.deltaOld :
+                            p_term += self.regular.penalty(self.lambdar,self.wb["W"+str(l)])+self.regular.penalty(self.lambdar,self.wb["b"+str(l)])
+                        if self.momentum == 'nesterov' and "wold"+str(l) in self.deltaOld :
                             self.wb["W"+str(l)]=self.wb["W"+str(l)]+ (self.alpha*self.deltaOld["wold"+str(l)])
                             self.wb["b"+str(l)]=self.wb["b"+str(l)]+ (self.alpha*self.deltaOld["bold"+str(l)])                
                 #compute delta using back propagation on target batch
@@ -338,21 +337,21 @@ class DidacticNeuralNetwork:
             else:
                 metric_tr.append(self.metrics.mean_euclidean_error(self.dataset['y_train'],out_t))
                 metric_val.append(self.metrics.mean_euclidean_error(self.dataset['y_val'],out_v))
-            if e>=19 and self.early_stop:
+            if e >= 19 and self.early_stop:
                 if np.var(history_terror[-20:])<self.treshold_variance:
                     selfcontrol+=1
                     if self.patience==selfcontrol:
                         break
                 else:
                     selfcontrol=0
-        if self.plot!=None:
-                path=self.plot if isinstance(self.plot, str) else None
+        if self.plot != None:
+                path = self.plot if isinstance(self.plot, str) else None
                 if self.classification:
-                    ylim=(0., 1.)
+                    ylim = (0., 1.)
                 else:
-                    ylim=(0., 5.)
-                dnn_plot.plot_curves(history_terror, validation_error,metric_tr,metric_val,lbl_tr="Training",lbl_vs="Validation",path=path,ylim=ylim)
-        return {'error':history_terror,'loss':history_tloss,'mee':metric_tr,'mee_v':metric_val,'validation': validation_error,'c_metrics':c_metric, 'epochs':e+1}  
+                    ylim = (0., 5.)
+                dnn_plot.plot_curves(history_terror, validation_error, metric_tr, metric_val, lbl_tr = "Training", lbl_vs = "Validation", path = path, ylim = ylim)
+        return {'error':history_terror,'loss':history_tloss, 'mee':metric_tr, 'mee_v':metric_val, 'validation':validation_error, 'c_metrics':c_metric, 'epochs':e+1}  
 
     '''
     Check problem in dataset inputs and add an error message to the exception:
@@ -384,8 +383,8 @@ class DidacticNeuralNetwork:
     :param **kwargs: extra params for the training
     """
     def fit(self, x_train, y_train, x_val, y_val, dim_batch = BATCH):
-        self.check_dimension(x_train, y_train, dim_batch, msg = "[check_dimension line 360] Error in Training datasets:")
-        self.check_dimension(x_val, y_val, 1, msg = "[check_dimension line 360] Error in Validation datasets:") #perché solo stocastico?
+        self.check_dimension(x_train, y_train, dim_batch, msg = "[check_dimension] Error in Training datasets:")
+        self.check_dimension(x_val, y_val, 1, msg = "[check_dimension] Error in Validation datasets:") #perché solo stocastico?
 
         #initialize a dictionary contain dataset information
         self.dataset={}
@@ -398,7 +397,7 @@ class DidacticNeuralNetwork:
         #check if minibacth, batch or stochastic
         if dim_batch == 0:
             dim_batch = self.dataset['p_tx']
-        self.dim_batch=dim_batch
+        self.dim_batch = dim_batch
         
         return self.train()
 
