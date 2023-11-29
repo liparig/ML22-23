@@ -8,7 +8,7 @@ class DNN_metrics:
     :param treshold: treshold values
     :return result: dictionary with: 'accuracy','precision','recall','specificity','balanced'
     '''
-    def metrics_binary_classification(self,y, y_hat,treshold=0.5):
+    def metrics_binary_classification(self, y, y_hat, treshold = 0.5):
         if np.squeeze(y).shape != np.squeeze(y_hat).shape:
             raise Exception(f"Sets have different shape Y:{y.shape} Y_hat:{y_hat.shape}")
 
@@ -20,7 +20,7 @@ class DNN_metrics:
                 else:
                     fn+=1
             else:
-                if target ==1:
+                if target == 1:
                     tp+=1
                 else:
                     fp+=1
@@ -72,5 +72,5 @@ class DNN_metrics:
     :param y_hat: predicted values
     :return MEE: root mean squared error value
     '''
-    def mean_euclidean_error(self,y, y_hat):
-        return np.divide(np.sqrt(np.sum(np.square(np.subtract(y, y_hat)))),float(len(y)))
+    def mean_euclidean_error(self, y, y_hat):
+        return np.divide(np.sqrt(np.sum(np.square(np.subtract(y, y_hat)))), float(len(y)))

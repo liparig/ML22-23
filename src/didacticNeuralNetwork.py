@@ -3,7 +3,7 @@
 
 from activationFunctions  import activations
 from activationFunctions  import derivatives
-from costants import UNIFORM, SIGMOID, MSE
+from costants import INPUT_TRAINING, INPUT_VALIDATION, NUM_POINT_X, OUTPUT_TRAINING, OUTPUT_VALIDATION, UNIFORM, SIGMOID, MSE
 from lossFunctions import loss
 from regularization import regularization
 from metrics import DNN_metrics
@@ -16,14 +16,14 @@ from numpy.random import Generator, PCG64
 R_SEEDS=30
 EPS=0.7
 BIAS=0
-BATCH=0
-ETA=0.5
+BATCH:int=0
+ETA:float=0.5
 TAU=(False,False)
 REG=(False,False)
-EPOCHS=200
+EPOCHS:int=200
 MOMENTUM=("",0)
-PATIENCE=20
-EARLYSTOP=True
+PATIENCE:int=20
+EARLYSTOP:bool=True
 TRESHOLDVARIANCE=1.e-6
 
 """Didactic Neural Network"""
@@ -137,7 +137,7 @@ class DidacticNeuralNetwork:
         #forward propagation of the inputta pattern in the network
         for l in range(1,len(self.l_dim)):
             name_layer:str = str(l)
-            w = self.wb[f'W{name_layer}']
+            w = self.wb[f'W{name_layer}'] # on the row there are the weights for 
             b = self.wb[f'b{name_layer}']
             #apply linear function
             net = np.asarray(self.linear(w,in_out,b))
@@ -147,9 +147,9 @@ class DidacticNeuralNetwork:
             in_out = np.asarray(af(net).T)
             #if update true record the net and out of the units on the layer
             if update:
-                self.out["out0"]=inputs
-                self.net[f'net{name_layer}']=net
-                self.out[f'out{name_layer}']=in_out
+                self.out["out0"] = inputs
+                self.net[f'net{name_layer}'] = net
+                self.out[f'out{name_layer}'] = in_out
         return in_out
     '''
     Compute delta_k gradient of outputlayer
@@ -159,13 +159,13 @@ class DidacticNeuralNetwork:
     :param d_activation: function f prime of activation funcion
     :return: Delta_k matrix contain output units delta. with row is p-th patterns and column is k-th output unit
     '''    
-    def compute_delta_k(self,y,out,net,d_activation):
+    def compute_delta_k(self, y, out, net, d_activation):
         #delta of loss function of pattern 
-        dp = self.l_function.d_loss(self, y, out)
+        dp = self.l_function.d_loss(self, y, out) #questa non mi torna
         #derivative of the layer activation function
-        f_prime=d_activation(net)
+        f_prime = d_activation(net)
         #compute delta with a puntual multiplication
-        delta_k=dp.T*f_prime
+        delta_k = dp.T*f_prime
         #return delta transpose for use rows patterns
         return delta_k.T
     '''
@@ -176,16 +176,15 @@ class DidacticNeuralNetwork:
     :param d_activation: function f prime of activation funcion
     :return: Delta_j matrix contain layer hidden units delta. with row is p-th patterns and column is j-th hidden unit
     '''    
-    def compute_delta_j(self,delta_in,w_layer,net,d_activation):
+    def compute_delta_j(self, delta_in, w_layer, net, d_activation):
         # matrix multiplication for delta_t
-        dt=delta_in@w_layer
+        dt = delta_in@w_layer
         # Transpose and puntual multiplication of apply the derivative
-        fprime=d_activation(net)
-        fprime= fprime if isinstance(fprime, int) else fprime.T
-
-        
-
-        dj=dt * fprime
+        fprime = d_activation(net) # net is a vector with all the nets for the unit layer
+        fprime = fprime if isinstance(fprime, int) else fprime.T
+        # print(f'shape delta_in: {delta_in.shape}, w_layer: {w_layer.shape}, dt {dt.shape}')
+        # input('premi')
+        dj = dt * fprime
         return dj
     '''
     Compute the weigth update
@@ -193,47 +192,58 @@ class DidacticNeuralNetwork:
     :param pattern: number of pattern predicted  
     :return: void
     '''
-    def update_wb(self,delta,pattern):
-        p_eta=(self.eta/pattern)
-        for l in range(len(self.l_dim)-1,0,-1):
+    def update_wb(self, delta, pattern):
+        p_eta = (self.eta/pattern)
+        for l in range(len(self.l_dim) - 1, 0, -1):
             name_layer:str = str(l)
-            deltaW=-p_eta*(delta[l-1].T@self.out["out"+str(l-1)])
-            deltaB=-p_eta*(np.sum(delta[l-1]))
+            deltaW = -p_eta * (delta[l-1].T@self.out[f"out{l-1}"])
+            deltaB = -p_eta * (np.sum(delta[l-1]))
             #if regularization is set subtract the penalty term
             if self.regular:
-                deltaW-= self.regular.derivative(self.lambdar,self.wb[f'W{name_layer}'])
-                deltaB-= self.regular.derivative(self.lambdar,self.wb[f'b{name_layer}'])
+                deltaW -= self.regular.derivative(self.lambdar,self.wb[f'W{name_layer}'])
+                deltaB -= self.regular.derivative(self.lambdar,self.wb[f'b{name_layer}'])
             #if momentum classic is set add the momentum deltaW
             if self.momentum=='classic' and f'wold{name_layer}' in self.deltaOld:
                 deltaW+= self.alpha*self.deltaOld[f'wold{name_layer}']
                 deltaB+= self.alpha*self.deltaOld[f'bold{name_layer}']
 
+            # print(type(self.wb[f'W{name_layer}']))
+            # print(type(deltaW))
+            # print(type(self.wb[f'b{name_layer}']))
+            # print(self.wb[f'b{name_layer}'])
+            # print(type(deltaB))
+            # input('premi')
             self.wb[f'W{name_layer}']= self.wb[f'W{name_layer}'] + deltaW 
-            self.wb[f'b{name_layer}']= self.wb[f'b{name_layer}'] + deltaB
+            self.wb[f'b{name_layer}'] = self.wb[f'b{name_layer}'] + deltaB
+            # print(self.wb[f'b{name_layer}'])
+            # input('premi')
             #save the old gradient for the momentum if needed
-            self.deltaOld[f'wold{name_layer}']=deltaW
-            self.deltaOld[f'bold{name_layer}']=deltaB
+            self.deltaOld[f'wold{name_layer}'] = deltaW
+            self.deltaOld[f'bold{name_layer}'] = deltaB
 
     '''
     Compute the back propagation algorithm
     :param y: target set
     :return: array delta with the gradients matrix of each layer. Last element is the last elements gradiend matrix
     '''
-    def back_propagation(self,y):
-        delta_t=[]
-        num_layers=len(self.l_dim)-1
+    def back_propagation(self, y):
+        delta_t = []
+        num_layers = len(self.l_dim) - 1
         #Reverse loop of the network layer
         for l in range(num_layers,0,-1):
-            dt=0
+            dt = 0
             name_layer:str = str(l)
+            # print(f'name_layer 228 ddn: {name_layer}')
             #recover the activation function of the layer
-            af=self.a_functions[num_layers-1]
+            af = self.a_functions[num_layers-1]
             #if not the output layer compute gradients delta_j
-            if l!=num_layers:
-                dt = self.compute_delta_j(delta_t[-1],self.wb['W'+str(l+1)],self.net[f'net{name_layer}'],derivatives[af])
+            if l != num_layers:
+                dt = self.compute_delta_j(delta_t[-1], self.wb[f'W{l+1}'] ,self.net[f'net{name_layer}'],derivatives[af])
             else:
-                dt = self.compute_delta_k(y,self.out[f'out{name_layer}'],self.net[f'net{name_layer}'],derivatives[af])
+                dt = self.compute_delta_k(y, self.out[f'out{name_layer}'], self.net[f'net{name_layer}'], derivatives[af])
             #append the gradient matrix
+            # print(f'dt.shape {dt.shape}, dt {dt}')
+            # input('premi')
             delta_t.append(dt)
         return delta_t[::-1]
 
@@ -244,7 +254,8 @@ class DidacticNeuralNetwork:
         #initialize error/loss variable
         history_terror, history_tloss, validation_error = [], [], []
         metric_tr, metric_val = [], []
-        c_metric = {
+        c_metric:dict[str, list] = {
+            #training
             't_misclassified': [],
             't_classified':[],
             't_accuracy':[],
@@ -252,6 +263,7 @@ class DidacticNeuralNetwork:
             't_recall':[],
             't_specificity':[],
             't_balanced':[],
+            #validation
             'v_misclassified': [],
             'v_classified':[],
             'v_accuracy':[],
@@ -261,12 +273,11 @@ class DidacticNeuralNetwork:
             'v_balanced':[]
         }
         selfcontrol:int = 0
-        eta_0 = self.eta
+        eta_0:float = self.eta
         
         #reference dataset in new variable
-        x_dev = self.dataset['x_train']
-        y_dev = self.dataset['y_train']
-
+        x_dev = self.dataset[INPUT_TRAINING]
+        y_dev = self.dataset[OUTPUT_TRAINING]
        
         #train start    
         for e in range(self.epochs):
@@ -275,14 +286,16 @@ class DidacticNeuralNetwork:
             #if learning decay used update of eta
             if self.learning_decay and self.decay_step >= e:
                 self.eta = (1-(e/self.decay_step)) * eta_0 + (e/self.decay_step) * self.eta_tau
+            
+            #region MINIBATCH
             #if mini-batch and shuffled true index of the set are shuffled
-            if self.dim_batch != self.dataset['p_tx'] and self.shuffle:
-                newindex = list(range(self.dataset['p_tx']))
+            if self.dim_batch != self.dataset[NUM_POINT_X] and self.shuffle:
+                newindex = list(range(self.dataset[NUM_POINT_X]))
                 self.gen.shuffle(newindex)
                 x_dev = x_dev[newindex]
                 y_dev = y_dev[newindex]    
             #if mini-batch loop the divided input set
-            for b in range(math.ceil(self.dataset['p_tx'] / self.dim_batch)):
+            for b in range(math.ceil(self.dataset[NUM_POINT_X] / self.dim_batch)):
                 #initialize penalty term for loss calculation of each mini-batch
                 p_term = 0
                 #initialize index for dataset partition
@@ -291,7 +304,7 @@ class DidacticNeuralNetwork:
                 batch_x = np.asarray(x_dev[start: end])
                 batch_y = np.asarray(y_dev[start: end])
                 #propagation on network layer
-                out = self.forward_propagation(batch_x.copy(),update=True)
+                out = self.forward_propagation(batch_x.copy(), update=True)
                 #print("\n\n\nOUT\n\n\n",out,"\n\n\n\n----\n\n\n")
                 #if it's used nesterov or regularization, walk the network for compute penalty term and intermediate w
                 if self.regular or self.momentum == 'nesterov':        
@@ -302,22 +315,24 @@ class DidacticNeuralNetwork:
                             self.wb["W"+str(l)]=self.wb["W"+str(l)]+ (self.alpha*self.deltaOld["wold"+str(l)])
                             self.wb["b"+str(l)]=self.wb["b"+str(l)]+ (self.alpha*self.deltaOld["bold"+str(l)])                
                 #compute delta using back propagation on target batch
-                delta=self.back_propagation(batch_y)
+                delta = self.back_propagation(batch_y)
                 # call update weights function
-                self.update_wb(delta,batch_x.shape[0])
+                self.update_wb(delta, batch_x.shape[0])
                 # update bacth error
-                terror=(self.l_function.loss(self, batch_y, out))
-                batch_terror+=terror
-                batch_tloss+=terror+p_term
+                terror = (self.l_function.loss(self, batch_y, out))
+                batch_terror += terror
+                batch_tloss += terror + p_term
+            #endregion
+            
             #append the error and the loss (mean if min-bacth or stochastic)
             history_terror.append(batch_terror/(b+1))
             history_tloss.append(batch_tloss/(b+1))
-            out_t=self.forward_propagation(inputs=self.dataset['x_train'],update=False)
-            out_v=self.forward_propagation(inputs=self.dataset['x_val'],update=False)
-            validation_error.append(self.l_function.loss(self, self.dataset['y_val'],out_v))
+            out_t = self.forward_propagation(inputs = self.dataset[INPUT_TRAINING], update=False)
+            out_v = self.forward_propagation(inputs = self.dataset[INPUT_VALIDATION], update=False)
+            validation_error.append(self.l_function.loss(self, self.dataset[OUTPUT_VALIDATION],out_v))
             if self.classification:
-                mbc=self.metrics.metrics_binary_classification(self.dataset['y_train'],out_t,treshold=0.5)
-                mbc_v=self.metrics.metrics_binary_classification(self.dataset['y_val'],out_v,treshold=0.5)
+                mbc = self.metrics.metrics_binary_classification(self.dataset[OUTPUT_TRAINING],out_t,treshold=0.5)
+                mbc_v = self.metrics.metrics_binary_classification(self.dataset[OUTPUT_VALIDATION],out_v,treshold=0.5)
                 c_metric['t_accuracy'].append(mbc['accuracy'])
                 c_metric['t_precision'].append(mbc['precision'])
                 c_metric['t_recall'].append(mbc['recall'])
@@ -335,15 +350,16 @@ class DidacticNeuralNetwork:
                 metric_tr.append(mbc['accuracy'])
                 metric_val.append(mbc_v['accuracy'])
             else:
-                metric_tr.append(self.metrics.mean_euclidean_error(self.dataset['y_train'],out_t))
-                metric_val.append(self.metrics.mean_euclidean_error(self.dataset['y_val'],out_v))
+                metric_tr.append(self.metrics.mean_euclidean_error(self.dataset[OUTPUT_TRAINING], out_t))
+                metric_val.append(self.metrics.mean_euclidean_error(self.dataset[OUTPUT_VALIDATION], out_v))
             if e >= 19 and self.early_stop:
-                if np.var(history_terror[-20:])<self.treshold_variance:
-                    selfcontrol+=1
-                    if self.patience==selfcontrol:
+                if np.var(history_terror[-20:]) < self.treshold_variance:
+                    selfcontrol += 1
+                    if self.patience == selfcontrol:
                         break
                 else:
-                    selfcontrol=0
+                    selfcontrol = 0
+        #region Plot
         if self.plot != None:
                 path = self.plot if isinstance(self.plot, str) else None
                 if self.classification:
@@ -351,6 +367,7 @@ class DidacticNeuralNetwork:
                 else:
                     ylim = (0., 5.)
                 dnn_plot.plot_curves(history_terror, validation_error, metric_tr, metric_val, lbl_tr = "Training", lbl_vs = "Validation", path = path, ylim = ylim)
+        #endregion
         return {'error':history_terror,'loss':history_tloss, 'mee':metric_tr, 'mee_v':metric_val, 'validation':validation_error, 'c_metrics':c_metric, 'epochs':e+1}  
 
     '''
@@ -387,16 +404,16 @@ class DidacticNeuralNetwork:
         self.check_dimension(x_val, y_val, 1, msg = "[check_dimension] Error in Validation datasets:") #perché solo stocastico?
 
         #initialize a dictionary contain dataset information
-        self.dataset={}
-        self.dataset['p_tx'] = x_train.shape[0]
-        self.dataset['x_train']= x_train.copy()
-        self.dataset['y_train']= y_train.copy()
-        self.dataset['x_val']= x_val.copy()
-        self.dataset['y_val']= y_val.copy()
+        self.dataset = {}
+        self.dataset[NUM_POINT_X] = x_train.shape[0]
+        self.dataset[INPUT_TRAINING]= x_train.copy()
+        self.dataset[OUTPUT_TRAINING]= y_train.copy()
+        self.dataset[INPUT_VALIDATION]= x_val.copy()
+        self.dataset[OUTPUT_VALIDATION]= y_val.copy()
 
         #check if minibacth, batch or stochastic
         if dim_batch == 0:
-            dim_batch = self.dataset['p_tx']
+            dim_batch = self.dataset[NUM_POINT_X]
         self.dim_batch = dim_batch
         
         return self.train()

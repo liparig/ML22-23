@@ -26,16 +26,16 @@ class Candidate:
         self.reg = candidate['reg']
         self.dim_batch = candidate['dim_batch']
         self.momentum = candidate['momentum']
-        self.epochs= candidate['epochs']
-        self.batch_shuffle= candidate['batch_shuffle']
-        self.eps= candidate['eps']
-        self.distribution=candidate['distribution']
-        self.bias=candidate['bias']
-        self.seed=candidate['seed']
-        self.classification=candidate['classification']
-        self.early_stop=candidate['early_stop']
-        self.patience=candidate['patience']
-        self.treshold_variance=candidate['treshold_variance']
+        self.epochs = candidate['epochs']
+        self.batch_shuffle = candidate['batch_shuffle']
+        self.eps = candidate['eps']
+        self.distribution = candidate['distribution']
+        self.bias = candidate['bias']
+        self.seed = candidate['seed']
+        self.classification = candidate['classification']
+        self.early_stop = candidate['early_stop']
+        self.patience = candidate['patience']
+        self.treshold_variance = candidate['treshold_variance']
 
     def get_fine_range(self,value):
         """
@@ -58,7 +58,7 @@ class Candidate:
                 int(value + 10)]
 
     def get_fine_tuple(self,value):
-        if type(value[1]) != int or type(value[1])!=float :
+        if not isinstance(value[1], int) or not isinstance(value[1], float):
             return [value]
         higher = 1.25
         lower = 0.8
@@ -115,16 +115,16 @@ class Candidates_Hyperparameters:
         self.reg = []
         self.dim_batch = []
         self.momentum = []
-        self.epochs=[]
-        self.batch_shuffle= []
-        self.eps=[]
-        self.distribution=[]
-        self.bias=[]
-        self.seed=[]
-        self.classification=[]
-        self.early_stop=[]
-        self.patience=[]
-        self.treshold_variance=[]
+        self.epochs = []
+        self.batch_shuffle = []
+        self.eps = []
+        self.distribution = []
+        self.bias = []
+        self.seed = []
+        self.classification = []
+        self.early_stop = []
+        self.patience = []
+        self.treshold_variance = []
         self.count=0
 
     def insert_candidate(self, l_dim, a_functions=AFUNCTION, eta=ETA, tau=TAU, reg=REG,\

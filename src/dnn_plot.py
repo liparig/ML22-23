@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import datetime
 
 def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path=None, ylim=(0., 10.), lbl_tr='Training',
                 lbl_vs='Validation',*arg):
@@ -31,4 +32,5 @@ def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path=None, ylim=(0., 10.), 
     if path is None:
         plt.show()
     else:
-        plt.savefig(path)
+        s = f'{path}{datetime.datetime.now().strftime("%m.%d.%Y.%H.%M.%S")}.jpg'
+        plt.savefig(s)

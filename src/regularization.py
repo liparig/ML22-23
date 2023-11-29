@@ -6,7 +6,7 @@ class tikhonov_regularization:
         :param w: weights of one layer
         :param tlambda: regularization coefficient
         """
-    def penalty(tlambda, w):
+    def penalty(self, tlambda, w):
         return tlambda * np.square(np.linalg.norm(w))
 
     """
@@ -14,7 +14,7 @@ class tikhonov_regularization:
     :param w: weights of one layer
     :param tlambda:  regularization coefficient
     """
-    def derivative(tlambda,w):
+    def derivative(self, tlambda,w):
         return 2*tlambda*w       
 
 class lasso_regularization:
@@ -23,7 +23,7 @@ class lasso_regularization:
         :param w: weights of one layer
         :param llambda: regularization coefficient
         """
-    def penalty(llambda, w):
+    def penalty(self, llambda, w):
         return llambda * np.sum(np.abs(w))
 
     """
@@ -31,7 +31,7 @@ class lasso_regularization:
     :param w: weights of one layer
     :param llambda:  regularization coefficient
     """
-    def derivative(llambda, w):
+    def derivative(self, llambda, w):
         lasso=[]
         for j in w.flatten():
                 if j < 0:

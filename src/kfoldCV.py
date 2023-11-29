@@ -24,18 +24,18 @@ class KfoldCV:
     '''
     def divide_dataset(self,hyperparameters):
         #initialize empty list
-        folds=[]
+        folds = []
         #split the arrays in  k folds        
-        input_k=np.array_split(self.inputs, self.kfolds)
-        target_k=np.array_split(self.targets, self.kfolds)
-        dim_batch=hyperparameters.pop("dim_batch")
+        input_k = np.array_split(self.inputs, self.kfolds)
+        target_k = np.array_split(self.targets, self.kfolds)
+        dim_batch = hyperparameters.pop("dim_batch")
         #loop the pair of fold the indexed will be the validation, other the train
         for i,pair in enumerate(zip(input_k,target_k)):
-            x_train= np.concatenate(input_k[:i] + input_k[i + 1:])
+            x_train = np.concatenate(input_k[:i] + input_k[i + 1:])
             y_train = np.concatenate(target_k[:i] + target_k[i + 1:])
-            x_val=pair[0]
-            y_val=pair[1]
-            D_row={
+            x_val = pair[0]
+            y_val = pair[1]
+            D_row = {
                 'hyperparameters':hyperparameters,
                 "x_train": x_train,
                 "y_train": y_train,
@@ -76,12 +76,11 @@ class KfoldCV:
         plot_path=f'../plot/{timestr}/{namefile}'
         model = dnn(**hyperparameters,plot=plot_path)
         #train
-        error=model.fit(x_train, y_train, x_val, y_val,dim_batch)
-        out=model.forward_propagation(x_val)
-        error['mean_absolute_error']=model.metrics.mean_absolute_error(y_val,out)
-        error['root_mean_squared_error']=model.metrics.root_mean_squared_error(y_val,out)
-        error['mean_euclidean_error']=model.metrics.mean_euclidean_error(y_val,out)
-       
+        error = model.fit(x_train, y_train, x_val, y_val, dim_batch)
+        out = model.forward_propagation(x_val)
+        error['mean_absolute_error'] = model.metrics.mean_absolute_error(y_val,out)
+        error['root_mean_squared_error'] = model.metrics.root_mean_squared_error(y_val,out)
+        error['mean_euclidean_error'] = model.metrics.mean_euclidean_error(y_val,out)
 
         return error
     
@@ -92,7 +91,7 @@ class KfoldCV:
     '''
     def estimate_model_error(self, hyperparameters,file=None,**kwargs):
         t_mse,v_mse,mae,rmse,mee,epochs=0,0,0,0,0,0
-        d_row=self.divide_dataset(hyperparameters)
+        d_row = self.divide_dataset(hyperparameters)
         dim_batch=0
         varianceMSE=[]
         for d in d_row:
@@ -129,7 +128,7 @@ class KfoldCV:
             t_accuracy=errors['c_metrics']['t_accuracy'][-1]
             v_accuracy=errors['c_metrics']['v_accuracy'][-1]
         else: 
-            accuracy=None
+            accuracy = None
         s="Model: "+str(hyperparameters)+"\n Mean Train:"+str(model_error['mean_train'])+"\n Mean Mae"+str(model_error['mean_mae'])+\
             "\n Mean Validation:" + str(model_error['mean_validation'])+"\n Train Accuracy: "+str(t_accuracy)+"\nValidation Accuracy: "+str(v_accuracy)+\
             "\n Mean Rmse:" + str(model_error['mean_rmse'])+\
@@ -174,7 +173,7 @@ class KfoldCV:
                 file1.write(f"----\n Estimate error for model #{i} of {total} \n----")
                 self.estimate_model_error(theta,file1,candidatenumber=i,timestr="Coarse"+timestr)
             
-            winner=Candidate(self.the_winner_is())
+            winner = Candidate(self.the_winner_is())
             print(f"---THE WINNER IS...\n {winner.to_string()}")
             file1.write(f"---THE WINNER IS...\n {winner.to_string()}")
             file1.write("Try to do better... with fine grid search")

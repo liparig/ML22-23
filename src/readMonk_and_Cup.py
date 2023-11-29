@@ -70,14 +70,25 @@ def read_monk_Tr_Vl(name:str = TRAINMONK1, perc:float = 0.25, num_outuput:int = 
 
     # shuffle the DataFrame rows
     monk_dataset = monk_dataset.sample(frac = 1)
+    
+    # get labels from dataset
+    monk_targets = monk_dataset.pop('class').to_numpy(dtype=np.float32)
+    
+    # 1-hot encoding (and transform dataframe to numpy array)
+    monk_dataset = OneHotEncoder().fit_transform(monk_dataset).toarray().astype(np.int64)
+    
     dim = math.ceil(len(monk_dataset) * perc)
-    inputs = monk_dataset.to_numpy(dtype=np.float32)[: -dim,:]
-    val_inputs = monk_dataset.to_numpy(dtype=np.float32)[-dim:,:]
+    
+    # inputs = monk_dataset
+    # val_inputs = monk_dataset[-dim:,:]
+    
     # get targets aside
-    inputs, targets = inputs[:, :-num_outuput], inputs[:, -num_outuput:]
-    val_inputs, val_targets = val_inputs[:, :-num_outuput], val_inputs[:, -num_outuput:]
-
-    return inputs, targets,val_inputs,val_targets
+    inputs = monk_dataset[: -dim,:]
+    targets = monk_targets[: -dim]
+    val_inputs = monk_dataset[-dim:,:]
+    val_targets = monk_targets[-dim:]
+    
+    return inputs, targets, val_inputs, val_targets
 
 def read_cup(name):
     # get directory
