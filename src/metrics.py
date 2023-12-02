@@ -46,12 +46,12 @@ class DNN_metrics:
     :param y_hat: predicted values
     :return mae: mean absolute error
     '''
-    def mean_absolute_error(self,y, y_hat):
-        sum_error = 0.0
-        for predicted, target in zip(y_hat.flatten(),y.flatten()):
+    def mean_absolute_error(self, y:np.ndarray, y_hat:np.ndarray):
+        sum_error:float = 0.0
+        for predicted, target in zip(y_hat.flatten(), y.flatten()):
             sum_error += abs(predicted - target)
         
-        return sum_error/len(y.flatten())
+        return sum_error/ float(len(y.flatten()))
 
     '''
     Compute root mean squared error
@@ -59,12 +59,12 @@ class DNN_metrics:
     :param y_hat: predicted values
     :return rmse: root mean squared error value
     '''
-    def root_mean_squared_error(self,y, y_hat):
-        sum_error = 0.0
-        for predicted, target in zip(y_hat.flatten(),y.flatten()):
+    def root_mean_squared_error(self, y:np.ndarray, y_hat:np.ndarray):
+        sum_error:float = 0.0
+        for predicted, target in zip(y_hat.flatten(), y.flatten()):
             prediction_error = predicted - target
             sum_error += (prediction_error ** 2)
-        mean_error = sum_error / float(len(y))
+        mean_error = sum_error / float(len(y.flatten()))
         return np.sqrt(mean_error)
     '''
     Compute Mean Euclidean Error
@@ -72,5 +72,5 @@ class DNN_metrics:
     :param y_hat: predicted values
     :return MEE: root mean squared error value
     '''
-    def mean_euclidean_error(self, y, y_hat):
-        return np.divide(np.sqrt(np.sum(np.square(np.subtract(y, y_hat)))), float(len(y)))
+    def mean_euclidean_error(self, y:np.ndarray, y_hat:np.ndarray):
+        return np.divide(np.sqrt(np.sum(np.square(np.subtract(y, y_hat)))), float(len(y.flatten())))

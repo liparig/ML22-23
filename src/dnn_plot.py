@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import datetime
 
+from costants import FORMATTIMESTAMP
+
 def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path=None, ylim=(0., 10.), lbl_tr='Training',
                 lbl_vs='Validation',*arg):
     """
@@ -14,7 +16,8 @@ def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path=None, ylim=(0., 10.), 
     :param lbl_tr: label for the training curve
     :param lbl_vs: label for the validation curve
     """
-    figure, ax = plt.subplots(1, 2, figsize=(12, 4))
+    plt.close()
+    figure, ax = plt.subplots(1, 2, figsize = (12, 4))
     ax[0].plot(range(len(loss_tr)), loss_tr, color='b', linestyle='dashed', label=lbl_tr)
     ax[0].plot(range(len(loss_vs)), loss_vs, color='r', label=lbl_vs)
     ax[0].legend(loc='best', prop={'size': 9})
@@ -32,5 +35,5 @@ def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path=None, ylim=(0., 10.), 
     if path is None:
         plt.show()
     else:
-        s = f'{path}{datetime.datetime.now().strftime("%m.%d.%Y.%H.%M.%S")}.jpg'
+        s = f'{path}{datetime.datetime.now().strftime(FORMATTIMESTAMP)}.jpg'
         plt.savefig(s)

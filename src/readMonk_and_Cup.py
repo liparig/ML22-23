@@ -62,7 +62,7 @@ def read_monk(name):
 
     return monk_dataset, monk_targets
 
-def read_monk_Tr_Vl(name:str = TRAINMONK1, perc:float = 0.25, num_outuput:int = 1):
+def read_monk_Tr_Vl(name:str = TRAINMONK1, perc:float = 0.25):
     # read csv
     col_names = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'Id']
     monk_dataset = pd.read_csv(f'../MonkDatasets/{name}', sep = ' ', names = col_names)

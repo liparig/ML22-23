@@ -1,5 +1,4 @@
-#Activation functions
-UNIFORM:str = 'uniform'
+#Types Activation functions
 SIGMOID:str = 'sigmoid'
 TANH:str = 'tanh'
 RELU:str = 'relu'
@@ -13,3 +12,25 @@ INPUT_TRAINING:str = 'x_train'
 OUTPUT_TRAINING:str = 'y_train'
 INPUT_VALIDATION:str = 'x_val'
 OUTPUT_VALIDATION:str = 'y_val'
+
+FORMATTIMESTAMP:str = '%d%m%Y-%H%M'
+
+R_SEEDS:int = 30
+EPS:float = 0.7 #interval for initialization of the weights
+BIAS:float = 0 #w0
+AFUNCTION:list = [] # activation functions list
+BATCH:int = 0 #dimension of the batchs
+ETA:float = 0.5 #learning rate
+TAU = (False, False) #learning decay rate
+REG = (False,False) #regulation rate
+EPOCHS:int = 500 #Max Epochs
+PATIENCE:int = 20 #Max Epochs with small changes
+MOMENTUM = ("",0)
+EARLYSTOP:bool = True
+TRESHOLDVARIANCE:float = 1.e-6
+
+UNIFORM:str = 'uniform'
+
+#Type Momentum
+CLASSIC:str = 'classic'
+NESTEROV:str = 'nesterov'

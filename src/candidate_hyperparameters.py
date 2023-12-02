@@ -1,22 +1,8 @@
 import numpy as np
 
-#classe che raggruppa gli hyperparametri in una struttura
-#DEFINE COSTANT OF DEFAULTS VALUES
-R_SEEDS=30
-EPS=0
-BIAS=0
-AFUNCTION=[]
-MSE="mse"
-BATCH=0
-ETA=0
-TAU=(False,False)
-REG=(False,False)
-EPOCHS=500
-MOMENTUM=("",0)
-PATIENCE=20
-EARLYSTOP=True
-TRESHOLDVARIANCE=1.e-6
+from costants import AFUNCTION, BATCH, BIAS, CLASSIC, EPOCHS, EPS, ETA, MOMENTUM, PATIENCE, R_SEEDS, REG, RELU, SIGMOID, TANH, TAU, TRESHOLDVARIANCE, UNIFORM
 
+#classe che raggruppa gli hyperparametri in una struttura
 class Candidate:
     def __init__(self,candidate):    
         self.l_dim = candidate['l_dim']
@@ -125,10 +111,10 @@ class Candidates_Hyperparameters:
         self.early_stop = []
         self.patience = []
         self.treshold_variance = []
-        self.count=0
+        self.count = 0
 
     def insert_candidate(self, l_dim, a_functions=AFUNCTION, eta=ETA, tau=TAU, reg=REG,\
-        dim_batch=BATCH, epochs=EPOCHS,batch_shuffle=True,momentum=MOMENTUM,eps=EPS,distribution='uniform',\
+        dim_batch=BATCH, epochs=EPOCHS,batch_shuffle=True,momentum=MOMENTUM,eps=EPS,distribution=UNIFORM,\
         bias=BIAS,seed=R_SEEDS, early_stop=True, classification=False,patience=PATIENCE,treshold_variance=TRESHOLDVARIANCE):
         self.l_dim.append(l_dim)
         self.a_functions.append(a_functions)
@@ -169,7 +155,7 @@ class Candidates_Hyperparameters:
             'treshold_variance':self.treshold_variance[index]
             }
     def get_all_candidates_dict(self):
-        candidates=[]
+        candidates:list = []
         for index in range (self.count):
             candidates.append(self.get_candidate_dict(index))
         return candidates
@@ -190,27 +176,40 @@ class Candidates_Hyperparameters:
                 "\n patience=" + str(self.patience)+   \
                 "with treshold:"+ str(self.treshold_variance)+"] "
     
-    def set_project_hyperparameters(self,namedataset):
-        """]
+    def set_project_hyperparameters(self, namedataset):
+        """
         :param dataset: quale dataset utilizzare
         :return: set di valori per gli hyperparameters per la Model Selection
         """
         if namedataset == 'monk':
-            self.l_dim = [[17, 12, 6, 1]]
-            self.a_functions = [['sigmoid', 'sigmoid', 'tanh']]
-            self.eta=[0.5]
-            self.momentum=[ ('classic',0.5) ]
-            self.reg=[ (False,False),  ('tikhonov',0.001), ('lasso',0.001) ]
-            self.dim_batch=[1,50]
-            self.tau=[ (False,False)]
-            self.patience=[50]
-            self.eps=[0.5]
-            self.distribution=['uniform']
-            self.bias = [0]
+            self.l_dim = [[17, 8, 1]]
+            self.a_functions = [[TANH], [SIGMOID]]
+            self.eta = [0.5]
+            self.momentum = [(CLASSIC, 0.5), (False,False)]
+            self.reg = [(False,False), ('tikhonov', 0.0001), ('lasso', 0.0001)]
+            self.dim_batch = [0, 20]
+            self.tau = [(False,False), (30, 0.005)]
+            self.patience = [50, 100]
+            self.eps = [0.5, 0.7]
+            self.distribution = [UNIFORM]
+            self.bias = [0, .2]
             self.classification=[True]
+            self.treshold_variance = [1.e-9]
+            # self.l_dim = [[17, 12, 6, 1], [17, 5, 5, 1]]
+            # self.a_functions = [[SIGMOID, SIGMOID, TANH], [RELU, RELU, SIGMOID]]
+            # self.eta = [0.5]
+            # self.momentum = [('classic', 0.5)]
+            # self.reg = [(False,False), ('tikhonov', 0.01), ('lasso', 0.01)] #('tikhonov', 0.001), ('lasso', 0.001),
+            # self.dim_batch = [1, 50]
+            # self.tau = [(False,False), (30, 0.005)]
+            # self.patience = [50]
+            # self.eps=[0.5]
+            # self.distribution=['uniform']
+            # self.bias = [0]
+            # self.classification=[True]
             '''
             self.l_dim = [[17,10,1],[17,4,1],[17,8,1]]
-            self.a_functions = [['sigmoid','tanh'],['relu','sigmoid']]
+            self.a_functions = [[SIGMOID, TANH],[RELU, SIGMOID]]
             self.eta=[0.5, 0.2,0.01]
             self.momentum=[ ('',0) , ('nesterov',0.75) , ('nesterov',0.5) , ('classic',0.75), ('classic',0.5) ]
             self.reg=[ (False,False),  ('tikhonov',0.001), ('lasso',0.001),('tikhonov',0.0001),  ('lasso',0.0001) ]
@@ -224,7 +223,7 @@ class Candidates_Hyperparameters:
             '''
         elif namedataset=="cup":
             self.l_dim = [[9,16,8,2],[9,32,16,2],[9,64,32,16,2]]
-            self.a_functions = [['sigmoid','sigmoid','identity'],['relu','relu','identity'],['relu','relu','relu','identity'],['sigmoid','sigmoid','sigmoid','identity']]
+            self.a_functions = [[SIGMOID,SIGMOID,'identity'],['relu','relu','identity'],['relu','relu','relu','identity'],[SIGMOID,SIGMOID,SIGMOID,'identity']]
             self.eta=[0.1, 0.01]
             self.momentum=[ ('',0) , ('nesterov',0.5) , ('classic',0.5) ]
             self.reg=[ (False,False), ('tikhonov',0.0001),  ('lasso',0.0001) ]

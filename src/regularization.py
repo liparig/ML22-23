@@ -14,8 +14,8 @@ class tikhonov_regularization:
     :param w: weights of one layer
     :param tlambda:  regularization coefficient
     """
-    def derivative(self, tlambda,w):
-        return 2*tlambda*w       
+    def derivative(self, tlambda, w):
+        return 2 * tlambda * w       
 
 class lasso_regularization:
     """
