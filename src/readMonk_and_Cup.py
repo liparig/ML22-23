@@ -8,17 +8,21 @@ from sklearn.preprocessing import OneHotEncoder
 import math
 
 # training and test set - {monk1 - monk2 - monk3}
-TRAINMONK1 = "/monks-1.train"
-TRAINMONK2 = "/monks-2.train"
-TRAINMONK3 = "/monks-3.train"
-TRAINCUP = "/ML-CUP22-TR.csv"
+TRAINMONK1 = "monks-1.train"
+TRAINMONK2 = "monks-2.train"
+TRAINMONK3 = "monks-3.train"
+TRAINCUP = "ML-CUP22-TR.csv"
 
-TESTMONK1 = "/monks-1.test"
-TESTMONK2 = "/monks-2.test"
-TESTMONK3 = "/monks-3.test"
-TESTCUP= "/ML-CUP22-TS.csv"
+TESTMONK1 = "monks-1.test"
+TESTMONK2 = "monks-2.test"
+TESTMONK3 = "monks-3.test"
+TESTCUP= "/ML-CUP23-TS.csv"
 
 def get_train_Monk_1():
+
+    """  BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+    print("Qui",BASE_DIR)
+    """
     return read_monk(TRAINMONK1)
 
 def get_test_Monk_1():

@@ -53,7 +53,7 @@ class Candidate:
                 (value[0],np.round(value * higher, 7))]
 
     def to_string(self):
-        return f"MODEL:'l_dim':{self.l_dim},\
+        return f" Hyperparameters: 'l_dim':{self.l_dim},\
             'a_functions':{self.a_functions},\
             'eta':{self.eta},\
             'tau': {self.tau},\
@@ -134,7 +134,7 @@ class Candidates_Hyperparameters:
         self.patience.append(patience)
         self.treshold_variance.append(treshold_variance)
         self.count+=1
-    
+
     def get_candidate_dict(self,index):
         return {'l_dim':self.l_dim[index],
             'a_functions':self.a_functions[index],
@@ -152,7 +152,7 @@ class Candidates_Hyperparameters:
             'classification':self.classification[index],
             'early_stop':self.early_stop[index],
             'patience': self.patience[index],
-            'treshold_variance':self.treshold_variance[index]
+            'treshold_variance':self.treshold_variance[index],
             }
     def get_all_candidates_dict(self):
         candidates:list = []
@@ -182,19 +182,19 @@ class Candidates_Hyperparameters:
         :return: set di valori per gli hyperparameters per la Model Selection
         """
         if namedataset == 'monk':
-            self.l_dim = [[17, 8, 1]]
-            self.a_functions = [[TANH], [SIGMOID]]
-            self.eta = [0.5]
+            self.l_dim = [[17, 8, 1],[17,8,3,1]]
+            self.a_functions = [[TANH]]
+            self.eta = [0.3]
             self.momentum = [(CLASSIC, 0.5), (False,False)]
-            self.reg = [(False,False), ('tikhonov', 0.0001), ('lasso', 0.0001)]
-            self.dim_batch = [0, 20]
-            self.tau = [(False,False), (30, 0.005)]
+            self.reg = [('tikhonov', 0.0001)]
+            self.dim_batch = [0]
+            self.tau = [ (False,False)]
             self.patience = [50, 100]
-            self.eps = [0.5, 0.7]
+            self.eps = [ 0.7]
             self.distribution = [UNIFORM]
             self.bias = [0, .2]
             self.classification=[True]
-            self.treshold_variance = [1.e-9]
+            self.treshold_variance = [1.e-8]
             # self.l_dim = [[17, 12, 6, 1], [17, 5, 5, 1]]
             # self.a_functions = [[SIGMOID, SIGMOID, TANH], [RELU, RELU, SIGMOID]]
             # self.eta = [0.5]

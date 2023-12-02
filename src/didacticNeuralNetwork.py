@@ -36,7 +36,7 @@ class DidacticNeuralNetwork:
     def __init__(self, l_dim:list[int], a_functions:list[str] = [SIGMOID], l_function:str = MSE, eta:float = ETA, 
                  tau = TAU, epochs:int = EPOCHS, batch_shuffle:bool = True, reg = REG, momentum = MOMENTUM, 
                  classification:bool = False, early_stop:bool = True, patience:int = PATIENCE, treshold_variance:float = TRESHOLDVARIANCE, 
-                 dim_batch:int = 0, plot = None, seed = R_SEEDS, **kwargs):
+                 dim_batch:int = BATCH, plot = None, seed = R_SEEDS, **kwargs):
         self.gen = Generator(PCG64(seed))
         self.a_functions = a_functions
         self.__check_init__(l_dim, a_functions)
@@ -389,9 +389,9 @@ class DidacticNeuralNetwork:
     :param dim_batch: the dimension of mini-batch, if 0 is equal to batch, if 1 is stochastic/online update version
     :param **kwargs: extra params for the training
     """
-    def fit(self, x_train, y_train, x_val, y_val, dim_batch = BATCH):
-        self.check_dimension(x_train, y_train, dim_batch, msg = "[check_dimension] Error in Training datasets:")
-        self.check_dimension(x_val, y_val, 1, msg = "[check_dimension] Error in Validation datasets:") #perché solo stocastico?
+    def fit(self, x_train, y_train, x_val, y_val, dim_batch = None):
+
+        
 
         #initialize a dictionary contain dataset information
         self.dataset = {}
@@ -400,11 +400,20 @@ class DidacticNeuralNetwork:
         self.dataset[OUTPUT_TRAINING]= y_train.copy()
         self.dataset[INPUT_VALIDATION]= x_val.copy()
         self.dataset[OUTPUT_VALIDATION]= y_val.copy()
+        
+        if (dim_batch == None):
+            dim_batch=self.dim_batch
+        #check parameter batch exist and if minibacth, batch or stochastic
+        
+        if (dim_batch == 0):
+            self.dim_batch = self.dataset[NUM_POINT_X]
+        else:
+            self.dim_batch = dim_batch
 
-        #check if minibacth, batch or stochastic
-        if dim_batch == 0:
-            dim_batch = self.dataset[NUM_POINT_X]
-        self.dim_batch = dim_batch
+        self.check_dimension(x_train, y_train, dim_batch, msg = "[check_dimension] Error in Training datasets:")
+        self.check_dimension(x_val, y_val, 1, msg = "[check_dimension] Error in Validation datasets:")
+
+       
         
         return self.train()
 
