@@ -6,7 +6,7 @@ from candidate_hyperparameters import Candidates_Hyperparameters
 import time
 import os
 
-
+import kfoldLog
 import grid_search
 
 class KfoldCV:
@@ -17,6 +17,7 @@ class KfoldCV:
         self.inputs = inputs
         self.targets = targets
         self.kfolds:list = self.divide_dataset()
+        print(f"---- Dataset diviso in #{self.k} Fold ----")
         self.models_error:list = []
 
     '''
@@ -30,7 +31,6 @@ class KfoldCV:
         #split the arrays in  k folds        
         input_k = np.array_split(self.inputs, self.k)
         target_k = np.array_split(self.targets, self.k)
-        #dim_batch = hyperparameters.pop("dim_batch")
         #loop the pair of fold the indexed will be the validation, other the train
         for i, pair in enumerate(zip(input_k,target_k)):
             x_train = np.concatenate(input_k[:i] + input_k[i + 1:])
@@ -38,12 +38,10 @@ class KfoldCV:
             x_val = pair[0]
             y_val = pair[1]
             D_row = {
-                #'hyperparameters':hyperparameters,
                 "x_train" : x_train,
                 "y_train" : y_train,
                 "x_val" : x_val,
                 "y_val" : y_val,
-                #"dim_batch" : dim_batch,
                 "k" : i + 1
             }
             #append the fold inside a list and return
@@ -88,7 +86,7 @@ class KfoldCV:
     :param hyperparameters: hyperparameters for estimation
     :return error_mean: means of the different metrics validation error
     '''
-    def estimate_model_error(self, hyperparameters, file = None, inCandidatenumber = 0, **kwargs):
+    def estimate_model_error(self, hyperparameters, log = None, inCandidatenumber = 0, **kwargs):
         '''
         t_mse Mean Square Error of the training data
         v_mse Mean Square Error of the validation data
@@ -101,7 +99,7 @@ class KfoldCV:
         varianceMSE = []
         i=1
         for fold in self.kfolds:
-            print(f"- Fold {i} ",end="")
+            #print(f"- Fold {i} ",end="")
             errors = self.train_fold(fold,hyperparameters, candidatenumber = inCandidatenumber, **kwargs)
             h_train = errors['error']
             h_validation = errors['validation']
@@ -123,7 +121,7 @@ class KfoldCV:
         mean_rmse = rmse / self.k
         mean_mee = mee / self.k
         mean_epochs = epochs / self.k
-        print(f"\nMean MEE: {mean_mee} - Mean MSE {mean_validation} - MeanEpochs: {mean_epochs}")
+        #print(f"\nMean MEE: {mean_mee} - Mean MSE {mean_validation} - MeanEpochs: {mean_epochs}")
         model_error = {
             "candidate": inCandidatenumber,
             "hyperparameters": hyperparameters,
@@ -135,27 +133,14 @@ class KfoldCV:
             'mean_epochs':mean_epochs,
             'varianceMSE':varianceMSE
         }
-        
-        s = f"Model: {hyperparameters} \n Mean Train: {model_error['mean_train']} \n Mean Mae {model_error['mean_mae']}"\
-            f"\n Mean Validation: {model_error['mean_validation']}"\
-            f"\n Mean Rmse: {model_error['mean_rmse']}"\
-            f"\n Mean MEE: {model_error['mean_mee']}"\
-            f"\n mean Epochs: {model_error['mean_epochs']}"\
-            f"\n"
-        
+
         if errors['c_metrics']['v_accuracy']:
             mean_t_accuracy=t_accuracy/self.k
             mean_v_accuracy=v_accuracy/self.k
             model_error['mean_t_accuracy']=mean_t_accuracy
             model_error['mean_v_accuracy']=mean_v_accuracy
-            print( f"Classification Accuracy Training: {mean_t_accuracy} - Validation {mean_v_accuracy}")
-            s = s+ f"Mean Train Accuracy: {mean_t_accuracy} \nMean Validation Accuracy: {mean_v_accuracy}\n"
-
-        if file:
-            file.write(s)
-        else:
-            print(s)
-
+            #print( f"Classification Accuracy Training: {mean_t_accuracy} - Validation {mean_v_accuracy}")
+        kfoldLog.model_performance(log,hyperparameters,model_error)
         self.models_error.append(model_error)
         return v_mse
     '''
@@ -178,34 +163,28 @@ class KfoldCV:
         """ K-Fold Cross Validation """
         # a first coarse Grid Search, values differ in order of magnitude
         create_candidate, total = grid_search.grid_search(hyperparameters = self.candidates_hyperparameters)
+        log,timestr=kfoldLog.start_log("ModelSelection")
 
-        # Writing to file
-        timestr:str = time.strftime(FORMATTIMESTAMP)
-        if(not(os.path.isdir('../KFoldCV'))):
-            os.makedirs('../KFoldCV')
-        with open(f"../KFoldCV/Gridsearch{timestr}.txt", "w") as file1:
-            print(f"---- Divido il dataset in #{self.k} Fold ----")
-            for i,theta in enumerate(create_candidate.get_all_candidates_dict()):
-                print(f"----\n Estimate error for model #{i} of {total}")
-                file1.write(f"----\n Estimate error for model #{i} of {total}")
-                self.estimate_model_error(theta, file = file1, inCandidatenumber = i+1, timestr = f"Coarse{timestr}")
-            winner,index=self.the_winner_is()
-            winner = Candidate(winner)
-            print(f"---\n\nTHE WINNER IS...\n  Model: {index+1} \n {winner.to_string()}\n----")
-            file1.write(f"\n\nTHE WINNER IS...\n Model: {index+1} \n {winner.to_string()}\n----")
-            file1.write("We try to do better... with a fine grid search")
+        for i,theta in enumerate(create_candidate.get_all_candidates_dict()):
+            kfoldLog.estimate_model(log,i+1,total)
+            self.estimate_model_error(theta, log , inCandidatenumber = i+1, timestr = f"Coarse{timestr}")
+            
+        winner,index=self.the_winner_is()
+        winner = Candidate(winner)
+        kfoldLog.the_winner_is(log,index+1,winner.to_string())
+        kfoldLog.end_log(log)
 
         if FineGS:
-            timestr = time.strftime(FORMATTIMESTAMP)
-            with open(f"../KFoldCV/FineGridSearch{timestr}.txt", "w") as file2:
-                possible_winners, total = grid_search.grid_search(hyperparameters = winner, coarse = False)
-                print("---Start Fine Grid search...\n")
-                for i,theta in enumerate(possible_winners.get_all_candidates_dict()):
-                    print(f"----\nEstimate error for model #{i} of {total}\n")
-                    file2.write(f"----\nEstimate error for model #{i} of {total}\n")
-                    meanMSE = self.estimate_model_error(theta, file = file2, inCandidatenumber = i, timestr = f"Fine{timestr}")
-                true_winner,index=self.the_winner_is()
-                true_winner = Candidate(true_winner)
-                print(f"---\n\nTHE TRUE WINNER IS...\n Model: {index+1} \n {true_winner.to_string()}\n")
-                file2.write(f"THE TRUE WINNER IS...\n Model: {index+1}\n {winner.to_string()} \n with meanMSE: {meanMSE}\n----")    
+            log,timestr=kfoldLog.start_log("FineModelSelection")
+            possible_winners, total = grid_search.grid_search(hyperparameters = winner, coarse = False)
+            print("---Start Fine Grid search...\n")
+
+            for i,theta in enumerate(possible_winners.get_all_candidates_dict()):
+                kfoldLog.estimate_model(log,i+1,total)
+                meanMSE = self.estimate_model_error(theta, log, inCandidatenumber = i, timestr = f"Fine{timestr}")
+
+            true_winner,index=self.the_winner_is()
+            true_winner = Candidate(true_winner)
+            kfoldLog.the_fine_winner_is(log,index+1,winner.to_string(),metric=f"MeanMSE: {meanMSE}")
+            kfoldLog.end_log(log)
         return true_winner 

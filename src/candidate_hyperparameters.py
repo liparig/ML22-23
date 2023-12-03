@@ -2,7 +2,7 @@ import numpy as np
 
 from costants import AFUNCTION, BATCH, BIAS, CLASSIC, EPOCHS, EPS, ETA, MOMENTUM, PATIENCE, R_SEEDS, REG, RELU, SIGMOID, TANH, TAU, TRESHOLDVARIANCE, UNIFORM
 
-#classe che raggruppa gli hyperparametri in una struttura
+#classe che raggruppa gli hyperparametri in un oggetto Candidate
 class Candidate:
     def __init__(self,candidate):    
         self.l_dim = candidate['l_dim']

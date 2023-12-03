@@ -37,13 +37,9 @@ def init_grid_search(candidates:Candidates_Hyperparameters|Candidate, coarse:boo
 def grid_search(hyperparameters:Candidates_Hyperparameters|Candidate, coarse:bool = True):
     candidates = Candidates_Hyperparameters()
     """ Grid Search
-        :param : context, a reference of the KFold class
         :param : hyperparameters, in the case of Coarse grid search, indicates the list of possible hyperparameters to be searched.
-                                  in the case of Fine grid search, indicates the best hyperparameter (which won the Coarse grid search)
+        in the case of Fine grid search, indicates the best hyperparameter (which won the Coarse grid search)
         :param : coarse, a Boolean value
-        :param : callback_for_each_hyperparameter, a callback which is called in order to calculate its folder
-        :param : final_callback, a callback which is called at the end of the GS
-        :param : stopping_criteria, an object for stopping criteria
     """
     init_grid_search(hyperparameters, coarse)
     count:int = 0
