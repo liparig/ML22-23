@@ -353,7 +353,7 @@ class DidacticNeuralNetwork:
         if self.plot != None:
                 path = self.plot if isinstance(self.plot, str) else None
                 if self.classification:
-                    ylim = (0., 1.)
+                    ylim = (0., 1.5)
                 else:
                     ylim = (0., 5.)
                 dnn_plot.plot_curves(history_terror, validation_error, metric_tr, metric_val, lbl_tr = "Training", lbl_vs = "Validation", path = path, ylim = ylim)

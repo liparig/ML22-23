@@ -71,7 +71,7 @@ class KfoldCV:
         if not os.path.exists(path):
             os.makedirs(path)
         plot_path = f'../plot/{timestr}/{namefile}'
-        model = dnn(**theta, plot = plot_path)
+        model = dnn(**theta, plot = plot_path , plotTitle= f"Model #{candidatenumber} fold {fold['k']}")
         #train
         error = model.fit(x_train, y_train, x_val, y_val)
         out = model.forward_propagation(x_val)
@@ -123,7 +123,7 @@ class KfoldCV:
         mean_epochs = epochs / self.k
         #print(f"\nMean MEE: {mean_mee} - Mean MSE {mean_validation} - MeanEpochs: {mean_epochs}")
         model_error = {
-            "candidate": inCandidatenumber,
+            "candidateNumber": inCandidatenumber,
             "hyperparameters": hyperparameters,
             "mean_train": mean_train,
             "mean_mae": mean_mae,
@@ -148,13 +148,14 @@ class KfoldCV:
     '''
     def the_winner_is(self,classification=True):
         means = []
-        theta = []
         for result in self.models_error:
-            means.append(result["mean_validation"])
-            theta.append(result["hyperparameters"])
+            if classification:
+                means.append(-result["mean_v_accuracy"])
+            else:
+                means.append(result["mean_mee"])
         # choose the set of hyperparameters which gives the minimum mean error
         lower_mean = np.argmin(means)
-        return theta[lower_mean] , lower_mean
+        return self.models_error[lower_mean]["hyperparameters"], self.models_error[lower_mean]["candidateNumber"]
 
     
     def validate(self, default:str = "monk", FineGS:bool = False):
@@ -169,22 +170,22 @@ class KfoldCV:
             kfoldLog.estimate_model(log,i+1,total)
             self.estimate_model_error(theta, log , inCandidatenumber = i+1, timestr = f"Coarse{timestr}")
             
-        winner,index=self.the_winner_is()
+        winner,modelnumber=self.the_winner_is()
         winner = Candidate(winner)
-        kfoldLog.the_winner_is(log,index+1,winner.to_string())
+        kfoldLog.the_winner_is(log,modelnumber,winner.to_string())
         kfoldLog.end_log(log)
 
         if FineGS:
             log,timestr=kfoldLog.start_log("FineModelSelection")
             possible_winners, total = grid_search.grid_search(hyperparameters = winner, coarse = False)
             print("---Start Fine Grid search...\n")
+            
+            for j,theta in enumerate(possible_winners.get_all_candidates_dict()):
+                kfoldLog.estimate_model(log,j+1,total)
+                meanMSE = self.estimate_model_error(theta, log, inCandidatenumber = j+1, timestr = f"Fine{timestr}")
 
-            for i,theta in enumerate(possible_winners.get_all_candidates_dict()):
-                kfoldLog.estimate_model(log,i+1,total)
-                meanMSE = self.estimate_model_error(theta, log, inCandidatenumber = i, timestr = f"Fine{timestr}")
-
-            true_winner,index=self.the_winner_is()
+            true_winner,modelnumber=self.the_winner_is()
             true_winner = Candidate(true_winner)
-            kfoldLog.the_fine_winner_is(log,index+1,winner.to_string(),metric=f"MeanMSE: {meanMSE}")
+            kfoldLog.the_fine_winner_is(log,modelnumber,winner.to_string(),metric=f"MeanMee: {meanMSE}")
             kfoldLog.end_log(log)
         return true_winner 
