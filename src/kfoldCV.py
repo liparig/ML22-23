@@ -1,5 +1,6 @@
+from dnn_plot import plot_curves
 import numpy as np
-from costants import FORMATTIMESTAMP
+from costants import FORMATTIMESTAMP, LABEL_PLOT_TRAINING, LABEL_PLOT_VALIDATION, PATH_PLOT_DIR, PREFIX_DIR_COARSE
 from didacticNeuralNetwork import DidacticNeuralNetwork as dnn
 from candidate_hyperparameters import Candidate
 from candidate_hyperparameters import Candidates_Hyperparameters
@@ -53,25 +54,14 @@ class KfoldCV:
     :param fold: dictionary, contain hyperparameters, and datasets of the fold 
     :return error: a list with validation error of current fold
     '''
-    def train_fold(self, fold, theta, candidatenumber,timestr):
+    def train_fold(self, fold, theta, candidatenumber:int, drawPlot:bool = True, pathPlot:str = None):
         #recover hyperparameters
         x_train = fold["x_train"]
         y_train = fold["y_train"]
         x_val = fold["x_val"]
         y_val = fold["y_val"]
-        theta
-        #new model train from scratch
-        namefile = f"candidate{candidatenumber}fold{fold['k']}"
-        # Directory
-        directory = str(timestr)
-        # Parent Directory path
-        parent_dir = "../plot/"
-        # Path
-        path = os.path.join(parent_dir, directory)
-        if not os.path.exists(path):
-            os.makedirs(path)
-        plot_path = f'../plot/{timestr}/{namefile}'
-        model = dnn(**theta, plot = plot_path , plotTitle= f"Model #{candidatenumber} fold {fold['k']}")
+        
+        model = dnn(**theta)
         #train
         error = model.fit(x_train, y_train, x_val, y_val)
         out = model.forward_propagation(x_val)
@@ -79,6 +69,35 @@ class KfoldCV:
         error['root_mean_squared_error'] = model.metrics.root_mean_squared_error(y_val, out)
         error['mean_euclidean_error'] = model.metrics.mean_euclidean_error(y_val, out)
 
+        #region Plot
+        if drawPlot:
+            #new model train from scratch
+            namefile = f"candidate{candidatenumber}fold{fold['k']}"
+            if pathPlot != None:
+                plot_path = f'../plot/{pathPlot}/{namefile}'
+            else:
+                plot_path = f'../plot/{time.strftime(FORMATTIMESTAMP)}/{namefile}'
+                
+            if model.classification:
+                inYlim = (-0.5, 1.5)
+            else:
+                inYlim = (-0.5, 5.)
+
+            
+            # return {'error':history_terror,'loss':history_tloss, 'mee':metric_tr, 'mee_v':metric_val, 'validation':validation_error, 'c_metrics':c_metric, 'epochs':epoch + 1}  
+            # print(f"{theta}")
+            # input()
+            listModelTheta:list = f'{theta}'.split(', ') 
+            numElems = len(listModelTheta)
+            listModelTheta[len(listModelTheta)/4] = f'{listModelTheta[len(listModelTheta)/4]}\n'   
+            listModelTheta[len(listModelTheta)/2] = f'{listModelTheta[len(listModelTheta)/2]}\n'   
+            listModelTheta[len(listModelTheta)] = f'{listModelTheta[len(listModelTheta)]}\n'
+            plot_curves(error['error'], error['validation'], error['mee'], error['mee_v'], 
+                        lbl_tr = LABEL_PLOT_TRAINING, lbl_vs = LABEL_PLOT_VALIDATION, path = plot_path, 
+                        ylim = inYlim, titleplot = f"Model #{candidatenumber} fold {fold['k']}",
+                        titlesSubplot = [listModelTheta[:numElems/2],listModelTheta[(numElems/2)+1:]])
+        #endregion
+        
         return error
     
     '''
@@ -86,7 +105,7 @@ class KfoldCV:
     :param hyperparameters: hyperparameters for estimation
     :return error_mean: means of the different metrics validation error
     '''
-    def estimate_model_error(self, hyperparameters, log = None, inCandidatenumber = 0, **kwargs):
+    def estimate_model_error(self, hyperparameters, log = None, inCandidatenumber:int = 0, plot:bool = True, path:str = None):
         '''
         t_mse Mean Square Error of the training data
         v_mse Mean Square Error of the validation data
@@ -94,13 +113,12 @@ class KfoldCV:
         rmse  Root Mean Squared Error
         mee   Mean Euclidean Error
         '''
-        t_mse, v_mse, mae, rmse, mee, epochs ,t_accuracy,v_accuracy= 0, 0, 0, 0, 0, 0,0,0
+        t_mse, v_mse, mae, rmse, mee, epochs ,t_accuracy,v_accuracy= 0, 0, 0, 0, 0, 0, 0, 0
         #d_row = self.divide_dataset(hyperparameters)
         varianceMSE = []
-        i=1
         for fold in self.kfolds:
             #print(f"- Fold {i} ",end="")
-            errors = self.train_fold(fold,hyperparameters, candidatenumber = inCandidatenumber, **kwargs)
+            errors = self.train_fold(fold, hyperparameters, candidatenumber = inCandidatenumber, drawPlot = plot, pathPlot = path)
             h_train = errors['error']
             h_validation = errors['validation']
             varianceMSE.append(h_validation)
@@ -111,10 +129,9 @@ class KfoldCV:
             mee     += errors['mean_euclidean_error']
             epochs  += errors['epochs']
             if errors['c_metrics']['v_accuracy']:
-                t_accuracy+=errors['c_metrics']['t_accuracy'][-1]
-                v_accuracy+=errors['c_metrics']['v_accuracy'][-1]
-            i+=1
-        #number_of_d_rows:int = len(d_row)
+                t_accuracy += errors['c_metrics']['t_accuracy'][-1]
+                v_accuracy += errors['c_metrics']['v_accuracy'][-1]
+
         mean_train  = t_mse / self.k
         mean_validation = v_mse / self.k
         mean_mae    = mae / self.k
@@ -135,18 +152,18 @@ class KfoldCV:
         }
 
         if errors['c_metrics']['v_accuracy']:
-            mean_t_accuracy=t_accuracy/self.k
-            mean_v_accuracy=v_accuracy/self.k
-            model_error['mean_t_accuracy']=mean_t_accuracy
-            model_error['mean_v_accuracy']=mean_v_accuracy
+            mean_t_accuracy = t_accuracy / self.k
+            mean_v_accuracy = v_accuracy / self.k
+            model_error['mean_t_accuracy'] = mean_t_accuracy
+            model_error['mean_v_accuracy'] = mean_v_accuracy
             #print( f"Classification Accuracy Training: {mean_t_accuracy} - Validation {mean_v_accuracy}")
-        kfoldLog.model_performance(log,hyperparameters,model_error)
+        kfoldLog.model_performance(log, hyperparameters, model_error)
         self.models_error.append(model_error)
         return v_mse
     '''
     :return: the model with the best estimated error
     '''
-    def the_winner_is(self,classification=True):
+    def the_winner_is(self, classification = True):
         means = []
         for result in self.models_error:
             if classification:
@@ -156,7 +173,6 @@ class KfoldCV:
         # choose the set of hyperparameters which gives the minimum mean error
         lower_mean = np.argmin(means)
         return self.models_error[lower_mean]["hyperparameters"], self.models_error[lower_mean]["candidateNumber"]
-
     
     def validate(self, default:str = "monk", FineGS:bool = False):
         if default == "monk" or default == "cup":
@@ -164,27 +180,45 @@ class KfoldCV:
         """ K-Fold Cross Validation """
         # a first coarse Grid Search, values differ in order of magnitude
         create_candidate, total = grid_search.grid_search(hyperparameters = self.candidates_hyperparameters)
-        log,timestr=kfoldLog.start_log("ModelSelection")
-
+        log, timestr = kfoldLog.start_log("ModelSelection")
+        
+        # Directory
+        new_directory_name:str = f"{PREFIX_DIR_COARSE}{timestr}"
+        # Parent Directory path
+        
+        # Path
+        path_dir_models = os.path.join(PATH_PLOT_DIR, new_directory_name)
+        if not os.path.exists(path_dir_models):
+            os.makedirs(path_dir_models)
+        
         for i,theta in enumerate(create_candidate.get_all_candidates_dict()):
-            kfoldLog.estimate_model(log,i+1,total)
-            self.estimate_model_error(theta, log , inCandidatenumber = i+1, timestr = f"Coarse{timestr}")
+            kfoldLog.estimate_model(log, i+1, total)
             
-        winner,modelnumber=self.the_winner_is()
+            self.estimate_model_error(theta, log, inCandidatenumber = i+1, path = path_dir_models)
+            
+        winner, modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification[0])
         winner = Candidate(winner)
         kfoldLog.the_winner_is(log,modelnumber,winner.to_string())
         kfoldLog.end_log(log)
 
         if FineGS:
-            log,timestr=kfoldLog.start_log("FineModelSelection")
+            log,timestr = kfoldLog.start_log("FineModelSelection")
             possible_winners, total = grid_search.grid_search(hyperparameters = winner, coarse = False)
             print("---Start Fine Grid search...\n")
-            
+            # Directory
+            directory = f"Fine{timestr}"
+            # Parent Directory path
+            parent_dir = "../plot/"
+            # Path
+            path = os.path.join(parent_dir, directory)
+            if not os.path.exists(path):
+                os.makedirs(path)
+        
             for j,theta in enumerate(possible_winners.get_all_candidates_dict()):
-                kfoldLog.estimate_model(log,j+1,total)
-                meanMSE = self.estimate_model_error(theta, log, inCandidatenumber = j+1, timestr = f"Fine{timestr}")
+                kfoldLog.estimate_model(log, j+1, total)
+                meanMSE = self.estimate_model_error(theta, log, inCandidatenumber = j+1, path = path_dir_models)
 
-            true_winner,modelnumber=self.the_winner_is()
+            true_winner,modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification[0])
             true_winner = Candidate(true_winner)
             kfoldLog.the_fine_winner_is(log,modelnumber,winner.to_string(),metric=f"MeanMee: {meanMSE}")
             kfoldLog.end_log(log)

@@ -1,6 +1,6 @@
 import numpy as np
 
-from costants import AFUNCTION, BATCH, BIAS, CLASSIC, EPOCHS, EPS, ETA, MOMENTUM, PATIENCE, R_SEEDS, REG, RELU, SIGMOID, TANH, TAU, TRESHOLDVARIANCE, UNIFORM
+from costants import AFUNCTION, BATCH, BIAS, CLASSIC, EPOCHS, EPS, ETA, LASSO, MOMENTUM, PATIENCE, R_SEEDS, RANDOM, REG, RELU, SIGMOID, TANH, TAU, TIKHONOV, TRESHOLDVARIANCE, UNIFORM
 
 #classe che raggruppa gli hyperparametri in un oggetto Candidate
 class Candidate:
@@ -159,22 +159,6 @@ class Candidates_Hyperparameters:
         for index in range (self.count):
             candidates.append(self.get_candidate_dict(index))
         return candidates
-
-    def to_string(self):
-        return "[l_dim=" + str(self.l_dim) + \
-                "\n a_functions=" + str(self.a_functions) + \
-                "\n eta=" + str(self.eta) + \
-                "\n tau=" + str(self.tau) + \
-                "\n reg=" + str(self.reg) + \
-                "\n dim_batch=" + str(self.dim_batch) + \
-                "\n momentum=" + str(self.momentum) +\
-                "\n epochs=" + str(self.epochs) + \
-                "\n batch_shuffle=" + str(self.batch_shuffle) + \
-                "\n distribution=" + str(self.distribution)+ ": "+ str(self.eps) ,\
-                "\n bias=" + str(self.bias) + \
-                "\n early_stop=" + str(self.early_stop) +  \
-                "\n patience=" + str(self.patience)+   \
-                "with treshold:"+ str(self.treshold_variance)+"] "
     
     def set_project_hyperparameters(self, namedataset):
         """
@@ -182,19 +166,19 @@ class Candidates_Hyperparameters:
         :return: set di valori per gli hyperparameters per la Model Selection
         """
         if namedataset == 'monk':
-            self.l_dim = [[17, 8, 1],[17,8,3,1]]
-            self.a_functions = [[TANH]]
-            self.eta = [0.3]
+            self.l_dim = [[17, 8, 1], [17, 5, 1]]
+            self.a_functions = [[TANH], [SIGMOID]]
+            self.eta = [0.3, 0.5]
             self.momentum = [(CLASSIC, 0.5), (False,False)]
-            self.reg = [('tikhonov', 0.0001)]
-            self.dim_batch = [0]
-            self.tau = [ (False,False)]
+            self.reg = [(TIKHONOV, 0.01), (LASSO, 0.01), (TIKHONOV, 0.005), (LASSO, 0.005), (False, False)]
+            self.dim_batch = [0, 10]
+            self.tau = [(False,False)]
             self.patience = [50, 100]
-            self.eps = [ 0.7]
-            self.distribution = [UNIFORM]
+            self.eps = [0.7, 0.5]
+            self.distribution = [UNIFORM, RANDOM]
             self.bias = [0, .2]
             self.classification=[True]
-            self.treshold_variance = [1.e-8]
+            self.treshold_variance = [1.e-8, 1.e-6]
             # self.l_dim = [[17, 12, 6, 1], [17, 5, 5, 1]]
             # self.a_functions = [[SIGMOID, SIGMOID, TANH], [RELU, RELU, SIGMOID]]
             # self.eta = [0.5]

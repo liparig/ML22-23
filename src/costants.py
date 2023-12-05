@@ -30,7 +30,18 @@ EARLYSTOP:bool = True
 TRESHOLDVARIANCE:float = 1.e-6
 
 UNIFORM:str = 'uniform'
+RANDOM:str = 'random'
 
 #Type Momentum
 CLASSIC:str = 'classic'
 NESTEROV:str = 'nesterov'
+
+PATH_PLOT_DIR:str = "../plot/"
+PREFIX_DIR_COARSE:str = "Coarse"
+PREFIX_DIR_FINE:str = "Fine"
+
+LABEL_PLOT_TRAINING:str = "Training"
+LABEL_PLOT_VALIDATION:str = "Validation"
+
+TIKHONOV:str = 'tikhonov'
+LASSO:str = 'lasso'

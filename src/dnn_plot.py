@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
 import datetime
 
-from costants import FORMATTIMESTAMP
+from costants import FORMATTIMESTAMP, LABEL_PLOT_TRAINING, LABEL_PLOT_VALIDATION
 
-def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path=None, ylim=(0., 10.), lbl_tr='Training',
-                lbl_vs='Validation',*arg):
+def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path = None, ylim = (0., 10.), lbl_tr:str = LABEL_PLOT_TRAINING,
+                lbl_vs:str = LABEL_PLOT_VALIDATION, titleplot:str = '',
+                titlesSubplot:list[str] = [], labelsX:list[str] = ['Epochs','Epochs'], labelsY:list[str] = ['Loss','Metric']):
     """
     Plot the curves of training loss, training metric, validation loss, validation metric
     :param loss_tr: vector with the training error values
@@ -18,19 +19,29 @@ def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path=None, ylim=(0., 10.), 
     """
     plt.close()
     figure, ax = plt.subplots(1, 2, figsize = (12, 4))
+    
+    ax[0].grid(True)
+    ax[1].grid(True)
+
+    if(len(titlesSubplot) > 1):
+        ax[0].set_title(titlesSubplot[0])
+        ax[1].set_title(titlesSubplot[1])
+
     ax[0].plot(range(len(loss_tr)), loss_tr, color='b', linestyle='dashed', label=lbl_tr)
     ax[0].plot(range(len(loss_vs)), loss_vs, color='r', label=lbl_vs)
     ax[0].legend(loc='best', prop={'size': 9})
-    ax[0].set_xlabel('Epochs', fontweight='bold')
-    ax[0].set_ylabel('Loss', fontweight='bold')
-    ax[0].grid()
+    ax[0].set_xlabel(labelsX[0], fontweight='bold')
+    ax[0].set_ylabel(labelsY[0], fontweight='bold')
+    
     ax[1].plot(range(len(metr_tr)), metr_tr, color='b', linestyle='dashed', label=lbl_tr)
     ax[1].plot(range(len(val_metr)), val_metr, color='r', label=lbl_vs)
     ax[1].legend(loc='best', prop={'size': 9})
-    ax[1].set_xlabel('Epochs', fontweight='bold')
-    ax[1].set_ylabel('Metric', fontweight='bold')
+    ax[1].set_xlabel(labelsX[1], fontweight='bold')
+    ax[1].set_ylabel(labelsY[1], fontweight='bold')
     ax[1].set_ylim(ylim)
-    ax[1].grid()
+    
+    plt.suptitle(titleplot)
+    plt.subplots_adjust(hspace=0.5)
     
     if path is None:
         plt.show()

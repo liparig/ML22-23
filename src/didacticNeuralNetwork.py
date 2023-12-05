@@ -349,15 +349,6 @@ class DidacticNeuralNetwork:
                         break
                 else:
                     selfcontrol = 0
-        #region Plot
-        if self.plot != None:
-                path = self.plot if isinstance(self.plot, str) else None
-                if self.classification:
-                    ylim = (0., 1.5)
-                else:
-                    ylim = (0., 5.)
-                dnn_plot.plot_curves(history_terror, validation_error, metric_tr, metric_val, lbl_tr = "Training", lbl_vs = "Validation", path = path, ylim = ylim)
-        #endregion
         return {'error':history_terror,'loss':history_tloss, 'mee':metric_tr, 'mee_v':metric_val, 'validation':validation_error, 'c_metrics':c_metric, 'epochs':epoch + 1}  
 
     '''
@@ -390,9 +381,6 @@ class DidacticNeuralNetwork:
     :param **kwargs: extra params for the training
     """
     def fit(self, x_train, y_train, x_val, y_val, dim_batch = None):
-
-        
-
         #initialize a dictionary contain dataset information
         self.dataset = {}
         self.dataset[NUM_POINT_X] = x_train.shape[0]
@@ -413,8 +401,6 @@ class DidacticNeuralNetwork:
         self.check_dimension(x_train, y_train, dim_batch, msg = "[check_dimension] Error in Training datasets:")
         self.check_dimension(x_val, y_val, 1, msg = "[check_dimension] Error in Validation datasets:")
 
-       
-        
         return self.train()
 
     
