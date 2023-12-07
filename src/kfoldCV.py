@@ -9,6 +9,8 @@ import os
 
 import kfoldLog
 import grid_search
+# importing the module
+from memory_profiler import profile
 
 class KfoldCV:
     def __init__(self, inputs, targets, k, candidates_hyperparameters = Candidates_Hyperparameters()):
@@ -166,10 +168,10 @@ class KfoldCV:
                 means.append(-result["mean_v_accuracy"])
             else:
                 means.append(result["mean_mee"])
+                
         # choose the set of hyperparameters which gives the minimum mean error
         lower_mean = np.argmin(means)
         return self.models_error[lower_mean]["hyperparameters"], self.models_error[lower_mean]["candidateNumber"]
-    
     def validate(self, default:str = "monk", FineGS:bool = False, plot=True):
         
         if default == "monk" or default == "cup":
@@ -213,10 +215,10 @@ class KfoldCV:
         
             for j,theta in enumerate(possible_winners.get_all_candidates_dict()):
                 kfoldLog.estimate_model(log, j+1, total)
-                meanMSE = self.estimate_model_error(theta, log, inCandidatenumber = j+1, path = path_dir_models)
+                meanMSE = self.estimate_model_error(theta, log, inCandidatenumber = j+1, pathPlot = path_dir_models)
 
-            true_winner,modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification[0])
-            true_winner = Candidate(true_winner)
+            winner,modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification[0])
+            winner = Candidate(winner)
             kfoldLog.the_fine_winner_is(log,modelnumber,winner.to_string(),metric=f"MeanMee: {meanMSE}")
             kfoldLog.end_log(log)
-        return true_winner 
+        return winner 

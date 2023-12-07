@@ -12,16 +12,19 @@ def d_identity(x):
     return 1
 
 def sigmoid(net):
-    sigmoid_m=[]
+    
+    """sigmoid_m=[]
+    
     #avoid overflow
     for x in net.flatten():
         if x<0:
             sigmoid_m.append(np.exp(x)/(1+np.exp(x)))
         else:
             sigmoid_m.append(1 / (1 + np.exp(-x)))
-    sigmoid_m= np.array(sigmoid_m)
-    sigmoid_m=sigmoid_m.reshape(net.shape)
-    return sigmoid_m
+            
+    sigmoid_m=np.array(sigmoid_m)
+    sigmoid_m=sigmoid_m.reshape(net.shape)"""
+    return np.where(net >= 0, 1/(1 + np.exp(-net)), np.exp(net)/(1 + np.exp(net)))
 
 
 def d_sigmoid(net):

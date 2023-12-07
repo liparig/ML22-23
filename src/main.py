@@ -3,6 +3,15 @@ from didacticNeuralNetwork import DidacticNeuralNetwork as dnn
 from kfoldCV import KfoldCV
 import readMonk_and_Cup as readMC
 
+
+
+ 
+
+ 
+ 
+
+
+
 TR_x_monk1,TR_y_monk1 = readMC.get_train_Monk_1()
 TR_x_monk2,TR_y_monk2 = readMC.get_train_Monk_2()
 TR_x_monk3,TR_y_monk3 = readMC.get_train_Monk_3()
@@ -29,7 +38,7 @@ TR_x_monk3,TR_y_monk3 = readMC.get_train_Monk_3()
 # print(winner.to_string())
 
 kfCV = KfoldCV(TR_x_monk1, TR_y_monk1, 5)
-winner = kfCV.validate(FineGS = True)
+winner = kfCV.validate(FineGS = False)
 print(winner.to_string())
 
 #Hold-out Test
@@ -42,7 +51,6 @@ error['mean_absolute_error'] = model.metrics.mean_absolute_error(TS_y_monk1, out
 error['root_mean_squared_error'] = model.metrics.root_mean_squared_error(TS_y_monk1, out)
 error['mean_euclidean_error'] = model.metrics.mean_euclidean_error(TS_y_monk1, out)
 print(error)
-          
 kfCV = KfoldCV(TR_x_monk2, TR_y_monk2, 5)
 winner = kfCV.validate(FineGS = True)
 print(winner.to_string())

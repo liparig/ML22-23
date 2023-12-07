@@ -4,6 +4,13 @@ import datetime
 
 from costants import FORMATTIMESTAMP, LABEL_PLOT_TRAINING, LABEL_PLOT_VALIDATION
 
+# importing the module
+from memory_profiler import profile
+    
+"""from matplotlib import figure
+fig = figure.Figure()
+ax = fig.subplots(1)
+Also no need to do plt.close() or anything. It worked for me."""
 def __theta_toCaption(theta:dict):
     caption=""
     for param, value in theta.items():
@@ -11,7 +18,7 @@ def __theta_toCaption(theta:dict):
             case 'l_dim':
                 caption +=r"$Units:\,"+str(value)+"$, "
             case 'a_functions':
-                caption +=r"$Activation Layer:[ \,"+','.join([str(elem).title() for elem in value])+"\,$ ], "
+                caption +=r"$Activation Layer:[ \,"+','.join([str(elem).title() for elem in value])+"\,]$, "
             case 'eta':
                 caption +=r"$\eta:"+str(value)+"$, "
             case 'tau':
@@ -43,7 +50,7 @@ def __theta_toCaption(theta:dict):
         
     caption= r"\begin{center} \textit{\small{" + caption + r"}} \end{center}"
     return caption
-    
+@profile
 def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path = None, ylim = (0., 10.), lbl_tr:str = LABEL_PLOT_TRAINING,
                 lbl_vs:str = LABEL_PLOT_VALIDATION, titleplot:str = '',
                 theta:dict ={}, labelsX:list[str] = ['Epochs','Epochs'], labelsY:list[str] = ['Loss','Metric']):
@@ -58,12 +65,15 @@ def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path = None, ylim = (0., 10
     :param lbl_tr: label for the training curve
     :param lbl_vs: label for the validation curve
     """
-    plt.close()
-    caption=__theta_toCaption(theta)
+    plt.close('all')
+    
     plt.rcParams.update({
     "text.usetex": True,
     "font.family": "Helvetica"
     })
+    
+    caption=__theta_toCaption(theta)
+
     figure, ax = plt.subplots(1, 2, figsize = (18, 6))
     
     ax[0].grid(True)
@@ -95,3 +105,6 @@ def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path = None, ylim = (0., 10
     else:
         s = f'{path}{datetime.datetime.now().strftime(FORMATTIMESTAMP)}.jpg'
         plt.savefig(s)
+        
+    plt.close()
+    figure.clf()

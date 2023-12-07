@@ -1,6 +1,6 @@
 import numpy as np
 
-from costants import AFUNCTION, BATCH, BIAS, CLASSIC, EPOCHS, EPS, ETA, LASSO, MOMENTUM, PATIENCE, R_SEEDS, RANDOM, REG, RELU, SIGMOID, TANH, TAU, TIKHONOV, TRESHOLDVARIANCE, UNIFORM
+import costants as C
 
 #classe che raggruppa gli hyperparametri in un oggetto Candidate
 class Candidate:
@@ -113,9 +113,9 @@ class Candidates_Hyperparameters:
         self.treshold_variance = []
         self.count = 0
 
-    def insert_candidate(self, l_dim, a_functions=AFUNCTION, eta=ETA, tau=TAU, reg=REG,\
-        dim_batch=BATCH, epochs=EPOCHS,batch_shuffle=True,momentum=MOMENTUM,eps=EPS,distribution=UNIFORM,\
-        bias=BIAS,seed=R_SEEDS, early_stop=True, classification=False,patience=PATIENCE,treshold_variance=TRESHOLDVARIANCE):
+    def insert_candidate(self, l_dim, a_functions=C.AFUNCTION, eta=C.ETA, tau=C.TAU, reg=C.REG,\
+        dim_batch=C.BATCH, epochs=C.EPOCHS,batch_shuffle=True,momentum=C.MOMENTUM,eps=C.EPS,distribution=C.UNIFORM,\
+        bias=C.BIAS,seed=C.R_SEEDS, early_stop=True, classification=False,patience=C.PATIENCE,treshold_variance=C.TRESHOLDVARIANCE):
         self.l_dim.append(l_dim)
         self.a_functions.append(a_functions)
         self.eta.append(eta)
@@ -166,17 +166,17 @@ class Candidates_Hyperparameters:
         :return: set di valori per gli hyperparameters per la Model Selection
         """
         if namedataset == 'monk':
-            self.l_dim = [[17, 8, 1], [17, 5, 1]]
-            self.a_functions = [[TANH], [SIGMOID]]
+            self.l_dim = [[17, 8, 1],[17,8,4,1]]
+            self.a_functions = [[C.TANH],[C.RELU,C.SIGMOID]]
             self.eta = [0.3, 0.5]
-            self.momentum = [(CLASSIC, 0.5), (False,False)]
-            self.reg = [(TIKHONOV, 0.01), (LASSO, 0.01), (TIKHONOV, 0.005), (LASSO, 0.005), (False, False)]
-            self.dim_batch = [0, 10]
+            self.momentum = [(False,False)]
+            self.reg = [(False, False)]
+            self.dim_batch = [0, 1]
             self.tau = [(False,False)]
-            self.patience = [50, 100]
-            self.eps = [0.7, 0.5]
-            self.distribution = [UNIFORM, RANDOM]
-            self.bias = [0, .2]
+            self.patience = [ 100]
+            self.eps = [0.7]
+            self.distribution = [C.UNIFORM]
+            self.bias = [0]
             self.classification=[True]
             self.treshold_variance = [1.e-8, 1.e-6]
             # self.l_dim = [[17, 12, 6, 1], [17, 5, 5, 1]]
@@ -207,7 +207,7 @@ class Candidates_Hyperparameters:
             '''
         elif namedataset=="cup":
             self.l_dim = [[9,16,8,2],[9,32,16,2],[9,64,32,16,2]]
-            self.a_functions = [[SIGMOID,SIGMOID,'identity'],['relu','relu','identity'],['relu','relu','relu','identity'],[SIGMOID,SIGMOID,SIGMOID,'identity']]
+            self.a_functions = [[C.SIGMOID,C.SIGMOID,'identity'],['relu','relu','identity'],['relu','relu','relu','identity'],[C.SIGMOID,C.SIGMOID,C.SIGMOID,'identity']]
             self.eta=[0.1, 0.01]
             self.momentum=[ ('',0) , ('nesterov',0.5) , ('classic',0.5) ]
             self.reg=[ (False,False), ('tikhonov',0.0001),  ('lasso',0.0001) ]

@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import numpy as np
+
 class MSE:
     """
         Computes the MSE between the target vector Y and the output predicted Y_hat

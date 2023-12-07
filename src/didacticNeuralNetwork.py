@@ -84,7 +84,7 @@ class DidacticNeuralNetwork:
         num_layers:int = len(l_dim)
         num_functions:int = len(a_functions)
         if num_layers <= 2:
-            raise Exception(f'l_dimension should be at list with layer number greater than 2 [input,hidden,output]. was: {num_layers}')
+            raise Exception(f'l_dimension should be at list, with layer number, greater than 2 [input,hidden,output]. was: {num_layers}')
         if num_functions == 1:
            self.a_functions=[a_functions[0] for _ in range(1, num_layers)]
         elif num_functions != num_layers-1:
