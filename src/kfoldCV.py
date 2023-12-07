@@ -84,18 +84,14 @@ class KfoldCV:
                 inYlim = (-0.5, 5.)
 
             
+            
             # return {'error':history_terror,'loss':history_tloss, 'mee':metric_tr, 'mee_v':metric_val, 'validation':validation_error, 'c_metrics':c_metric, 'epochs':epoch + 1}  
             # print(f"{theta}")
             # input()
-            listModelTheta:list = f'{theta}'.split(', ') 
-            numElems = len(listModelTheta)
-            listModelTheta[len(listModelTheta)/4] = f'{listModelTheta[len(listModelTheta)/4]}\n'   
-            listModelTheta[len(listModelTheta)/2] = f'{listModelTheta[len(listModelTheta)/2]}\n'   
-            listModelTheta[len(listModelTheta)] = f'{listModelTheta[len(listModelTheta)]}\n'
             plot_curves(error['error'], error['validation'], error['mee'], error['mee_v'], 
                         lbl_tr = LABEL_PLOT_TRAINING, lbl_vs = LABEL_PLOT_VALIDATION, path = plot_path, 
-                        ylim = inYlim, titleplot = f"Model #{candidatenumber} fold {fold['k']}",
-                        titlesSubplot = [listModelTheta[:numElems/2],listModelTheta[(numElems/2)+1:]])
+                        ylim = inYlim, titleplot = f"Model \#{candidatenumber} fold {fold['k']}",
+                        theta = theta)
         #endregion
         
         return error
@@ -105,7 +101,7 @@ class KfoldCV:
     :param hyperparameters: hyperparameters for estimation
     :return error_mean: means of the different metrics validation error
     '''
-    def estimate_model_error(self, hyperparameters, log = None, inCandidatenumber:int = 0, plot:bool = True, path:str = None):
+    def estimate_model_error(self, hyperparameters, log = None, inCandidatenumber:int = 0, plot:bool = True, pathPlot:str = None):
         '''
         t_mse Mean Square Error of the training data
         v_mse Mean Square Error of the validation data
@@ -118,7 +114,7 @@ class KfoldCV:
         varianceMSE = []
         for fold in self.kfolds:
             #print(f"- Fold {i} ",end="")
-            errors = self.train_fold(fold, hyperparameters, candidatenumber = inCandidatenumber, drawPlot = plot, pathPlot = path)
+            errors = self.train_fold(fold, hyperparameters, candidatenumber = inCandidatenumber, drawPlot = plot, pathPlot = pathPlot)
             h_train = errors['error']
             h_validation = errors['validation']
             varianceMSE.append(h_validation)
@@ -174,7 +170,8 @@ class KfoldCV:
         lower_mean = np.argmin(means)
         return self.models_error[lower_mean]["hyperparameters"], self.models_error[lower_mean]["candidateNumber"]
     
-    def validate(self, default:str = "monk", FineGS:bool = False):
+    def validate(self, default:str = "monk", FineGS:bool = False, plot=True):
+        
         if default == "monk" or default == "cup":
             self.candidates_hyperparameters.set_project_hyperparameters(default)
         """ K-Fold Cross Validation """
@@ -194,7 +191,7 @@ class KfoldCV:
         for i,theta in enumerate(create_candidate.get_all_candidates_dict()):
             kfoldLog.estimate_model(log, i+1, total)
             
-            self.estimate_model_error(theta, log, inCandidatenumber = i+1, path = path_dir_models)
+            self.estimate_model_error(theta, log, inCandidatenumber = i+1, plot=plot, pathPlot = path_dir_models)
             
         winner, modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification[0])
         winner = Candidate(winner)

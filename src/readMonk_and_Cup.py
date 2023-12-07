@@ -7,22 +7,20 @@ import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
 import math
 
-# training and test set - {monk1 - monk2 - monk3}
-TRAINMONK1 = "monks-1.train"
-TRAINMONK2 = "monks-2.train"
-TRAINMONK3 = "monks-3.train"
-TRAINCUP = "ML-CUP22-TR.csv"
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-TESTMONK1 = "monks-1.test"
-TESTMONK2 = "monks-2.test"
-TESTMONK3 = "monks-3.test"
-TESTCUP= "/ML-CUP23-TS.csv"
+# training and test set - {monk1 - monk2 - monk3}
+TRAINMONK1 = BASE_DIR+"/MonkDatasets/monks-1.train"
+TRAINMONK2 = BASE_DIR+"/MonkDatasets/monks-2.train"
+TRAINMONK3 = BASE_DIR+"/MonkDatasets/monks-3.train"
+TRAINCUP = BASE_DIR+"/Cup/Cup23/ML-CUP23-TR.csv"
+
+TESTMONK1 = BASE_DIR+"/MonkDatasets/monks-1.test"
+TESTMONK2 = BASE_DIR+"/MonkDatasets/monks-2.test"
+TESTMONK3 = BASE_DIR+"/MonkDatasets/monks-3.test"
+TESTCUP= BASE_DIR+"/CupDataset/Cup23/ML-CUP23-TS.csv"
 
 def get_train_Monk_1():
-
-    """  BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-    print("Qui",BASE_DIR)
-    """
     return read_monk(TRAINMONK1)
 
 def get_test_Monk_1():
@@ -49,7 +47,7 @@ def get_test_CUP():
 def read_monk(name):
     # read the dataset
     col_names = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'Id']
-    monk_dataset = pd.read_csv(f'../MonkDatasets/{name}', sep=' ', names=col_names)
+    monk_dataset = pd.read_csv(name, sep=' ', names=col_names)
     monk_dataset.set_index('Id', inplace=True)
     
     # shuffle the DataFrame rows
@@ -69,7 +67,7 @@ def read_monk(name):
 def read_monk_Tr_Vl(name:str = TRAINMONK1, perc:float = 0.25):
     # read csv
     col_names = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'Id']
-    monk_dataset = pd.read_csv(f'../MonkDatasets/{name}', sep = ' ', names = col_names)
+    monk_dataset = pd.read_csv(name, sep = ' ', names = col_names)
     monk_dataset.set_index('Id', inplace = True)
 
     # shuffle the DataFrame rows
@@ -94,16 +92,16 @@ def read_monk_Tr_Vl(name:str = TRAINMONK1, perc:float = 0.25):
     
     return inputs, targets, val_inputs, val_targets
 
-def read_cup(name):
+def read_cup(name,targetCol=3):
     # get directory
     targets=[]
     # read csv
-    col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'target_x', 'target_y']
+    col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'target_x', 'target_y','tartget_z']
 
-    if name == TRAINCUP:
-        cup_dataset = pd.read_csv(f'../CupDatasets/{name}', sep=',', skiprows=range(7), names=col_names)
-    else:
-        cup_dataset = pd.read_csv(f'../CupDatasets/{name}', sep=',', skiprows=range(7), names=col_names[:-2])
+    if name != TRAINCUP:
+        targetCol=0    
+        
+    cup_dataset = pd.read_csv(name, sep=',', skiprows=range(7), names=col_names[:-targetCol])
 
     cup_dataset.set_index('Id', inplace=True)
     # shuffle the DataFrame rows
@@ -125,14 +123,16 @@ def get_cup_house_test(perc=0.25):
     targets=[]
     # read csv
     col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'target_x', 'target_y']
-    cup_dataset = pd.read_csv(f'../CupDatasets{TRAINCUP}', sep=',', skiprows = range(7), names = col_names)
+    cup_dataset = pd.read_csv(TRAINCUP, sep=',', skiprows = range(7), names = col_names)
     
     cup_dataset.set_index('Id', inplace=True)
     # shuffle the DataFrame rows
+    
     cup_dataset = cup_dataset.sample(frac = 1)
     dim = math.ceil(len(cup_dataset) * perc)
     inputs = cup_dataset.to_numpy(dtype=np.float32)[: -dim,:]
     val_inputs =cup_dataset.to_numpy(dtype=np.float32)[-dim:,:]
+    
     # get targets aside
     inputs,targets = inputs[:, :-2], inputs[:, -2:]
     val_inputs,val_targets=val_inputs[:, :-2], val_inputs[:, -2:]
