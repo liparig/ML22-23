@@ -5,7 +5,7 @@ import datetime
 from costants import FORMATTIMESTAMP, LABEL_PLOT_TRAINING, LABEL_PLOT_VALIDATION
 
 # importing the module
-from memory_profiler import profile
+# from memory_profiler import profile
     
 """from matplotlib import figure
 fig = figure.Figure()
@@ -23,15 +23,15 @@ def __theta_toCaption(theta:dict):
                 caption +=r"$\eta:"+str(value)+"$, "
             case 'tau':
                 if value[0] !=False:
-                    caption+= r"$\tau:\,"+value[0]+r"\,\eta_\tau:\,"+str(value[1])+"$, "
+                    caption+= r"$\tau:\,"+str(value[0])+r"\,\eta_\tau:\,"+str(value[1])+"$, "
             case 'reg':
-                if value[0]!=False:
-                    caption+= "$Reg \,"+value[0].title()+r"\,\lambda=\,"+str(value[1])+"$, "
+                if value[0] !=False:
+                    caption+= "$Reg \,"+str(value[0].title())+r"\,\lambda=\,"+str(value[1])+"$, "
             case "dim_batch":
                 caption+= r"$Batch size:\,"+str(value)+"$ "
             case'momentum':
-                if value[0]!=False:
-                    caption+= "$Momentum:\, "+value[0].title()+r"\,\alpha: "+str(value[1])+"$, "
+                if value[0] !=False:
+                    caption+= "$Momentum:\, "+ value[0].title() +r"\,\alpha: "+str(value[1])+"$, "
             case "epochs":
                 caption+= r"$MaxEpochs:\,"+str(value)  +"$, "
             case "eps":
@@ -48,9 +48,10 @@ def __theta_toCaption(theta:dict):
             case _:
                 pass
         
-    caption= r"\begin{center} \textit{\small{" + caption + r"}} \end{center}"
+    caption = r"\begin{center} \textit{\small{" + caption + r"}} \end{center}"
     return caption
-@profile
+
+# @profile
 def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path = None, ylim = (0., 10.), lbl_tr:str = LABEL_PLOT_TRAINING,
                 lbl_vs:str = LABEL_PLOT_VALIDATION, titleplot:str = '',
                 theta:dict ={}, labelsX:list[str] = ['Epochs','Epochs'], labelsY:list[str] = ['Loss','Metric']):
@@ -107,4 +108,4 @@ def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path = None, ylim = (0., 10
         plt.savefig(s)
         
     plt.close()
-    figure.clf()
+    # figure.clf()

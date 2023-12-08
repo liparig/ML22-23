@@ -10,7 +10,7 @@ import os
 import kfoldLog
 import grid_search
 # importing the module
-from memory_profiler import profile
+# from memory_profiler import profile
 
 class KfoldCV:
     def __init__(self, inputs, targets, k, candidates_hyperparameters = Candidates_Hyperparameters()):
@@ -35,7 +35,7 @@ class KfoldCV:
         input_k = np.array_split(self.inputs, self.k)
         target_k = np.array_split(self.targets, self.k)
         #loop the pair of fold the indexed will be the validation, other the train
-        for i, pair in enumerate(zip(input_k,target_k)):
+        for i, pair in enumerate(zip(input_k, target_k)):
             x_train = np.concatenate(input_k[:i] + input_k[i + 1:])
             y_train = np.concatenate(target_k[:i] + target_k[i + 1:])
             x_val = pair[0]
@@ -111,7 +111,7 @@ class KfoldCV:
         rmse  Root Mean Squared Error
         mee   Mean Euclidean Error
         '''
-        t_mse, v_mse, mae, rmse, mee, epochs ,t_accuracy,v_accuracy= 0, 0, 0, 0, 0, 0, 0, 0
+        t_mse, v_mse, mae, rmse, mee, epochs ,t_accuracy, v_accuracy = 0, 0, 0, 0, 0, 0, 0, 0
         #d_row = self.divide_dataset(hyperparameters)
         varianceMSE = []
         for fold in self.kfolds:
@@ -172,7 +172,8 @@ class KfoldCV:
         # choose the set of hyperparameters which gives the minimum mean error
         lower_mean = np.argmin(means)
         return self.models_error[lower_mean]["hyperparameters"], self.models_error[lower_mean]["candidateNumber"]
-    def validate(self, default:str = "monk", FineGS:bool = False, plot=True):
+    
+    def validate(self, default:str = "monk", FineGS:bool = False, plot:bool = True):
         
         if default == "monk" or default == "cup":
             self.candidates_hyperparameters.set_project_hyperparameters(default)
@@ -190,18 +191,18 @@ class KfoldCV:
         if not os.path.exists(path_dir_models):
             os.makedirs(path_dir_models)
         
-        for i,theta in enumerate(create_candidate.get_all_candidates_dict()):
+        for i, theta in enumerate(create_candidate.get_all_candidates_dict()):
             kfoldLog.estimate_model(log, i+1, total)
             
             self.estimate_model_error(theta, log, inCandidatenumber = i+1, plot=plot, pathPlot = path_dir_models)
             
         winner, modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification[0])
         winner = Candidate(winner)
-        kfoldLog.the_winner_is(log,modelnumber,winner.to_string())
+        kfoldLog.the_winner_is(log, modelnumber, winner.to_string())
         kfoldLog.end_log(log)
 
         if FineGS:
-            log,timestr = kfoldLog.start_log("FineModelSelection")
+            log, timestr = kfoldLog.start_log("FineModelSelection")
             possible_winners, total = grid_search.grid_search(hyperparameters = winner, coarse = False)
             print("---Start Fine Grid search...\n")
             # Directory
@@ -213,12 +214,12 @@ class KfoldCV:
             if not os.path.exists(path):
                 os.makedirs(path)
         
-            for j,theta in enumerate(possible_winners.get_all_candidates_dict()):
+            for j, theta in enumerate(possible_winners.get_all_candidates_dict()):
                 kfoldLog.estimate_model(log, j+1, total)
                 meanMSE = self.estimate_model_error(theta, log, inCandidatenumber = j+1, pathPlot = path_dir_models)
 
-            winner,modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification[0])
+            winner, modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification[0])
             winner = Candidate(winner)
-            kfoldLog.the_fine_winner_is(log,modelnumber,winner.to_string(),metric=f"MeanMee: {meanMSE}")
+            kfoldLog.the_fine_winner_is(log, modelnumber, winner.to_string(), metric = f"MeanMee: {meanMSE}")
             kfoldLog.end_log(log)
-        return winner 
+        return winner

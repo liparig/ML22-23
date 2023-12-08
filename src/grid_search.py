@@ -69,10 +69,10 @@ def grid_search(hyperparameters:Candidates_Hyperparameters|Candidate, coarse:boo
                                                             if count == 0 or count%100 == 0 or count == permutation-1:
                                                                 print("Create the candidate:", count+1, "/", permutation)
                                                             count += 1
-                                                            random=np.random.rand(1)
-                                                            if effective_count<5:
-                                                                effective_count+=1
-                                                                candidates.insert_candidate(l_dim=l_dim, a_functions=a_functions, eta=eta, tau=tau, reg=reg,\
+                                                            # random=np.random.rand(1)
+                                                            # if effective_count<5:
+                                                            #     effective_count+=1
+                                                            candidates.insert_candidate(l_dim=l_dim, a_functions=a_functions, eta=eta, tau=tau, reg=reg,\
                                                                 dim_batch=dim_batch, momentum=momentum,eps=eps,distribution=distribution,\
                                                                 bias=bias, classification=classification,patience=patience)
     else:
@@ -91,4 +91,4 @@ def grid_search(hyperparameters:Candidates_Hyperparameters|Candidate, coarse:boo
             dim_batch = dim_batch, momentum=momentum,eps=eps,distribution=hyperparameters.distribution,\
             bias = hyperparameters.bias, classification=hyperparameters.classification,patience=hyperparameters.patience)
                                 
-    return candidates, effective_count
+    return candidates, count
