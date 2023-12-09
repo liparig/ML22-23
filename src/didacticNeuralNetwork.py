@@ -7,7 +7,6 @@ from costants import CLASSIC, INPUT_TRAINING, INPUT_VALIDATION, NESTEROV, NUM_PO
 from lossFunctions import loss
 from regularization import regularization
 from metrics import DNN_metrics
-import dnn_plot
 import math
 import numpy as np
 from numpy.random import Generator, PCG64
@@ -204,7 +203,7 @@ class DidacticNeuralNetwork:
             # input('premi')
             self.wb[f'W{name_layer}']= self.wb[f'W{name_layer}'] + deltaW 
             self.wb[f'b{name_layer}'] = self.wb[f'b{name_layer}'] + deltaB
-            # print(self.wb[f'b{name_layer}'])
+            # print(f"W:{self.wb[f'W{name_layer}']}, b:{self.wb[f'b{name_layer}']}")
             # input('premi')
             #save the old gradient for the momentum if needed
             self.deltaOld[f'wold{name_layer}'] = deltaW
@@ -227,7 +226,7 @@ class DidacticNeuralNetwork:
             af = self.a_functions[num_layers-1]
             #if not the output layer compute gradients delta_j
             if l != num_layers:
-                dt = self.compute_delta_j(delta_t[-1], self.wb[f'W{l+1}'] ,self.net[f'net{name_layer}'],derivatives[af])
+                dt = self.compute_delta_j(delta_t[-1], self.wb[f'W{l+1}'], self.net[f'net{name_layer}'], derivatives[af])
             else:
                 dt = self.compute_delta_k(y, self.out[f'out{name_layer}'], self.net[f'net{name_layer}'], derivatives[af])
             #append the gradient matrix
