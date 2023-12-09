@@ -1,9 +1,9 @@
 #from validation.distribuited_computing import kfold_distributed_computing_cup
-from candidate_hyperparameters import Candidates_Hyperparameters
+from candidate_hyperparameters import CandidatesHyperparameters
 from candidate_hyperparameters import Candidate
 import numpy as np
 
-def init_grid_search(candidates:Candidates_Hyperparameters|Candidate, coarse:bool):
+def init_grid_search(candidates:CandidatesHyperparameters|Candidate, coarse:bool):
     """ This function fills the set of possibile hyperparameters for the Grid Search
         in two possible ways, for a coarse grid search and for a finer one
     """
@@ -34,8 +34,8 @@ def init_grid_search(candidates:Candidates_Hyperparameters|Candidate, coarse:boo
         possibles_eps           = candidates.get_fine_range(candidates.eps)
         possibles_dim_batch     = candidates.get_fine_batch_size(candidates.dim_batch)
 
-def grid_search(hyperparameters:Candidates_Hyperparameters|Candidate, coarse:bool = True):
-    candidates = Candidates_Hyperparameters()
+def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool = True):
+    candidates = CandidatesHyperparameters()
     """ Grid Search
         :param : hyperparameters, in the case of Coarse grid search, indicates the list of possible hyperparameters to be searched.
         in the case of Fine grid search, indicates the best hyperparameter (which won the Coarse grid search)
@@ -43,7 +43,7 @@ def grid_search(hyperparameters:Candidates_Hyperparameters|Candidate, coarse:boo
     """
     init_grid_search(hyperparameters, coarse)
     count:int = 0
-    effective_count:int = 0
+    # effective_count:int = 0
     if coarse:
         permutation:int = len(possibles_eta) * len(possibles_momentum)\
          * len(possibles_tau)  * len(possibles_dim_batch)\
@@ -71,7 +71,7 @@ def grid_search(hyperparameters:Candidates_Hyperparameters|Candidate, coarse:boo
                                                             count += 1
                                                             # random=np.random.rand(1)
                                                             # if effective_count<5:
-                                                            #     effective_count+=1
+                                                            # effective_count+=1
                                                             candidates.insert_candidate(l_dim=l_dim, a_functions=a_functions, eta=eta, tau=tau, reg=reg,\
                                                                 dim_batch=dim_batch, momentum=momentum,eps=eps,distribution=distribution,\
                                                                 bias=bias, classification=classification,patience=patience)
@@ -86,7 +86,8 @@ def grid_search(hyperparameters:Candidates_Hyperparameters|Candidate, coarse:boo
                             for reg in possibles_reg:
                                 if count == 0 or count%10000 == 0 or count == permutation-1:
                                     print("Create the candidate:",count+1,"/", permutation)
-                                effective_count += 1
+                                # effective_count += 1
+                                count += 1
                                 candidates.insert_candidate(l_dim=hyperparameters.l_dim, a_functions=hyperparameters.a_functions, eta=eta, tau=tau, reg=reg,\
             dim_batch = dim_batch, momentum=momentum,eps=eps,distribution=hyperparameters.distribution,\
             bias = hyperparameters.bias, classification=hyperparameters.classification,patience=hyperparameters.patience)

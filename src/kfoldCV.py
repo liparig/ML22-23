@@ -1,9 +1,9 @@
 from dnn_plot import plot_curves
 import numpy as np
-from costants import FORMATTIMESTAMP, LABEL_PLOT_TRAINING, LABEL_PLOT_VALIDATION, PATH_PLOT_DIR, PREFIX_DIR_COARSE
+import costants as C
 from didacticNeuralNetwork import DidacticNeuralNetwork as dnn
 from candidate_hyperparameters import Candidate
-from candidate_hyperparameters import Candidates_Hyperparameters
+from candidate_hyperparameters import CandidatesHyperparameters
 import time
 import os
 
@@ -13,10 +13,10 @@ import grid_search
 # from memory_profiler import profile
 
 class KfoldCV:
-    def __init__(self, inputs, targets, k, candidates_hyperparameters = Candidates_Hyperparameters()):
+    def __init__(self, inputs, targets, k, candidates_hyperparameters = CandidatesHyperparameters()):
         self.history_error:list = []
         self.k:int = k   
-        self.candidates_hyperparameters:Candidates_Hyperparameters = candidates_hyperparameters
+        self.candidates_hyperparameters:CandidatesHyperparameters = candidates_hyperparameters
         self.inputs = inputs
         self.targets = targets
         self.kfolds:list = self.divide_dataset()
@@ -78,7 +78,7 @@ class KfoldCV:
             if pathPlot != None:
                 plot_path = f'../plot/{pathPlot}/{namefile}'
             else:
-                plot_path = f'../plot/{time.strftime(FORMATTIMESTAMP)}/{namefile}'
+                plot_path = f'../plot/{time.strftime(C.FORMATTIMESTAMP)}/{namefile}'
                 
             if model.classification:
                 inYlim = (-0.5, 1.5)
@@ -91,7 +91,7 @@ class KfoldCV:
             # print(f"{theta}")
             # input()
             plot_curves(error['error'], error['validation'], error['mee'], error['mee_v'], 
-                        lbl_tr = LABEL_PLOT_TRAINING, lbl_vs = LABEL_PLOT_VALIDATION, path = plot_path, 
+                        lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = C.LABEL_PLOT_VALIDATION, path = plot_path, 
                         ylim = inYlim, titleplot = f"Model \#{candidatenumber} fold {fold['k']}",
                         theta = theta)
         #endregion
@@ -116,7 +116,10 @@ class KfoldCV:
         varianceMSE = []
         for fold in self.kfolds:
             #print(f"- Fold {i} ",end="")
+            start = time.time()
             errors = self.train_fold(fold, hyperparameters, candidatenumber = inCandidatenumber, drawPlot = plot, pathPlot = pathPlot)
+            end = time.time()
+            print(f'seconds for train fold {end-start}')
             h_train = errors['error']
             h_validation = errors['validation']
             varianceMSE.append(h_validation)
@@ -183,11 +186,11 @@ class KfoldCV:
         log, timestr = kfoldLog.start_log("ModelSelection")
         
         # Directory
-        new_directory_name:str = f"{PREFIX_DIR_COARSE}{timestr}"
+        new_directory_name:str = f"{C.PREFIX_DIR_COARSE}{timestr}"
         # Parent Directory path
         
         # Path
-        path_dir_models = os.path.join(PATH_PLOT_DIR, new_directory_name)
+        path_dir_models = os.path.join(C.PATH_PLOT_DIR, new_directory_name)
         if not os.path.exists(path_dir_models):
             os.makedirs(path_dir_models)
         

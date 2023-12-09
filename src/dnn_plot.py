@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib import rc
 import datetime
 
-from costants import FORMATTIMESTAMP, LABEL_PLOT_TRAINING, LABEL_PLOT_VALIDATION
+import costants as C
 
 # importing the module
 # from memory_profiler import profile
@@ -45,15 +45,13 @@ def __theta_toCaption(theta:dict):
                     caption+=r"$EarlyStop:\,"+str(theta["treshold_variance"])+"$, "
             case "patience":
                 caption+=r"$Patience:\,"+str(value)+"$ "
-            case _:
-                pass
         
     caption = r"\begin{center} \textit{\small{" + caption + r"}} \end{center}"
     return caption
 
 # @profile
-def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path = None, ylim = (0., 10.), lbl_tr:str = LABEL_PLOT_TRAINING,
-                lbl_vs:str = LABEL_PLOT_VALIDATION, titleplot:str = '',
+def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path = None, ylim = (0., 10.), lbl_tr:str = C.LABEL_PLOT_TRAINING,
+                lbl_vs:str = C.LABEL_PLOT_VALIDATION, titleplot:str = '',
                 theta:dict ={}, labelsX:list[str] = ['Epochs','Epochs'], labelsY:list[str] = ['Loss','Metric']):
     """
     Plot the curves of training loss, training metric, validation loss, validation metric
@@ -75,7 +73,7 @@ def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path = None, ylim = (0., 10
     
     caption=__theta_toCaption(theta)
 
-    figure, ax = plt.subplots(1, 2, figsize = (18, 6))
+    _, ax = plt.subplots(1, 2, figsize = (18, 6))
     
     ax[0].grid(True)
     ax[1].grid(True)
@@ -104,7 +102,7 @@ def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path = None, ylim = (0., 10
     if path is None:
         plt.show()
     else:
-        s = f'{path}{datetime.datetime.now().strftime(FORMATTIMESTAMP)}.jpg'
+        s = f'{path}{datetime.datetime.now().strftime(C.FORMATTIMESTAMP)}.jpg'
         plt.savefig(s)
         
     plt.close()

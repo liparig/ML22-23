@@ -3,7 +3,7 @@
 
 from activationFunctions  import activations
 from activationFunctions  import derivatives
-from costants import CLASSIC, INPUT_TRAINING, INPUT_VALIDATION, NESTEROV, NUM_POINT_X, OUTPUT_TRAINING, OUTPUT_VALIDATION, UNIFORM, SIGMOID, MSE, BATCH, BIAS, EPOCHS, EPS, ETA, MOMENTUM, PATIENCE, R_SEEDS, REG, SIGMOID, TAU, TRESHOLDVARIANCE, UNIFORM
+import costants as C
 from lossFunctions import loss
 from regularization import regularization
 from metrics import DNN_metrics
@@ -32,10 +32,10 @@ class DidacticNeuralNetwork:
     2. check dimensions of layers array and activation functions array
     3. init random weights 
     """
-    def __init__(self, l_dim:list[int], a_functions:list[str] = [SIGMOID], l_function:str = MSE, eta:float = ETA, 
-                 tau = TAU, epochs:int = EPOCHS, batch_shuffle:bool = True, reg = REG, momentum = MOMENTUM, 
-                 classification:bool = False, early_stop:bool = True, patience:int = PATIENCE, treshold_variance:float = TRESHOLDVARIANCE, 
-                 dim_batch:int = BATCH, plot = None, seed = R_SEEDS, **kwargs):
+    def __init__(self, l_dim:list[int], a_functions:list[str] = [C.SIGMOID], l_function:str = C.MSE, eta:float = C.ETA, 
+                 tau = C.TAU, epochs:int = C.EPOCHS, batch_shuffle:bool = True, reg = C.REG, momentum = C.MOMENTUM, 
+                 classification:bool = False, early_stop:bool = True, patience:int = C.PATIENCE, treshold_variance:float = C.TRESHOLDVARIANCE, 
+                 dim_batch:int = C.BATCH, plot = None, seed = C.R_SEEDS, **kwargs):
         self.gen = Generator(PCG64(seed))
         self.a_functions = a_functions
         self.__check_init__(l_dim, a_functions)
@@ -97,13 +97,13 @@ class DidacticNeuralNetwork:
     :param eps: eps value  between 0 and 1 for  Weight decrement default 0.1 if random distribution, if uniform it's the high extreme of interval
     :param bias: - value for the biases
     '''
-    def init_wb(self, l_dim, distribution:str = UNIFORM, eps:float = EPS, bias = BIAS):
+    def init_wb(self, l_dim, distribution:str = C.UNIFORM, eps:float = C.EPS, bias = C.BIAS):
         wb = {}
         #num_layers network deep
         num_layers:int = len(l_dim)
         for l in range(1, num_layers):
             name_layer:str = str(l)
-            if distribution == UNIFORM:
+            if distribution == C.UNIFORM:
                wb[f'W{name_layer}'] = self.gen.uniform(low = -eps, high = eps, size = (l_dim[l], l_dim[l-1]))
             else:
                 #Initialization of random weitghs ruled by eps
@@ -191,7 +191,7 @@ class DidacticNeuralNetwork:
                 deltaW -= self.regular.derivative(self, self.lambdar, self.wb[f'W{name_layer}'])
                 deltaB -= self.regular.derivative(self, self.lambdar, self.wb[f'b{name_layer}'])
             #if momentum classic is set add the momentum deltaW
-            if self.momentum == CLASSIC and f'wold{name_layer}' in self.deltaOld:
+            if self.momentum == C.CLASSIC and f'wold{name_layer}' in self.deltaOld:
                 deltaW += self.alpha*self.deltaOld[f'wold{name_layer}']
                 deltaB += self.alpha*self.deltaOld[f'bold{name_layer}']
 
@@ -264,8 +264,8 @@ class DidacticNeuralNetwork:
         eta_0:float = self.eta
         
         #reference dataset in new variable
-        x_dev = self.dataset[INPUT_TRAINING]
-        y_dev = self.dataset[OUTPUT_TRAINING]
+        x_dev = self.dataset[C.INPUT_TRAINING]
+        y_dev = self.dataset[C.OUTPUT_TRAINING]
        
         #train start    
         for epoch in range(self.epochs):
@@ -278,13 +278,13 @@ class DidacticNeuralNetwork:
             
             #region MINIBATCH
             #if mini-batch and shuffled true index of the set are shuffled
-            if self.dim_batch != self.dataset[NUM_POINT_X] and self.shuffle:
-                newindex = list(range(self.dataset[NUM_POINT_X]))
+            if self.dim_batch != self.dataset[C.NUM_POINT_X] and self.shuffle:
+                newindex = list(range(self.dataset[C.NUM_POINT_X]))
                 self.gen.shuffle(newindex)
                 x_dev = x_dev[newindex]
                 y_dev = y_dev[newindex]    
             #if mini-batch loop the divided input set
-            for b in range(math.ceil(self.dataset[NUM_POINT_X] / self.dim_batch)):
+            for b in range(math.ceil(self.dataset[C.NUM_POINT_X] / self.dim_batch)):
                 #initialize penalty term for loss calculation of each mini-batch
                 p_term = 0
                 #initialize index for dataset partition
@@ -296,11 +296,11 @@ class DidacticNeuralNetwork:
                 out = self.forward_propagation(batch_x.copy(), update=True)
                 #print("\n\n\nOUT\n\n\n",out,"\n\n\n\n----\n\n\n")
                 #if it's used nesterov or regularization, walk the network for compute penalty term and intermediate w
-                if self.regular or self.momentum == NESTEROV:        
+                if self.regular or self.momentum == C.NESTEROV:        
                     for l in range(1, len(self.l_dim)):
                         if self.regular:
                             p_term += self.regular.penalty(self, self.lambdar, self.wb[f"W{l}"]) + self.regular.penalty(self, self.lambdar, self.wb[f"b{l}"])
-                        if self.momentum == NESTEROV and f"wold{l}" in self.deltaOld :
+                        if self.momentum == C.NESTEROV and f"wold{l}" in self.deltaOld :
                             self.wb[f"W{l}"] = self.wb[f"W{l}"] + (self.alpha*self.deltaOld[f"wold{l}"])
                             self.wb[f"b{l}"] = self.wb[f"b{l}"] + (self.alpha*self.deltaOld[f"bold{l}"])                
                 #compute delta using back propagation on target batch
@@ -316,12 +316,12 @@ class DidacticNeuralNetwork:
             #append the error and the loss (mean if min-bacth or stochastic)
             history_terror.append(batch_terror/(b+1))
             history_tloss.append(batch_tloss/(b+1))
-            out_t = self.forward_propagation(inputs = self.dataset[INPUT_TRAINING], update=False)
-            out_v = self.forward_propagation(inputs = self.dataset[INPUT_VALIDATION], update=False)
-            validation_error.append(self.l_function.loss(self, self.dataset[OUTPUT_VALIDATION],out_v))
+            out_t = self.forward_propagation(inputs = self.dataset[C.INPUT_TRAINING], update=False)
+            out_v = self.forward_propagation(inputs = self.dataset[C.INPUT_VALIDATION], update=False)
+            validation_error.append(self.l_function.loss(self, self.dataset[C.OUTPUT_VALIDATION],out_v))
             if self.classification:
-                mbc = self.metrics.metrics_binary_classification(self.dataset[OUTPUT_TRAINING],out_t,treshold=0.5)
-                mbc_v = self.metrics.metrics_binary_classification(self.dataset[OUTPUT_VALIDATION],out_v,treshold=0.5)
+                mbc = self.metrics.metrics_binary_classification(self.dataset[C.OUTPUT_TRAINING],out_t,treshold=0.5)
+                mbc_v = self.metrics.metrics_binary_classification(self.dataset[C.OUTPUT_VALIDATION],out_v,treshold=0.5)
                 c_metric['t_accuracy'].append(mbc['accuracy'])
                 c_metric['t_precision'].append(mbc['precision'])
                 c_metric['t_recall'].append(mbc['recall'])
@@ -339,8 +339,8 @@ class DidacticNeuralNetwork:
                 metric_tr.append(mbc['accuracy'])
                 metric_val.append(mbc_v['accuracy'])
             else:
-                metric_tr.append(self.metrics.mean_euclidean_error(self.dataset[OUTPUT_TRAINING], out_t))
-                metric_val.append(self.metrics.mean_euclidean_error(self.dataset[OUTPUT_VALIDATION], out_v))
+                metric_tr.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_TRAINING], out_t))
+                metric_val.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_VALIDATION], out_v))
             if epoch >= 19 and self.early_stop:
                 if np.var(history_terror[-20:]) < self.treshold_variance:
                     selfcontrol += 1
@@ -382,18 +382,18 @@ class DidacticNeuralNetwork:
     def fit(self, x_train, y_train, x_val, y_val, dim_batch = None):
         #initialize a dictionary contain dataset information
         self.dataset = {}
-        self.dataset[NUM_POINT_X] = x_train.shape[0]
-        self.dataset[INPUT_TRAINING]= x_train.copy()
-        self.dataset[OUTPUT_TRAINING]= y_train.copy()
-        self.dataset[INPUT_VALIDATION]= x_val.copy()
-        self.dataset[OUTPUT_VALIDATION]= y_val.copy()
+        self.dataset[C.NUM_POINT_X] = x_train.shape[0]
+        self.dataset[C.INPUT_TRAINING]= x_train.copy()
+        self.dataset[C.OUTPUT_TRAINING]= y_train.copy()
+        self.dataset[C.INPUT_VALIDATION]= x_val.copy()
+        self.dataset[C.OUTPUT_VALIDATION]= y_val.copy()
         
         if (dim_batch == None):
             dim_batch=self.dim_batch
         #check parameter batch exist and if minibacth, batch or stochastic
         
         if (dim_batch == 0):
-            self.dim_batch = self.dataset[NUM_POINT_X]
+            self.dim_batch = self.dataset[C.NUM_POINT_X]
         else:
             self.dim_batch = dim_batch
 

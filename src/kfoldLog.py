@@ -12,8 +12,8 @@ def start_log(fileName:str):
         msfile = open(f"../KFoldCV/{fileName}_{timestr}.txt", "w")
         return msfile, timestr
 
-def estimate_model(file:TextIOWrapper, index:int, toal:int, stdoutput:bool = True, txt:bool = True):
-    msg = f"---->\nEstimate error for model #{index} of {toal}"
+def estimate_model(file:TextIOWrapper, index:int, total:int, stdoutput:bool = True, txt:bool = True):
+    msg = f"---->\nEstimate error for model #{index} of {total}"
     if(stdoutput):
         print(msg)
     if(txt):

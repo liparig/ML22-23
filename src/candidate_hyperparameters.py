@@ -91,7 +91,7 @@ class Candidate:
             'treshold_variance':self.treshold_variance
             }
 
-class Candidates_Hyperparameters:
+class CandidatesHyperparameters:
    
     def __init__(self):
         self.l_dim = []
@@ -166,19 +166,19 @@ class Candidates_Hyperparameters:
         :return: set di valori per gli hyperparameters per la Model Selection
         """
         if namedataset == 'monk':
-            self.l_dim = [[17, 8, 1],[17, 5, 1]]
+            self.l_dim = [[17, 8, 1], [17, 5, 1]]
             self.a_functions = [[C.TANH], [C.SIGMOID]] #,[C.RELU, C.SIGMOID]
             self.eta = [0.3, 0.5]
-            self.momentum = [(C.CLASSIC, 0.5), (False, False)]
+            self.momentum = [(C.CLASSIC, 0.05),(C.NESTEROV, 0.05), (False, False)]
             self.reg = [(C.TIKHONOV, 0.005), (C.LASSO, 0.005)] #(TIKHONOV, 0.01), (LASSO, 0.01), (False, False)
-            self.dim_batch = [0, 1, 10]
-            self.tau = [(False,False), (30, 0.005)]
-            self.patience = [50]
+            self.dim_batch = [1, 10]
+            self.tau = [(False,False), (30, 0.0001)]
+            self.patience = [20]
             self.eps = [0.7, 0.5]
             self.distribution = [C.UNIFORM, C.RANDOM]
             self.bias = [0, .2]
             self.classification=[True]
-            self.treshold_variance = [1.e-8]
+            self.treshold_variance = [1.e-8,1.e-6]
             # self.l_dim = [[17, 12, 6, 1], [17, 5, 5, 1]]
             # self.a_functions = [[SIGMOID, SIGMOID, TANH], [RELU, RELU, SIGMOID]]
             # self.eta = [0.5]

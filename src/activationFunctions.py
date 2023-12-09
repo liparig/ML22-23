@@ -2,7 +2,7 @@
 # coding: utf-8
 import numpy as np
 
-from costants import SIGMOID, TANH, RELU, IDENTITY
+import costants as C
 
 def identity(x):
     return x
@@ -48,15 +48,15 @@ def d_relu(net):
     return net
 
 activations = {
-    SIGMOID: sigmoid,
-    TANH: tanh,
-    RELU: relu,
-    IDENTITY:identity,
+    C.SIGMOID: sigmoid,
+    C.TANH: tanh,
+    C.RELU: relu,
+    C.IDENTITY:identity,
 }
 derivatives = {
-    SIGMOID: d_sigmoid,
-    TANH: d_tanh,
-    RELU: d_relu,
-    IDENTITY:d_identity
+    C.SIGMOID: d_sigmoid,
+    C.TANH: d_tanh,
+    C.RELU: d_relu,
+    C.IDENTITY:d_identity
 }
 
