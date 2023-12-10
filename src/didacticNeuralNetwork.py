@@ -122,7 +122,7 @@ class DidacticNeuralNetwork:
     '''
     def forward_propagation(self, inputs, update:bool = False):            
         in_out = inputs
-        #forward propagation of the inputta pattern in the network
+        #forward propagation of the input pattern in the network
         for l in range(1, len(self.l_dim)):
             name_layer:str = str(l)
             w = self.wb[f'W{name_layer}'] # on the row there are the weights for 

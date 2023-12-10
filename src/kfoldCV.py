@@ -62,11 +62,19 @@ class KfoldCV:
         y_train = fold["y_train"]
         x_val = fold["x_val"]
         y_val = fold["y_val"]
-        
+        start = time.time()
         model = dnn(**theta)
+        end = time.time()
+        print(f'seconds for make model {end-start}')
         #train
+        start = time.time()
         error = model.fit(x_train, y_train, x_val, y_val)
+        end = time.time()
+        print(f'seconds for train the model {end-start}')
+        start = time.time()
         out = model.forward_propagation(x_val)
+        end = time.time()
+        print(f'seconds for compute output {end-start}')
         error['mean_absolute_error'] = model.metrics.mean_absolute_error(y_val, out)
         error['root_mean_squared_error'] = model.metrics.root_mean_squared_error(y_val, out)
         error['mean_euclidean_error'] = model.metrics.mean_euclidean_error(y_val, out)
