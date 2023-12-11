@@ -188,6 +188,10 @@ class KfoldCV:
                 
         # choose the set of hyperparameters which gives the minimum mean error
         lower_mean = np.argmin(means)
+        # print(means)
+        # print(lower_mean)
+        # print(self.models_error[lower_mean])
+        # input('premi')
         return self.models_error[lower_mean]["hyperparameters"], self.models_error[lower_mean]["candidateNumber"]
     
     def validate(self, default:str = "monk", FineGS:bool = False, plot:bool = True):
