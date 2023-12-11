@@ -53,8 +53,9 @@ def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path = None, ylim = (0., 10
                 lbl_vs:str = C.LABEL_PLOT_VALIDATION, titleplot:str = '',
                 theta:dict ={}, labelsX:list[str] = ['Epochs','Epochs'], labelsY:list[str] = ['Loss','Metric']):
     proc=mp.Process(target=plot_curvess, args=(loss_tr, loss_vs, metr_tr, val_metr, path, ylim , lbl_tr,lbl_vs, titleplot,theta, labelsX, labelsY))
-    proc.daemon=True
+    proc.daemon=False
     proc.start()
+    proc.join()
     
     
 
@@ -80,7 +81,7 @@ def plot_curvess(loss_tr, loss_vs, metr_tr, val_metr, path = None, ylim = (0., 1
     "font.family": "Helvetica"
     })
     
-    caption=__theta_toCaption(theta)
+    caption = __theta_toCaption(theta)
 
     _, ax = plt.subplots(1, 2, figsize = (18, 6))
     ax[0].grid(True)
