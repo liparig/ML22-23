@@ -1,16 +1,16 @@
 import matplotlib.pyplot as plt
-from matplotlib import rc
+import matplotlib
+matplotlib.use('Agg')
 import datetime
 
 import costants as C
 
-# importing the module
-# from memory_profiler import profile
+from memory_profiler import profile
+import multiprocessing as mp
+
+
+
     
-"""from matplotlib import figure
-fig = figure.Figure()
-ax = fig.subplots(1)
-Also no need to do plt.close() or anything. It worked for me."""
 def __theta_toCaption(theta:dict):
     caption=""
     for param, value in theta.items():
@@ -49,8 +49,17 @@ def __theta_toCaption(theta:dict):
     caption = r"\begin{center} \textit{\small{" + caption + r"}} \end{center}"
     return caption
 
-# @profile
 def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path = None, ylim = (0., 10.), lbl_tr:str = C.LABEL_PLOT_TRAINING,
+                lbl_vs:str = C.LABEL_PLOT_VALIDATION, titleplot:str = '',
+                theta:dict ={}, labelsX:list[str] = ['Epochs','Epochs'], labelsY:list[str] = ['Loss','Metric']):
+    proc=mp.Process(target=plot_curvess, args=(loss_tr, loss_vs, metr_tr, val_metr, path, ylim , lbl_tr,lbl_vs, titleplot,theta, labelsX, labelsY))
+    proc.daemon=True
+    proc.start()
+    
+    
+
+@profile
+def plot_curvess(loss_tr, loss_vs, metr_tr, val_metr, path = None, ylim = (0., 10.), lbl_tr:str = C.LABEL_PLOT_TRAINING,
                 lbl_vs:str = C.LABEL_PLOT_VALIDATION, titleplot:str = '',
                 theta:dict ={}, labelsX:list[str] = ['Epochs','Epochs'], labelsY:list[str] = ['Loss','Metric']):
     """
@@ -74,7 +83,6 @@ def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path = None, ylim = (0., 10
     caption=__theta_toCaption(theta)
 
     _, ax = plt.subplots(1, 2, figsize = (18, 6))
-    
     ax[0].grid(True)
     ax[1].grid(True)
     """
@@ -104,6 +112,6 @@ def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, path = None, ylim = (0., 10
     else:
         s = f'{path}{datetime.datetime.now().strftime(C.FORMATTIMESTAMP)}.jpg'
         plt.savefig(s)
-        
+    
+    plt.clf()
     plt.close()
-    # figure.clf()

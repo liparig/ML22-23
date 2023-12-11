@@ -98,10 +98,16 @@ class KfoldCV:
             # return {'error':history_terror,'loss':history_tloss, 'mee':metric_tr, 'mee_v':metric_val, 'validation':validation_error, 'c_metrics':c_metric, 'epochs':epoch + 1}  
             # print(f"{theta}")
             # input()
+            start = time.time()
+            
             plot_curves(error['error'], error['validation'], error['mee'], error['mee_v'], 
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = C.LABEL_PLOT_VALIDATION, path = plot_path, 
                         ylim = inYlim, titleplot = f"Model \#{candidatenumber} fold {fold['k']}",
                         theta = theta)
+            
+           
+            end = time.time()
+            print(f'Plot Graph {end-start}')
         #endregion
         
         return error
