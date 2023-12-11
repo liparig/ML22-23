@@ -71,10 +71,14 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
                                                             count += 1
                                                             # random=np.random.rand(1)
                                                             # if effective_count<5:
-                                                            # effective_count+=1
+                                                            #     effective_count+=1
+                                                            #     candidates.insert_candidate(l_dim=l_dim, a_functions=a_functions, eta=eta, tau=tau, reg=reg,\
+                                                            #         dim_batch=dim_batch, momentum=momentum,eps=eps,distribution=distribution,\
+                                                            #         bias=bias, classification=classification,patience=patience)
+                                                            # else: return candidates, effective_count
                                                             candidates.insert_candidate(l_dim=l_dim, a_functions=a_functions, eta=eta, tau=tau, reg=reg,\
-                                                                dim_batch=dim_batch, momentum=momentum,eps=eps,distribution=distribution,\
-                                                                bias=bias, classification=classification,patience=patience)
+                                                                    dim_batch=dim_batch, momentum=momentum,eps=eps,distribution=distribution,\
+                                                                    bias=bias, classification=classification,patience=patience)
     else:
         """ cycle over all the permutation values of hyperparameters """
         permutation:int = len(possibles_eta) * len(possibles_momentum)* len(possibles_tau)  * len(possibles_dim_batch) * len(possibles_eps) * len(possibles_reg)
@@ -92,4 +96,4 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
             dim_batch = dim_batch, momentum=momentum,eps=eps,distribution=hyperparameters.distribution,\
             bias = hyperparameters.bias, classification=hyperparameters.classification,patience=hyperparameters.patience)
                                 
-    return candidates, count
+    return candidates, count#effective_count

@@ -198,14 +198,14 @@ class KfoldCV:
         # Parent Directory path
         
         # Path
-        path_dir_models = os.path.join(C.PATH_PLOT_DIR, new_directory_name)
-        if not os.path.exists(path_dir_models):
-            os.makedirs(path_dir_models)
+        path_dir_models_coarse = os.path.join(C.PATH_PLOT_DIR, new_directory_name)
+        if not os.path.exists(path_dir_models_coarse):
+            os.makedirs(path_dir_models_coarse)
         
         for i, theta in enumerate(create_candidate.get_all_candidates_dict()):
             kfoldLog.estimate_model(log, i+1, total)
             
-            self.estimate_model_error(theta, log, inCandidatenumber = i+1, plot=plot, pathPlot = path_dir_models)
+            self.estimate_model_error(theta, log, inCandidatenumber = i+1, plot=plot, pathPlot = path_dir_models_coarse)
             
         winner, modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification[0])
         winner = Candidate(winner)
@@ -221,13 +221,13 @@ class KfoldCV:
             # Parent Directory path
             parent_dir = "../plot/"
             # Path
-            path = os.path.join(parent_dir, directory)
-            if not os.path.exists(path):
-                os.makedirs(path)
+            path_dir_models_fine = os.path.join(parent_dir, directory)
+            if not os.path.exists(path_dir_models_fine):
+                os.makedirs(path_dir_models_fine)
         
             for j, theta in enumerate(possible_winners.get_all_candidates_dict()):
                 kfoldLog.estimate_model(log, j+1, total)
-                meanMSE = self.estimate_model_error(theta, log, inCandidatenumber = j+1, pathPlot = path_dir_models)
+                meanMSE = self.estimate_model_error(theta, log, inCandidatenumber = j+1, plot = plot, pathPlot = path_dir_models_fine)
 
             winner, modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification[0])
             winner = Candidate(winner)
