@@ -40,7 +40,7 @@ def model_performance(file:TextIOWrapper, hyperparameters, model_error, stdoutpu
             f"\nMean MEE: {model_error['mean_mee']}"\
             f"\nMean Epochs: {model_error['mean_epochs']}"\
             f"\n"
-    if(model_error['mean_v_accuracy']!=None):
+    if(model_error.get('mean_v_accuracy') !=None):
         msg = f"{msg}Classification Accuracy Training: {model_error['mean_t_accuracy']} - Validation {model_error['mean_v_accuracy']}"
     if(stdoutput):
         print(msg)

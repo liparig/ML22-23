@@ -13,12 +13,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 TRAINMONK1 = BASE_DIR+"/MonkDatasets/monks-1.train"
 TRAINMONK2 = BASE_DIR+"/MonkDatasets/monks-2.train"
 TRAINMONK3 = BASE_DIR+"/MonkDatasets/monks-3.train"
-TRAINCUP = BASE_DIR+"/Cup/Cup23/ML-CUP23-TR.csv"
+TRAINCUP = BASE_DIR+"/CupDatasets/Cup23/ML-CUP23-TR.csv"
 
 TESTMONK1 = BASE_DIR+"/MonkDatasets/monks-1.test"
 TESTMONK2 = BASE_DIR+"/MonkDatasets/monks-2.test"
 TESTMONK3 = BASE_DIR+"/MonkDatasets/monks-3.test"
-TESTCUP= BASE_DIR+"/CupDataset/Cup23/ML-CUP23-TS.csv"
+TESTCUP= BASE_DIR+"/CupDatasets/Cup23/ML-CUP23-TS.csv"
 
 def get_train_Monk_1():
     return read_monk(TRAINMONK1)
@@ -96,21 +96,22 @@ def read_cup(name,targetCol=3):
     # get directory
     targets=[]
     # read csv
-    col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'target_x', 'target_y','tartget_z']
+    col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'target_x', 'target_y','target_z']
 
-    if name != TRAINCUP:
-        targetCol=0    
+  
         
-    cup_dataset = pd.read_csv(name, sep=',', skiprows=range(7), names=col_names[:-targetCol])
+    cup_dataset = pd.read_csv(name, sep=',', skiprows=range(7), names=col_names)
 
     cup_dataset.set_index('Id', inplace=True)
     # shuffle the DataFrame rows
     cup_dataset = cup_dataset.sample(frac = 1)
+    print(cup_dataset)
     if name == TRAINCUP:
         # get targets aside
         target_x = cup_dataset.pop('target_x').to_numpy(dtype=np.float32)
         target_y = cup_dataset.pop('target_y').to_numpy(dtype=np.float32)
-        targets=np.vstack((target_x,target_y)).T
+        target_z = cup_dataset.pop('target_z').to_numpy(dtype=np.float32)
+        targets=np.vstack((target_x,target_y,target_z)).T
     
     inputs = cup_dataset.to_numpy(dtype=np.float32)
     # transform labels from pandas dataframe to numpy ndarray
@@ -122,7 +123,7 @@ def get_cup_house_test(perc=0.25):
     # get directory
     targets=[]
     # read csv
-    col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'target_x', 'target_y']
+    col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'target_x', 'target_y','target_z']
     cup_dataset = pd.read_csv(TRAINCUP, sep=',', skiprows = range(7), names = col_names)
     
     cup_dataset.set_index('Id', inplace=True)

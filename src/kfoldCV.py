@@ -100,10 +100,16 @@ class KfoldCV:
             # input()
             start = time.time()
             
-            plot_curves(error['error'], error['validation'], error['mee'], error['mee_v'], 
+            if theta["classification"]:
+                labelMetric='Accuracy'
+            else:
+                labelMetric='MEE'
+
+                
+            plot_curves(error['error'], error['validation'], error['metric_tr'], error['metric_val'], 
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = C.LABEL_PLOT_VALIDATION, path = plot_path, 
                         ylim = inYlim, titleplot = f"Model \#{candidatenumber} fold {fold['k']}",
-                        theta = theta)
+                        theta = theta,labelsY = ['Loss',labelMetric])
             
            
             end = time.time()

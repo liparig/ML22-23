@@ -39,7 +39,10 @@ class Candidate:
         :param param: a specific value for the hyperparameter "batch size"
         :return: a small range of this value
         """
-        return [max(1, value - 10),
+        if value == 0:
+            return [0]
+        else:
+            return [max(1, value - 10),
                 value,
                 int(value + 10)]
 
@@ -166,18 +169,18 @@ class CandidatesHyperparameters:
         :return: set di valori per gli hyperparameters per la Model Selection
         """
         if namedataset == 'monk':
-            self.l_dim = [[17, 8, 1], [17, 5, 1]]
-            self.a_functions = [[C.TANH], [C.SIGMOID]] #,[C.RELU, C.SIGMOID]
-            self.eta = [0.3, 0.5]
-            self.momentum = [(C.CLASSIC, 0.05),(C.NESTEROV, 0.05), (False, False)]
-            self.reg = [(C.TIKHONOV, 0.005), (C.LASSO, 0.005)] #(TIKHONOV, 0.01), (LASSO, 0.01), (False, False)
-            self.dim_batch = [1, 10]
+            self.l_dim = [[17,8,4,1], [17, 6, 3 ,1]]
+            self.a_functions = [[C.TANH], [C.SIGMOID],[C.TANH,C.TANH,C.SIGMOID],[C.SIGMOID,C.SIGMOID,C.TANH]] #,[C.RELU, C.SIGMOID]
+            self.eta = [0.1, 0.001]
+            self.momentum = [(C.NESTEROV, 0.05), (False, False)]
+            self.reg = [(C.TIKHONOV, 0.0005), (C.LASSO, 0.0005)] #(TIKHONOV, 0.01), (LASSO, 0.01), (False, False)
+            self.dim_batch = [0]
             self.tau = [(False,False), (30, 0.0001)]
-            self.patience = [20]
-            self.eps = [0.7, 0.5]
-            self.distribution = [C.UNIFORM, C.RANDOM]
-            self.bias = [0, .2]
-            self.classification=[True]
+            self.patience = [50]
+            self.eps = [0.7]
+            self.distribution = [C.UNIFORM]
+            self.bias = [0]
+            self.classification=True
             self.treshold_variance = [1.e-8,1.e-6]
             # self.l_dim = [[17, 12, 6, 1], [17, 5, 5, 1]]
             # self.a_functions = [[SIGMOID, SIGMOID, TANH], [RELU, RELU, SIGMOID]]
@@ -206,7 +209,7 @@ class CandidatesHyperparameters:
             self.classification=[True]
             '''
         elif namedataset=="cup":
-            self.l_dim = [[9,16,8,2],[9,32,16,2],[9,64,32,16,2]]
+            self.l_dim = [[9,16,8,3],[9,32,16,3],[9,64,32,16,3]]
             self.a_functions = [[C.SIGMOID,C.SIGMOID,'identity'],['relu','relu','identity'],['relu','relu','relu','identity'],[C.SIGMOID,C.SIGMOID,C.SIGMOID,'identity']]
             self.eta=[0.1, 0.01]
             self.momentum=[ ('',0) , ('nesterov',0.5) , ('classic',0.5) ]
@@ -217,7 +220,7 @@ class CandidatesHyperparameters:
             self.eps=[0.1,0.3]
             self.distribution=['uniform']
             self.bias = [0]
-            self.classification=[False]
+            self.classification=False
         
    
                 

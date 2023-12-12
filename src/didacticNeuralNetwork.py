@@ -184,6 +184,7 @@ class DidacticNeuralNetwork:
         p_eta:float = (self.eta / pattern)
         for l in range(len(self.l_dim) - 1, 0, -1):
             name_layer:str = str(l)
+            print(f"Name {name_layer}",self.out[f"out{l-1}"].shape)
             deltaW = -p_eta * (delta[l-1].T@self.out[f"out{l-1}"])
             deltaB = -p_eta * (np.sum(delta[l-1]))
             #if regularization is set subtract the penalty term
@@ -197,12 +198,15 @@ class DidacticNeuralNetwork:
 
             # print(type(self.wb[f'W{name_layer}']))
             # print(type(deltaW))
-            # print(type(self.wb[f'b{name_layer}']))
+            #print(f"B of {name_layer}",self.wb[f'b{name_layer}'])
             # print(self.wb[f'b{name_layer}'])
-            # print(type(deltaB))
-            # input('premi')
+            print(f"B {name_layer}",self.wb[f'b{name_layer}'])
+            print("Delta B",deltaB, deltaB.shape)
             self.wb[f'W{name_layer}']= self.wb[f'W{name_layer}'] + deltaW 
             self.wb[f'b{name_layer}'] = self.wb[f'b{name_layer}'] + deltaB
+            print("B dopo upadate {name_layer}",self.wb[f'b{name_layer}'])
+            input('premi')
+
             # print(f"W:{self.wb[f'W{name_layer}']}, b:{self.wb[f'b{name_layer}']}")
             # input('premi')
             #save the old gradient for the momentum if needed
@@ -342,13 +346,14 @@ class DidacticNeuralNetwork:
                 metric_tr.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_TRAINING], out_t))
                 metric_val.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_VALIDATION], out_v))
             if epoch >= 19 and self.early_stop:
-                if np.var(history_terror[-20:]) < self.treshold_variance:
+                
+                if np.var(history_tloss[-20:]) < self.treshold_variance:
                     selfcontrol += 1
                     if self.patience == selfcontrol:
                         break
                 else:
                     selfcontrol = 0
-        return {'error':history_terror,'loss':history_tloss, 'mee':metric_tr, 'mee_v':metric_val, 'validation':validation_error, 'c_metrics':c_metric, 'epochs':epoch + 1}  
+        return {'error':history_terror,'loss':history_tloss, 'metric_tr':metric_tr, 'metric_val':metric_val, 'validation':validation_error, 'c_metrics':c_metric, 'epochs':epoch + 1}  
 
     '''
     Check problem in dataset inputs and add an error message to the exception:
