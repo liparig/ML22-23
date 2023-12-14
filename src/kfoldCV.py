@@ -223,7 +223,7 @@ class KfoldCV:
             
             self.estimate_model_error(theta, log, inCandidatenumber = i+1, plot=plot, pathPlot = path_dir_models_coarse)
             
-        winner, modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification[0])
+        winner, modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification)
         winner = Candidate(winner)
         kfoldLog.the_winner_is(log, modelnumber, winner.to_string())
         kfoldLog.end_log(log)
@@ -245,7 +245,7 @@ class KfoldCV:
                 kfoldLog.estimate_model(log, j+1, total)
                 meanMSE = self.estimate_model_error(theta, log, inCandidatenumber = j+1, plot = plot, pathPlot = path_dir_models_fine)
 
-            winner, modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification[0])
+            winner, modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification)
             winner = Candidate(winner)
             kfoldLog.the_fine_winner_is(log, modelnumber, winner.to_string(), metric = f"MeanMee: {meanMSE}")
             kfoldLog.end_log(log)
