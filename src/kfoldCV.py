@@ -229,6 +229,9 @@ class KfoldCV:
         kfoldLog.end_log(log)
 
         if FineGS:
+            oldErrors=self.models_error
+            self.models_error.clear()
+            print(len(oldErrors))
             log, timestr = kfoldLog.start_log("FineModelSelection")
             possible_winners, total = grid_search.grid_search(hyperparameters = winner, coarse = False)
             print("---Start Fine Grid search...\n")

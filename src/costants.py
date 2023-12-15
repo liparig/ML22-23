@@ -15,7 +15,7 @@ OUTPUT_VALIDATION:str = 'y_val'
 
 FORMATTIMESTAMP:str = '%d%m%Y-%H%M'
 
-R_SEEDS:int = 30
+R_SEEDS:int = 22
 EPS:float = 0.7 #interval for initialization of the weights
 BIAS:float = 0 #w0
 AFUNCTION:list = [] # activation functions list
@@ -23,7 +23,7 @@ BATCH:int = 0 #dimension of the batchs
 ETA:float = 0.5 #learning rate
 TAU = (False, False) #learning decay rate
 REG = (False, False) #regulation rate
-EPOCHS:int = 500 #Max Epochs
+EPOCHS:int = 600 #Max Epochs
 PATIENCE:int = 20 #Max Epochs with small changes
 MOMENTUM = ("",0)
 EARLYSTOP:bool = True

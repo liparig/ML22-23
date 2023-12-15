@@ -181,13 +181,13 @@ class DidacticNeuralNetwork:
     :return: void
     '''
     def update_wb(self, delta, pattern:float):
-        p_eta:float = (self.eta / pattern)
+        p_eta:float = (self.eta)
         for l in range(len(self.l_dim) - 1, 0, -1):
             name_layer:str = str(l)
            # print(f"Name {name_layer}",self.out[f"out{l-1}"].shape)
-            deltaW = -p_eta * (delta[l-1].T@self.out[f"out{l-1}"])
-            deltaB = -p_eta * (np.sum(delta[l-1].T,axis=1,keepdims=True))
-            
+            deltaW = -p_eta * ((delta[l-1].T@self.out[f"out{l-1}"])/pattern)
+            deltaB = -p_eta * ((np.sum(delta[l-1].T,axis=1,keepdims=True))/pattern)
+
             #if regularization is set subtract the penalty term
             if self.regular:
                 deltaW -= self.regular.derivative(self, self.lambdar, self.wb[f'W{name_layer}'])
