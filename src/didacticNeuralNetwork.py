@@ -120,13 +120,16 @@ class DidacticNeuralNetwork:
     :parm update: If true update the network nets and outputs of the inputs. Default:False 
     :return in_out: return the output value of the network 
     '''
-    def forward_propagation(self, inputs, update:bool = False):            
+    def forward_propagation(self, inputs, update:bool = False, nesterov:bool=False):            
         in_out = inputs
         #forward propagation of the input pattern in the network
+        interim=""
+        if nesterov:
+            interim="_"
         for l in range(1, len(self.l_dim)):
             name_layer:str = str(l)
-            w = self.wb[f'W{name_layer}'] # on the row there are the weights for 
-            b = self.wb[f'b{name_layer}']
+            w = self.wb[f'W{interim}{name_layer}'] # on the row there are the weights for 
+            b = self.wb[f'b{interim}{name_layer}']
             #apply linear function
             net = np.asarray(self.linear(w, in_out, b))
             #apply activation function to the net
@@ -135,9 +138,9 @@ class DidacticNeuralNetwork:
             in_out = np.asarray(af(net).T)
             #if update true record the net and out of the units on the layer
             if update:
-                self.out["out0"] = inputs
-                self.net[f'net{name_layer}'] = net
-                self.out[f'out{name_layer}'] = in_out
+                self.out[f"out{interim}0"] = inputs
+                self.net[f'net{interim}{name_layer}'] = net
+                self.out[f'out{interim}{name_layer}'] = in_out
         return in_out
     '''
     Compute delta_k gradient of outputlayer
@@ -149,7 +152,7 @@ class DidacticNeuralNetwork:
     '''    
     def compute_delta_k(self, y, out, net, d_activation):
         #delta of loss function of pattern 
-        dp = self.l_function.d_loss(self, y, out) #questa non mi torna
+        dp = self.l_function.d_loss(self, y, out) 
         #derivative of the layer activation function
         f_prime = d_activation(net)
         #compute delta with a puntual multiplication
@@ -185,17 +188,31 @@ class DidacticNeuralNetwork:
         for l in range(len(self.l_dim) - 1, 0, -1):
             name_layer:str = str(l)
            # print(f"Name {name_layer}",self.out[f"out{l-1}"].shape)
-            deltaW = -p_eta * ((delta[l-1].T@self.out[f"out{l-1}"])/pattern)
-            deltaB = -p_eta * ((np.sum(delta[l-1].T,axis=1,keepdims=True))/pattern)
+            deltaW =  ((delta[l-1].T@self.out[f"out{l-1}"]))/pattern
+            deltaB =  ((np.sum(delta[l-1].T,axis=1,keepdims=True)))/pattern
+            
+            #save the old gradient for the momentum if needed
+            self.deltaOld[f'wold{name_layer}'] = deltaW
+            self.deltaOld[f'bold{name_layer}'] = deltaB
 
-            #if regularization is set subtract the penalty term
-            if self.regular:
-                deltaW -= self.regular.derivative(self, self.lambdar, self.wb[f'W{name_layer}'])
-                deltaB -= self.regular.derivative(self, self.lambdar, self.wb[f'b{name_layer}'])
+            deltaW = p_eta * deltaW
+            deltaB = p_eta * deltaB
+
+           
             #if momentum classic is set add the momentum deltaW
             if self.momentum == C.CLASSIC and f'wold{name_layer}' in self.deltaOld:
                 deltaW += self.alpha*self.deltaOld[f'wold{name_layer}']
                 deltaB += self.alpha*self.deltaOld[f'bold{name_layer}']
+                #save the old gradient for the momentum if needed
+                self.deltaOld[f'wold{name_layer}'] = deltaW
+                self.deltaOld[f'bold{name_layer}'] = deltaB
+            
+
+            
+             #if regularization is set subtract the penalty term
+            if self.regular:
+                deltaW -= self.regular.derivative(self, self.lambdar, self.wb[f'W{name_layer}'])
+                deltaB -= self.regular.derivative(self, self.lambdar, self.wb[f'b{name_layer}'])
 
             # print(type(self.wb[f'W{name_layer}']))
             # print(type(deltaW))
@@ -203,7 +220,7 @@ class DidacticNeuralNetwork:
             # print(self.wb[f'b{name_layer}'])
            # print(f"B {name_layer}",self.wb[f'b{name_layer}'])
            # print("Delta B",deltaB, deltaB.shape)
-            self.wb[f'W{name_layer}']= self.wb[f'W{name_layer}'] + deltaW 
+            self.wb[f'W{name_layer}']=  self.wb[f'W{name_layer}'] + deltaW 
            # print("PRIMA B"+name_layer, self.wb[f'b{name_layer}'],"deltab",deltaB.shape)
             
             self.wb[f'b{name_layer}'] = self.wb[f'b{name_layer}'] + deltaB
@@ -213,9 +230,7 @@ class DidacticNeuralNetwork:
 
             # print(f"W:{self.wb[f'W{name_layer}']}, b:{self.wb[f'b{name_layer}']}")
             # input('premi')
-            #save the old gradient for the momentum if needed
-            self.deltaOld[f'wold{name_layer}'] = deltaW
-            self.deltaOld[f'bold{name_layer}'] = deltaB
+
 
     '''
     Compute the back propagation algorithm
@@ -225,8 +240,12 @@ class DidacticNeuralNetwork:
     def back_propagation(self, y):
         delta_t = []
         num_layers = len(self.l_dim) - 1
+        interim=""
         #Reverse loop of the network layer
+       
         for l in range(num_layers, 0, -1):
+            if self.momentum == C.NESTEROV and f"wold{l}" in self.deltaOld:
+                interim="_"
             dt = 0
             name_layer:str = str(l)
             # print(f'name_layer 228 ddn: {name_layer}')
@@ -234,9 +253,9 @@ class DidacticNeuralNetwork:
             af = self.a_functions[num_layers-1]
             #if not the output layer compute gradients delta_j
             if l != num_layers:
-                dt = self.compute_delta_j(delta_t[-1], self.wb[f'W{l+1}'], self.net[f'net{name_layer}'], derivatives[af])
+                dt = self.compute_delta_j(delta_t[-1], self.wb[f'W{interim}{l+1}'], self.net[f'net{interim}{name_layer}'], derivatives[af])
             else:
-                dt = self.compute_delta_k(y, self.out[f'out{name_layer}'], self.net[f'net{name_layer}'], derivatives[af])
+                dt = self.compute_delta_k(y, self.out[f'out{interim}{name_layer}'], self.net[f'net{interim}{name_layer}'], derivatives[af])
             #append the gradient matrix
             # print(f'dt.shape {dt.shape}, dt {dt}')
             # input('premi')
@@ -309,8 +328,9 @@ class DidacticNeuralNetwork:
                         if self.regular:
                             p_term += self.regular.penalty(self, self.lambdar, self.wb[f"W{l}"]) + self.regular.penalty(self, self.lambdar, self.wb[f"b{l}"])
                         if self.momentum == C.NESTEROV and f"wold{l}" in self.deltaOld :
-                            self.wb[f"W{l}"] = self.wb[f"W{l}"] + (self.alpha*self.deltaOld[f"wold{l}"])
-                            self.wb[f"b{l}"] = self.wb[f"b{l}"] + (self.alpha*self.deltaOld[f"bold{l}"])                
+                            self.wb[f"W_{l}"] = self.wb[f"W{l}"] + (self.alpha*self.deltaOld[f"wold{l}"])
+                            self.wb[f"b_{l}"] = self.wb[f"b{l}"] + (self.alpha*self.deltaOld[f"bold{l}"])  
+                            self.forward_propagation(batch_x.copy(), update=False,nesterov=True)              
                 #compute delta using back propagation on target batch
                 delta = self.back_propagation(batch_y)
                 # call update weights function
@@ -350,8 +370,12 @@ class DidacticNeuralNetwork:
                 metric_tr.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_TRAINING], out_t))
                 metric_val.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_VALIDATION], out_v))
             if epoch >= 19 and self.early_stop:
-                
-                if np.var(history_tloss[-20:]) < self.treshold_variance:
+                variance=0
+                if self.classification:
+                    variance=np.var(c_metric['t_accuracy'][-20:])
+                else:
+                    variance=np.var(history_tloss[-20:])
+                if  variance< self.treshold_variance:
                     selfcontrol += 1
                     if self.patience == selfcontrol:
                         break

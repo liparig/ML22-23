@@ -89,7 +89,7 @@ class KfoldCV:
                 plot_path = f'../plot/{time.strftime(C.FORMATTIMESTAMP)}/{namefile}'
                 
             if model.classification:
-                inYlim = (-0.5, 1.5)
+                inYlim = (-0.5, 1.1)
             else:
                 inYlim = (-0.5, 5.)
 
@@ -106,7 +106,7 @@ class KfoldCV:
                 labelMetric='MEE'
 
                 
-            plot_curves(error['error'], error['validation'], error['metric_tr'], error['metric_val'], 
+            plot_curves(error['error'], error['validation'], error['metric_tr'], error['metric_val'], error_tr=error['loss'],
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = C.LABEL_PLOT_VALIDATION, path = plot_path, 
                         ylim = inYlim, titleplot = f"Model \#{candidatenumber} fold {fold['k']}",
                         theta = theta,labelsY = ['Loss',labelMetric])

@@ -21,7 +21,9 @@ class MSE:
         return derivative of the squared error (2 of the exponent was delete by the denominator constant 2)
     """
     def d_loss(self, Y, Y_hat):
-        return (np.squeeze(Y) - np.squeeze(Y_hat)) * -1
+        #return (np.squeeze(Y) - np.squeeze(Y_hat)) * -1
+        return (np.squeeze(Y) - np.squeeze(Y_hat))
+
 
 loss={
     'mse':MSE
