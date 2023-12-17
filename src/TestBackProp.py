@@ -130,13 +130,13 @@ def back_propagation(l_dim,wb,y):
             delta_t.append(dt)
         return delta_t[::-1]
 
-def update_wb(eta,l_dim ,delta, wb):
+def update_wb(eta,l_dim ,delta, wb,pattern):
         p_eta:float = (eta)
         for l in range(len(l_dim) - 1, 0, -1):
             name_layer:str = str(l)
 
-            deltaW =  ((delta[l-1].T @out[f"out{l-1}"]))  / 4
-            deltaB =  ((np.sum(delta[l-1].T,axis=1,keepdims=True)))/ 4 
+            deltaW =  ((delta[l-1].T @out[f"out{l-1}"]))  / pattern
+            deltaB =  ((np.sum(delta[l-1].T,axis=1,keepdims=True)))/ pattern
 
             
             deltaW = p_eta * deltaW
@@ -153,15 +153,15 @@ def main():
     init_global()
     TR_x_monk1,TR_y_monk1 = readMC.get_train_Monk_1()
     print("Inizializzo i pesi per una rete 2 - 2 - 1 - 1 ")
-    l_dim=[17,3,2,1]
+    l_dim=[17,15,1]
     inputx=TR_x_monk1
     targety=TR_y_monk1
     #inputx=np.array([[0,0],[0,0],[1,1],[1,1]])
     #targety=[0,0,1,1]
-    
+    pattern=inputx.shape[0]
     wb=init_wb(l_dim)
     num_layers:int = len(l_dim)
-    for i in range(200):
+    for i in range(1000):
         for l in range(1, num_layers):
             name_layer:str = str(l)
             print("Layer",name_layer)
@@ -170,9 +170,10 @@ def main():
         
         in_out=forward_propagation(l_dim,wb,inputx,True)
         delta=back_propagation(l_dim,wb,targety)
-        wb=update_wb(0.1,l_dim,delta,wb)
+        wb=update_wb(0.5,l_dim,delta,wb,pattern)
     
     in_out=forward_propagation(l_dim,wb,inputx,False)
     print("Result:",in_out)
+    print("targety:", targety)
 if __name__ == "__main__":
     main()
