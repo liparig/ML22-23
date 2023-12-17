@@ -10,7 +10,6 @@ def main():
     kfCV = KfoldCV(TR_x_monk1, TR_y_monk1, 5)
     winner = kfCV.validate(FineGS = True)
     print(winner.to_string())
-
     # Hold-out Test 1
     model=dnn(**winner.get_dictionary())
     TS_x_monk1,TS_y_monk1= readMC.get_test_Monk_1()

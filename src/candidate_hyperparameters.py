@@ -169,16 +169,16 @@ class CandidatesHyperparameters:
         :return: set di valori per gli hyperparameters per la Model Selection
         """
         if namedataset == 'monk':
-            self.l_dim = [[17,8,1],[17,8,4,1] ,[17, 12, 6 ,3,1]]
-            self.a_functions = [[C.TANH], [C.SIGMOID],[C.RELU,C.RELU,C.RELU,C.SIGMOID],[C.RELU,C.RELU,C.SIGMOID]]#,[C.RELU, C.SIGMOID]
+            self.l_dim = [[17,3,1,1],[17,8,3,1] ,[17,4,2,1]]
+            self.a_functions = [[C.RELU,C.RELU,C.SIGMOID],[C.RELU,C.RELU,C.TANH]]#,[C.RELU, C.SIGMOID]
             self.eta = [0.2,0.6]
             self.momentum = [(False, False),(C.NESTEROV,0.05),(C.CLASSIC,0.05)]
             self.reg = [ (False, False),(C.TIKHONOV, 0.01)] #(TIKHONOV, 0.01), (LASSO, 0.01), (False, False)
-            self.dim_batch = [0,20]
-            self.tau = [(False,False)]
-            self.patience = [50]
+            self.dim_batch = [0,1,30]
+            self.tau = [(False,False),(100,0.05)]
+            self.patience = [100]
             self.early_stop = True
-            self.eps = [0.7]
+            self.eps = [0.7, 0.2]
             self.distribution = [C.UNIFORM,C.RANDOM]
             self.bias = [0]
             self.classification=True

@@ -110,6 +110,7 @@ class DidacticNeuralNetwork:
                 wb[f'W{name_layer}'] = self.gen.random(size = (l_dim[l], l_dim[l-1])) * eps
             #Initialization of bias of the layer
             wb[f'b{name_layer}'] = np.full((l_dim[l], 1),bias)
+            
         return wb
         
     def linear(self, w, X,b):
@@ -183,13 +184,13 @@ class DidacticNeuralNetwork:
     :param pattern: number of pattern predicted  
     :return: void
     '''
-    def update_wb(self, delta, pattern:float):
-        p_eta:float = (self.eta)
+    def update_wb(self, delta, pattern:float,batch_number=1):
+        p_eta:float = (self.eta) / batch_number
         for l in range(len(self.l_dim) - 1, 0, -1):
             name_layer:str = str(l)
-           # print(f"Name {name_layer}",self.out[f"out{l-1}"].shape)
-            deltaW =  ((delta[l-1].T@self.out[f"out{l-1}"]))/pattern
-            deltaB =  ((np.sum(delta[l-1].T,axis=1,keepdims=True)))/pattern
+           #print(f"Name {name_layer}",self.out[f"out{l-1}"].shape)
+            deltaW =  ((delta[l-1].T @self.out[f"out{l-1}"]))  / pattern 
+            deltaB =  ((np.sum(delta[l-1].T,axis=1,keepdims=True))) / pattern
             
             #save the old gradient for the momentum if needed
             self.deltaOld[f'wold{name_layer}'] = deltaW
@@ -214,16 +215,17 @@ class DidacticNeuralNetwork:
                 deltaW -= self.regular.derivative(self, self.lambdar, self.wb[f'W{name_layer}'])
                 deltaB -= self.regular.derivative(self, self.lambdar, self.wb[f'b{name_layer}'])
 
-            # print(type(self.wb[f'W{name_layer}']))
-            # print(type(deltaW))
+           # print("W",(self.wb[f'W{name_layer}']))
+            #print("Delta",(deltaW))
             #print(f"B of {name_layer}",self.wb[f'b{name_layer}'])
             # print(self.wb[f'b{name_layer}'])
            # print(f"B {name_layer}",self.wb[f'b{name_layer}'])
            # print("Delta B",deltaB, deltaB.shape)
-            self.wb[f'W{name_layer}']=  self.wb[f'W{name_layer}'] + deltaW 
+            self.wb[f'W{name_layer}'] =  np.add(self.wb[f'W{name_layer}'], deltaW) 
            # print("PRIMA B"+name_layer, self.wb[f'b{name_layer}'],"deltab",deltaB.shape)
-            
-            self.wb[f'b{name_layer}'] = self.wb[f'b{name_layer}'] + deltaB
+           # print("W+Delta",self.wb[f'W{name_layer}'])
+           # input("premi")
+            self.wb[f'b{name_layer}'] = np.add(self.wb[f'b{name_layer}'] ,deltaB)
            # print("Dopo B"+name_layer, self.wb[f'b{name_layer}'],  "deltab:",deltaB.shape )
             #print("B dopo upadate {name_layer}",self.wb[f'b{name_layer}'])
             #input('premi')
@@ -311,7 +313,8 @@ class DidacticNeuralNetwork:
                 x_dev = x_dev[newindex]
                 y_dev = y_dev[newindex]    
             #if mini-batch loop the divided input set
-            for b in range(math.ceil(self.dataset[C.NUM_POINT_X] / self.dim_batch)):
+            batch_number=math.ceil(self.dataset[C.NUM_POINT_X] / self.dim_batch)
+            for b in range(batch_number):
                 #initialize penalty term for loss calculation of each mini-batch
                 p_term = 0
                 #initialize index for dataset partition
@@ -330,11 +333,12 @@ class DidacticNeuralNetwork:
                         if self.momentum == C.NESTEROV and f"wold{l}" in self.deltaOld :
                             self.wb[f"W_{l}"] = self.wb[f"W{l}"] + (self.alpha*self.deltaOld[f"wold{l}"])
                             self.wb[f"b_{l}"] = self.wb[f"b{l}"] + (self.alpha*self.deltaOld[f"bold{l}"])  
-                            self.forward_propagation(batch_x.copy(), update=False,nesterov=True)              
+                    if self.momentum == C.NESTEROV:
+                        self.forward_propagation(batch_x.copy(), update=False,nesterov=True)              
                 #compute delta using back propagation on target batch
                 delta = self.back_propagation(batch_y)
                 # call update weights function
-                self.update_wb(delta, batch_x.shape[0])
+                self.update_wb(delta, batch_x.shape[0],batch_number)
                 # update bacth error
                 terror = (self.l_function.loss(self, batch_y, out))
                 batch_terror += terror
@@ -369,12 +373,12 @@ class DidacticNeuralNetwork:
             else:
                 metric_tr.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_TRAINING], out_t))
                 metric_val.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_VALIDATION], out_v))
-            if epoch >= 19 and self.early_stop:
+            if epoch >= 29 and self.early_stop:
                 variance=0
                 if self.classification:
-                    variance=np.var(c_metric['t_accuracy'][-20:])
+                    variance=np.var(c_metric['t_accuracy'][-30:])
                 else:
-                    variance=np.var(history_tloss[-20:])
+                    variance=np.var(history_tloss[-30:])
                 if  variance< self.treshold_variance:
                     selfcontrol += 1
                     if self.patience == selfcontrol:
