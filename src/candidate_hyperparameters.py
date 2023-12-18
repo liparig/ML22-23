@@ -29,7 +29,7 @@ class Candidate:
         :return: a small range of this values
         """
         higher = 1.25
-        lower = 0.8
+        lower = 0.75
         return [np.round(value * lower, 7),
                 value,
                 np.round(value * higher, 7)]
@@ -45,6 +45,18 @@ class Candidate:
             return [max(1, value - 10),
                 value,
                 int(value + 10)]
+        
+    def get_fine_int_range(self,value):
+        """
+        :param param: a specific value for an hyperparameter
+        :return: a small range of this values
+        """
+        higher = 1.25
+        lower = 0.75
+        return [int(value * lower),
+                value,
+                int(value * higher)]
+
 
     def get_fine_tuple(self,value):
         if not isinstance(value[1], int) or not isinstance(value[1], float):
@@ -169,20 +181,21 @@ class CandidatesHyperparameters:
         :return: set di valori per gli hyperparameters per la Model Selection
         """
         if namedataset == 'monk':
-            self.l_dim = [[17,3,1,1],[17,8,3,1] ,[17,4,2,1]]
-            self.a_functions = [[C.RELU,C.RELU,C.SIGMOID],[C.RELU,C.RELU,C.TANH]]#,[C.RELU, C.SIGMOID]
-            self.eta = [0.2,0.6]
-            self.momentum = [(False, False),(C.NESTEROV,0.05),(C.CLASSIC,0.05)]
-            self.reg = [ (False, False),(C.TIKHONOV, 0.01)] #(TIKHONOV, 0.01), (LASSO, 0.01), (False, False)
-            self.dim_batch = [0,1,30]
-            self.tau = [(False,False),(100,0.05)]
+            self.l_dim = [[17,2,1]]
+            self.a_functions = [[C.RELU,C.TANH]]#,[C.RELU, C.SIGMOID]
+            self.eta = [0.4]
+            self.momentum = [(C.NESTEROV, 0.5)]
+            self.reg = [ (False, False)] #(TIKHONOV, 0.01), (LASSO, 0.01), (False, False)
+            self.dim_batch = [0,15]
+            self.tau = [(1000,0.04)]
             self.patience = [100]
             self.early_stop = True
-            self.eps = [0.7, 0.2]
-            self.distribution = [C.UNIFORM,C.RANDOM]
+            self.eps = [0.05, 0.1]
+            self.distribution = [C.UNIFORM]
             self.bias = [0]
+            self.epochs = [1000]
             self.classification=True
-            self.treshold_variance = [1.e-8]
+            self.treshold_variance = [1.e-6]
             # self.l_dim = [[17, 12, 6, 1], [17, 5, 5, 1]]
             # self.a_functions = [[SIGMOID, SIGMOID, TANH], [RELU, RELU, SIGMOID]]
             # self.eta = [0.5]

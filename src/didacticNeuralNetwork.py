@@ -104,7 +104,9 @@ class DidacticNeuralNetwork:
         for l in range(1, num_layers):
             name_layer:str = str(l)
             if distribution == C.UNIFORM:
-               wb[f'W{name_layer}'] = self.gen.uniform(low = -eps, high = eps, size = (l_dim[l], l_dim[l-1]))
+              wb[f'W{name_layer}'] = self.gen.uniform(low = -eps, high = eps, size = (l_dim[l], l_dim[l-1]))
+            elif distribution == C.BASIC:
+                wb[f'W{name_layer}'] = self.gen.uniform(low = -1/l_dim[0], high = 1/l_dim[0], size = (l_dim[l], l_dim[l-1]))
             else:
                 #Initialization of random weitghs ruled by eps
                 wb[f'W{name_layer}'] = self.gen.random(size = (l_dim[l], l_dim[l-1])) * eps
@@ -184,17 +186,21 @@ class DidacticNeuralNetwork:
     :param pattern: number of pattern predicted  
     :return: void
     '''
-    def update_wb(self, delta, pattern:float,batch_number=1):
+    def update_wb(self, delta, pattern:float,batch_number=1,LMS:bool=C.LMS):
+        if LMS==False:
+            pattern=1
+            batch_number=1
         p_eta:float = (self.eta) / batch_number
         for l in range(len(self.l_dim) - 1, 0, -1):
             name_layer:str = str(l)
-           #print(f"Name {name_layer}",self.out[f"out{l-1}"].shape)
+            #print(f"Name {name_layer}",self.out[f"out{l-1}"].shape)
             deltaW =  ((delta[l-1].T @self.out[f"out{l-1}"]))  / pattern 
             deltaB =  ((np.sum(delta[l-1].T,axis=1,keepdims=True))) / pattern
             
-            #save the old gradient for the momentum if needed
-            self.deltaOld[f'wold{name_layer}'] = deltaW
-            self.deltaOld[f'bold{name_layer}'] = deltaB
+            #save the old gradient for the Nesterov momentum if needed
+            if self.momentum == C.NESTEROV:
+                self.deltaOld[f'wold{name_layer}'] = deltaW
+                self.deltaOld[f'bold{name_layer}'] = deltaB
 
             deltaW = p_eta * deltaW
             deltaB = p_eta * deltaB
@@ -210,28 +216,14 @@ class DidacticNeuralNetwork:
             
 
             
-             #if regularization is set subtract the penalty term
+            #if regularization is set subtract the penalty term.
             if self.regular:
                 deltaW -= self.regular.derivative(self, self.lambdar, self.wb[f'W{name_layer}'])
                 deltaB -= self.regular.derivative(self, self.lambdar, self.wb[f'b{name_layer}'])
 
-           # print("W",(self.wb[f'W{name_layer}']))
-            #print("Delta",(deltaW))
-            #print(f"B of {name_layer}",self.wb[f'b{name_layer}'])
-            # print(self.wb[f'b{name_layer}'])
-           # print(f"B {name_layer}",self.wb[f'b{name_layer}'])
-           # print("Delta B",deltaB, deltaB.shape)
+           
             self.wb[f'W{name_layer}'] =  np.add(self.wb[f'W{name_layer}'], deltaW) 
-           # print("PRIMA B"+name_layer, self.wb[f'b{name_layer}'],"deltab",deltaB.shape)
-           # print("W+Delta",self.wb[f'W{name_layer}'])
-           # input("premi")
             self.wb[f'b{name_layer}'] = np.add(self.wb[f'b{name_layer}'] ,deltaB)
-           # print("Dopo B"+name_layer, self.wb[f'b{name_layer}'],  "deltab:",deltaB.shape )
-            #print("B dopo upadate {name_layer}",self.wb[f'b{name_layer}'])
-            #input('premi')
-
-            # print(f"W:{self.wb[f'W{name_layer}']}, b:{self.wb[f'b{name_layer}']}")
-            # input('premi')
 
 
     '''
@@ -244,10 +236,9 @@ class DidacticNeuralNetwork:
         num_layers = len(self.l_dim) - 1
         interim=""
         #Reverse loop of the network layer
-       
-        for l in range(num_layers, 0, -1):
-            if self.momentum == C.NESTEROV and f"wold{l}" in self.deltaOld:
+        if self.momentum == C.NESTEROV and f"wold1" in self.deltaOld:
                 interim="_"
+        for l in range(num_layers, 0, -1):
             dt = 0
             name_layer:str = str(l)
             # print(f'name_layer 228 ddn: {name_layer}')
@@ -267,7 +258,7 @@ class DidacticNeuralNetwork:
     """
     :return: history_terror, history_tloss, validation_error. History Error of the train and validation error
     """
-    def train(self):
+    def train(self, validation=False):
         #initialize error/loss variable
         history_terror, history_tloss, validation_error = [], [], []
         metric_tr, metric_val = [], []
@@ -300,6 +291,7 @@ class DidacticNeuralNetwork:
         for epoch in range(self.epochs):
             #initialize variable for partial error and loss
             batch_terror, batch_tloss = 0, 0
+
             #if learning decay used update of eta
             if self.learning_decay and self.decay_step >= epoch:
                 alpha = epoch / self.decay_step
@@ -329,16 +321,19 @@ class DidacticNeuralNetwork:
                 if self.regular or self.momentum == C.NESTEROV:        
                     for l in range(1, len(self.l_dim)):
                         if self.regular:
-                            p_term += self.regular.penalty(self, self.lambdar, self.wb[f"W{l}"]) + self.regular.penalty(self, self.lambdar, self.wb[f"b{l}"])
+                            """Note that often the bias w0 is omitted from the regularizer (because its inclusion causes the results to be not independent from target shift/scaling) or it may be included but with its own regularization coefficient (see Bishop book, Hastie et al. book)"""
+                            #p_term += self.regular.penalty(self, self.lambdar, self.wb[f"W{l}"]) + self.regular.penalty(self, self.lambdar, self.wb[f"b{l}"])
+                            p_term += self.regular.penalty(self, self.lambdar, self.wb[f"W{l}"]) 
+
                         if self.momentum == C.NESTEROV and f"wold{l}" in self.deltaOld :
                             self.wb[f"W_{l}"] = self.wb[f"W{l}"] + (self.alpha*self.deltaOld[f"wold{l}"])
                             self.wb[f"b_{l}"] = self.wb[f"b{l}"] + (self.alpha*self.deltaOld[f"bold{l}"])  
-                    if self.momentum == C.NESTEROV:
-                        self.forward_propagation(batch_x.copy(), update=False,nesterov=True)              
+                    if self.momentum == C.NESTEROV  and f"wold{l}" in self.deltaOld:
+                        self.forward_propagation(batch_x.copy(), update=True,nesterov=True)              
                 #compute delta using back propagation on target batch
                 delta = self.back_propagation(batch_y)
                 # call update weights function
-                self.update_wb(delta, batch_x.shape[0],batch_number)
+                self.update_wb(delta, batch_x.shape[0],batch_number,False)
                 # update bacth error
                 terror = (self.l_function.loss(self, batch_y, out))
                 batch_terror += terror
@@ -349,42 +344,51 @@ class DidacticNeuralNetwork:
             history_terror.append(batch_terror/(b+1))
             history_tloss.append(batch_tloss/(b+1))
             out_t = self.forward_propagation(inputs = self.dataset[C.INPUT_TRAINING], update=False)
-            out_v = self.forward_propagation(inputs = self.dataset[C.INPUT_VALIDATION], update=False)
-            validation_error.append(self.l_function.loss(self, self.dataset[C.OUTPUT_VALIDATION],out_v))
+            #if there'is validation compute validation metric for regression and classification
+            if validation:
+                out_v = self.forward_propagation(inputs = self.dataset[C.INPUT_VALIDATION], update=False)
+                validation_error.append(self.l_function.loss(self, self.dataset[C.OUTPUT_VALIDATION],out_v))
+                if self.classification:
+                    mbc_v = self.metrics.metrics_binary_classification(self.dataset[C.OUTPUT_VALIDATION],out_v,treshold=0.5)
+                    c_metric['v_accuracy'].append(mbc_v['accuracy'])
+                    c_metric['v_precision'].append(mbc_v['precision'])
+                    c_metric['v_recall'].append(mbc_v['recall'])
+                    c_metric['v_specificity'].append(mbc_v['specificity'])
+                    c_metric['v_balanced'].append(mbc_v['balanced'])
+                    c_metric['v_misclassified'].append(mbc_v['misclassified'])
+                    c_metric['v_classified'].append(mbc_v['classified'])                
+                    metric_val.append(mbc_v['accuracy'])
+                else:
+                    metric_val.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_VALIDATION], out_v))
+                    
             if self.classification:
                 mbc = self.metrics.metrics_binary_classification(self.dataset[C.OUTPUT_TRAINING],out_t,treshold=0.5)
-                mbc_v = self.metrics.metrics_binary_classification(self.dataset[C.OUTPUT_VALIDATION],out_v,treshold=0.5)
                 c_metric['t_accuracy'].append(mbc['accuracy'])
                 c_metric['t_precision'].append(mbc['precision'])
                 c_metric['t_recall'].append(mbc['recall'])
                 c_metric['t_specificity'].append(mbc['specificity'])
                 c_metric['t_balanced'].append(mbc['balanced'])
                 c_metric['t_misclassified'].append(mbc['misclassified'])
-                c_metric['v_classified'].append(mbc['classified'])
-                c_metric['v_accuracy'].append(mbc_v['accuracy'])
-                c_metric['v_precision'].append(mbc_v['precision'])
-                c_metric['v_recall'].append(mbc_v['recall'])
-                c_metric['v_specificity'].append(mbc_v['specificity'])
-                c_metric['v_balanced'].append(mbc_v['balanced'])
-                c_metric['v_misclassified'].append(mbc_v['misclassified'])
-                c_metric['v_classified'].append(mbc_v['classified'])
+                c_metric['t_classified'].append(mbc['classified'])
                 metric_tr.append(mbc['accuracy'])
-                metric_val.append(mbc_v['accuracy'])
             else:
                 metric_tr.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_TRAINING], out_t))
-                metric_val.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_VALIDATION], out_v))
-            if epoch >= 29 and self.early_stop:
+                        
+            if epoch >= 19 and self.early_stop:
+                #variance=np.var(history_tloss[-20:],ddof=1)
                 variance=0
                 if self.classification:
-                    variance=np.var(c_metric['t_accuracy'][-30:])
+                    variance=np.var(c_metric['v_misclassified'][-20:],ddof=1)
                 else:
-                    variance=np.var(history_tloss[-30:])
-                if  variance< self.treshold_variance:
+                    variance=np.var(validation_error[-20:],ddof=1)
+                if variance < self.treshold_variance:    
+                #if  np.linalg.norm(delta[-1]/batch_x.shape[0]) < 0.1:
                     selfcontrol += 1
                     if self.patience == selfcontrol:
                         break
                 else:
                     selfcontrol = 0
+                    
         return {'error':history_terror,'loss':history_tloss, 'metric_tr':metric_tr, 'metric_val':metric_val, 'validation':validation_error, 'c_metrics':c_metric, 'epochs':epoch + 1}  
 
     '''
@@ -416,14 +420,18 @@ class DidacticNeuralNetwork:
     :param dim_batch: the dimension of mini-batch, if 0 is equal to batch, if 1 is stochastic/online update version
     :param **kwargs: extra params for the training
     """
-    def fit(self, x_train, y_train, x_val, y_val, dim_batch = None):
+    def fit(self, x_train, y_train, x_val=[], y_val=[], dim_batch = None):
         #initialize a dictionary contain dataset information
         self.dataset = {}
         self.dataset[C.NUM_POINT_X] = x_train.shape[0]
         self.dataset[C.INPUT_TRAINING]= x_train.copy()
         self.dataset[C.OUTPUT_TRAINING]= y_train.copy()
-        self.dataset[C.INPUT_VALIDATION]= x_val.copy()
-        self.dataset[C.OUTPUT_VALIDATION]= y_val.copy()
+        if  x_val.size!=0 or y_val.size!=0:
+            self.dataset[C.INPUT_VALIDATION]= x_val.copy()
+            self.dataset[C.OUTPUT_VALIDATION]= y_val.copy()
+            validation=True
+        else:
+            validation=False
         
         if (dim_batch == None):
             dim_batch=self.dim_batch
@@ -437,6 +445,6 @@ class DidacticNeuralNetwork:
         self.check_dimension(x_train, y_train, dim_batch, msg = "[check_dimension] Error in Training datasets:")
         self.check_dimension(x_val, y_val, 1, msg = "[check_dimension] Error in Validation datasets:")
 
-        return self.train()
+        return self.train(validation)
 
     

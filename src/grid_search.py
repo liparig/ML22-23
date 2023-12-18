@@ -1,14 +1,14 @@
 #from validation.distribuited_computing import kfold_distributed_computing_cup
 from candidate_hyperparameters import CandidatesHyperparameters
 from candidate_hyperparameters import Candidate
-import numpy as np
 
 def init_grid_search(candidates:CandidatesHyperparameters|Candidate, coarse:bool):
     """ This function fills the set of possibile hyperparameters for the Grid Search
         in two possible ways, for a coarse grid search and for a finer one
     """
     global possibles_eta, possibles_momentum, possibles_reg, possibles_dim_batch, possibles_l_dim, possibles_a_functions,\
-    possibles_tau, possibles_eps, possibles_distribution, possibles_bias, possibles_patience, classification
+    possibles_tau, possibles_eps, possibles_distribution, possibles_bias, possibles_patience, classification,early_stop,\
+    possibles_epochs
    
     possibles_l_dim          = candidates.l_dim
     possibles_a_functions    = candidates.a_functions
@@ -16,7 +16,8 @@ def init_grid_search(candidates:CandidatesHyperparameters|Candidate, coarse:bool
     possibles_patience       = candidates.patience
     possibles_bias           = candidates.bias
     classification           = candidates.classification  
-
+    early_stop               =  candidates.early_stop
+    
     # Default values for Coarse Grid Search (values differ in order of magnitude)
     if coarse:
         possibles_eta           = candidates.eta
@@ -25,6 +26,8 @@ def init_grid_search(candidates:CandidatesHyperparameters|Candidate, coarse:bool
         possibles_dim_batch     = candidates.dim_batch
         possibles_tau           = candidates.tau
         possibles_eps           = candidates.eps
+        possibles_epochs        = candidates.epochs
+
      # Edited values for Fine Grid, taken in a small range of the winner values of the Coarse Grid Search
     else:
         possibles_eta           = candidates.get_fine_range(candidates.eta)
@@ -33,7 +36,9 @@ def init_grid_search(candidates:CandidatesHyperparameters|Candidate, coarse:bool
         possibles_tau           = candidates.get_fine_tuple(candidates.tau)
         possibles_eps           = candidates.get_fine_range(candidates.eps)
         possibles_dim_batch     = candidates.get_fine_batch_size(candidates.dim_batch)
-
+        possibles_epochs        = candidates.get_fine_int_range(candidates.epochs)
+        
+        
 def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool = True):
     candidates = CandidatesHyperparameters()
     """ Grid Search
@@ -42,6 +47,8 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
         :param : coarse, a Boolean value
     """
     init_grid_search(hyperparameters, coarse)
+    
+
     count:int = 0
     # effective_count:int = 0
     if coarse:
@@ -49,7 +56,8 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
          * len(possibles_tau)  * len(possibles_dim_batch)\
          * len(possibles_reg) * len(possibles_eps) * len(possibles_l_dim)\
          * len(possibles_distribution) *  len(possibles_bias)\
-         * len(possibles_a_functions) *  len(possibles_patience)
+         * len(possibles_a_functions) *  len(possibles_patience)\
+         * len(possibles_epochs)
         """ cycle over all the permutation values of hyperparameters """
         for eta in possibles_eta:
             for momentum in possibles_momentum:
@@ -59,26 +67,29 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
                                 for a_functions in possibles_a_functions:
                                     # if there are some problems with the configuration dimensions of the layer or the activation functions
                                     if len(a_functions) != 1 and len(a_functions) != len(l_dim) -1:
-                                        count += 1
+                                        permutation -= 1
                                     else:
                                         for eps in possibles_eps:
                                             for distribution in possibles_distribution:
                                                 for patience in possibles_patience:
                                                     for bias in possibles_bias:
                                                         for reg in possibles_reg:
-                                                            if count == 0 or count%100 == 0 or count == permutation-1:
-                                                                print("Create the candidate:", count+1, "/", permutation)
-                                                            count += 1
-                                                            # random=np.random.rand(1)
-                                                            # if effective_count<5:
-                                                            #     effective_count+=1
-                                                            #     candidates.insert_candidate(l_dim=l_dim, a_functions=a_functions, eta=eta, tau=tau, reg=reg,\
-                                                            #         dim_batch=dim_batch, momentum=momentum,eps=eps,distribution=distribution,\
-                                                            #         bias=bias, classification=classification,patience=patience)
-                                                            # else: return candidates, effective_count
-                                                            candidates.insert_candidate(l_dim=l_dim, a_functions=a_functions, eta=eta, tau=tau, reg=reg,\
-                                                                    dim_batch=dim_batch, momentum=momentum,eps=eps,distribution=distribution,\
-                                                                    bias=bias, classification=classification,patience=patience)
+                                                            for epochs in possibles_epochs:
+                                                                if count == 0 or count%100 == 0 or count == permutation-1:
+                                                                    print("Create the candidate:", count+1, "/", permutation)
+                                                                count += 1
+                                                                # random=np.random.rand(1)
+                                                                # if effective_count<5:
+                                                                #     effective_count+=1
+                                                                #     candidates.insert_candidate(l_dim=l_dim, a_functions=a_functions, eta=eta, tau=tau, reg=reg,\
+                                                                #         dim_batch=dim_batch, momentum=momentum,eps=eps,distribution=distribution,\
+                                                                #         bias=bias, classification=classification,patience=patience)
+                                                                # else: return candidates, effective_count
+                                                                candidates.insert_candidate(l_dim=l_dim, a_functions=a_functions, eta=eta, tau=tau, reg=reg,\
+                                                                        dim_batch=dim_batch, momentum=momentum,eps=eps,distribution=distribution,\
+                                                                        bias=bias, classification=classification,patience=patience,early_stop=early_stop,epochs=epochs)
+                                                                
+
     else:
         """ cycle over all the permutation values of hyperparameters """
         permutation:int = len(possibles_eta) * len(possibles_momentum)* len(possibles_tau)  * len(possibles_dim_batch) * len(possibles_eps) * len(possibles_reg)
@@ -94,6 +105,7 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
                                 count += 1
                                 candidates.insert_candidate(l_dim=hyperparameters.l_dim, a_functions=hyperparameters.a_functions, eta=eta, tau=tau, reg=reg,\
             dim_batch = dim_batch, momentum=momentum,eps=eps,distribution=hyperparameters.distribution,\
-            bias = hyperparameters.bias, classification=hyperparameters.classification,patience=hyperparameters.patience)
+            bias = hyperparameters.bias, classification=hyperparameters.classification,patience=hyperparameters.patience,\
+                epochs=hyperparameters.epochs ,early_stop=hyperparameters.early_stop)
                                 
     return candidates, count#effective_count

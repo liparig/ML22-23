@@ -105,7 +105,6 @@ class KfoldCV:
             else:
                 labelMetric='MEE'
 
-                
             plot_curves(error['error'], error['validation'], error['metric_tr'], error['metric_val'], error_tr=error['loss'],
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = C.LABEL_PLOT_VALIDATION, path = plot_path, 
                         ylim = inYlim, titleplot = f"Model \#{candidatenumber} fold {fold['k']}",
@@ -191,8 +190,7 @@ class KfoldCV:
                 means.append(-result["mean_v_accuracy"])
             else:
                 means.append(result["mean_mee"])
-                
-        # choose the set of hyperparameters which gives the minimum mean error
+         # choose the set of hyperparameters which gives the minimum mean error
         lower_mean = np.argmin(means)
         # print(means)
         # print(lower_mean)
@@ -207,6 +205,7 @@ class KfoldCV:
         """ K-Fold Cross Validation """
         # a first coarse Grid Search, values differ in order of magnitude
         create_candidate, total = grid_search.grid_search(hyperparameters = self.candidates_hyperparameters)
+        
         log, timestr = kfoldLog.start_log("ModelSelection")
         
         # Directory
@@ -217,7 +216,6 @@ class KfoldCV:
         path_dir_models_coarse = os.path.join(C.PATH_PLOT_DIR, new_directory_name)
         if not os.path.exists(path_dir_models_coarse):
             os.makedirs(path_dir_models_coarse)
-        
         for i, theta in enumerate(create_candidate.get_all_candidates_dict()):
             kfoldLog.estimate_model(log, i+1, total)
             

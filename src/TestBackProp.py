@@ -147,18 +147,62 @@ def update_wb(eta,l_dim ,delta, wb,pattern):
             wb[f'b{name_layer}'] = np.add(wb[f'b{name_layer}'] , deltaB)
           
         return wb
+    
+    
+'''
+    Compute metrics_binary_classification
+    :param y: target values
+    :param y_hat: predicted values
+    :param treshold: treshold values
+    :return result: dictionary with: 'accuracy','precision','recall','specificity','balanced'
+    '''
+def metrics_binary_classification( y, y_hat, treshold = 0.5):
+        if np.squeeze(y).shape != np.squeeze(y_hat).shape:
+            raise Exception(f"Sets have different shape Y:{y.shape} Y_hat:{y_hat.shape}")
+
+        tp,tn,fp,fn=0,0,0,0
+        for predicted, target in zip(y_hat.flatten(),y.flatten()):
+            if predicted < treshold:
+                if target == 0:
+                    tn+=1
+                else:
+                    fn+=1
+            else:
+                if target == 1:
+                    tp+=1
+                else:
+                    fp+=1
+
+        accuracy=(tp+tn)/(tp+tn+fp+fn) if tp+tn+fp+fn >0 else 0
+        recall= tp/(tp+fn) if tp+fn >0 else 0
+        precision = tp/(tp+fp) if tp+fp >0 else 0
+        specificity= tn/(tn+fp) if tn+fp >0 else 0
+        balanced=0.5*(tp/(tp+fn)+tn/(tn+fp)) if tp+fn and tn+fp  >0 else 0
+
+        return {'misclassified': fp+fn,
+        'classified':tp+tn,
+        'accuracy':accuracy,
+        'precision':precision,
+        'recall':recall,
+        'specificity':specificity,
+        'balanced':balanced
+        } 
+        
 import readMonk_and_Cup as readMC
 
 def main():
     init_global()
     TR_x_monk1,TR_y_monk1 = readMC.get_train_Monk_1()
+    TS_x_monk1,TS_y_monk1 = readMC.get_test_Monk_1()
+
     print("Inizializzo i pesi per una rete 2 - 2 - 1 - 1 ")
-    l_dim=[17,15,1]
+    l_dim=[17,2,1]
     inputx=TR_x_monk1
     targety=TR_y_monk1
     #inputx=np.array([[0,0],[0,0],[1,1],[1,1]])
     #targety=[0,0,1,1]
     pattern=inputx.shape[0]
+    print("Pattern")
     wb=init_wb(l_dim)
     num_layers:int = len(l_dim)
     for i in range(1000):
@@ -170,10 +214,15 @@ def main():
         
         in_out=forward_propagation(l_dim,wb,inputx,True)
         delta=back_propagation(l_dim,wb,targety)
-        wb=update_wb(0.5,l_dim,delta,wb,pattern)
-    
+        wb=update_wb(5,l_dim,delta,wb,1)
+        if i % 500 == 0:
+            print("Result:",metrics_binary_classification(targety,in_out))
+            input(f"{i}: premi")
     in_out=forward_propagation(l_dim,wb,inputx,False)
-    print("Result:",in_out)
-    print("targety:", targety)
+    print("Result:",metrics_binary_classification(targety,in_out))
+    input("Premi")
+    in_out=forward_propagation(l_dim,wb,TS_x_monk1,False)
+    print("Test Result:",metrics_binary_classification(TS_y_monk1,in_out))
+
 if __name__ == "__main__":
     main()
