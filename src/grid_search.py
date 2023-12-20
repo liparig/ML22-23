@@ -7,16 +7,17 @@ def init_grid_search(candidates:CandidatesHyperparameters|Candidate, coarse:bool
         in two possible ways, for a coarse grid search and for a finer one
     """
     global possibles_eta, possibles_momentum, possibles_reg, possibles_dim_batch, possibles_l_dim, possibles_a_functions,\
-    possibles_tau, possibles_eps, possibles_distribution, possibles_bias, possibles_patience, classification,early_stop,\
-    possibles_epochs
-   
-    possibles_l_dim          = candidates.l_dim
-    possibles_a_functions    = candidates.a_functions
-    possibles_distribution   = candidates.distribution
-    possibles_patience       = candidates.patience
-    possibles_bias           = candidates.bias
-    classification           = candidates.classification  
-    early_stop               =  candidates.early_stop
+    possibles_tau, possibles_eps, possibles_distribution, possibles_bias, possibles_patience, classification, early_stop,\
+    possibles_epochs, possibles_threshold_variance
+
+    possibles_l_dim              = candidates.l_dim
+    possibles_a_functions        = candidates.a_functions
+    possibles_distribution       = candidates.distribution
+    possibles_patience           = candidates.patience
+    possibles_bias               = candidates.bias
+    classification               = candidates.classification  
+    early_stop                   = candidates.early_stop
+    possibles_threshold_variance = candidates.treshold_variance
     
     # Default values for Coarse Grid Search (values differ in order of magnitude)
     if coarse:
@@ -48,16 +49,17 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
     """
     init_grid_search(hyperparameters, coarse)
     
-
     count:int = 0
     # effective_count:int = 0
     if coarse:
-        permutation:int = len(possibles_eta) * len(possibles_momentum)\
-         * len(possibles_tau)  * len(possibles_dim_batch)\
-         * len(possibles_reg) * len(possibles_eps) * len(possibles_l_dim)\
+        permutation:int = len(possibles_l_dim) * len(possibles_a_functions) * len(possibles_eta)\
+         * len(possibles_momentum) * len(possibles_reg) * len(possibles_dim_batch)\
+         * len(possibles_tau) * len(possibles_patience) * len(possibles_eps)\
          * len(possibles_distribution) *  len(possibles_bias)\
-         * len(possibles_a_functions) *  len(possibles_patience)\
-         * len(possibles_epochs)
+         * len(possibles_epochs) * len(possibles_threshold_variance) \
+         
+        # print(f'permutation: {permutation}, l:{possibles_l_dim}, f:{possibles_a_functions}, dimBatch:{possibles_dim_batch}')
+        # input('premi')
         """ cycle over all the permutation values of hyperparameters """
         for eta in possibles_eta:
             for momentum in possibles_momentum:
@@ -66,7 +68,7 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
                             for l_dim in possibles_l_dim:
                                 for a_functions in possibles_a_functions:
                                     # if there are some problems with the configuration dimensions of the layer or the activation functions
-                                    if len(a_functions) != 1 and len(a_functions) != len(l_dim) -1:
+                                    if len(a_functions) != 1 and len(a_functions) != len(l_dim) - 1:
                                         permutation -= 1
                                     else:
                                         for eps in possibles_eps:

@@ -3,7 +3,6 @@ from kfoldCV import KfoldCV
 import readMonk_and_Cup as readMC
 import dnn_plot
 import costants as C
-import time 
 
 def main():
     TR_x_monk1,TR_y_monk1 = readMC.get_train_Monk_1()
@@ -20,11 +19,11 @@ def main():
     error['root_mean_squared_error'] = model.metrics.root_mean_squared_error(TS_y_monk1, out)
     error['mean_euclidean_error'] = model.metrics.mean_euclidean_error(TS_y_monk1, out)
     classification=model.metrics.metrics_binary_classification(TS_y_monk1,out)
-    plot_path =None
+    plot_path = None
     inYlim = (-0.5, 1.5)
     dnn_plot.plot_curves(error['error'], error['validation'], error['metric_tr'], error['metric_val'], 
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = "Test", path = plot_path, 
-                        ylim = inYlim, titleplot = f"Test Model assessment",
+                        ylim = inYlim, titleplot = "Test Model assessment",
                         theta = winner.get_dictionary())
             
            

@@ -186,16 +186,16 @@ class DidacticNeuralNetwork:
     :param pattern: number of pattern predicted  
     :return: void
     '''
-    def update_wb(self, delta, pattern:float,batch_number=1,LMS:bool=C.LMS):
-        if LMS==False:
-            pattern=1
-            batch_number=1
+    def update_wb(self, delta, pattern:float, batch_number = 1, LMS:bool = C.LMS):
+        if LMS == False:
+            pattern = 1
+            batch_number = 1
         p_eta:float = (self.eta) / batch_number
         for l in range(len(self.l_dim) - 1, 0, -1):
             name_layer:str = str(l)
             #print(f"Name {name_layer}",self.out[f"out{l-1}"].shape)
-            deltaW =  ((delta[l-1].T @self.out[f"out{l-1}"]))  / pattern 
-            deltaB =  ((np.sum(delta[l-1].T,axis=1,keepdims=True))) / pattern
+            deltaW = (delta[l-1].T @self.out[f"out{l-1}"])  / pattern 
+            deltaB = (np.sum(delta[l-1].T,axis=1,keepdims=True)) / pattern
             
             #save the old gradient for the Nesterov momentum if needed
             if self.momentum == C.NESTEROV:
@@ -222,8 +222,8 @@ class DidacticNeuralNetwork:
                 deltaB -= self.regular.derivative(self, self.lambdar, self.wb[f'b{name_layer}'])
 
            
-            self.wb[f'W{name_layer}'] =  np.add(self.wb[f'W{name_layer}'], deltaW) 
-            self.wb[f'b{name_layer}'] = np.add(self.wb[f'b{name_layer}'] ,deltaB)
+            self.wb[f'W{name_layer}'] = np.add(self.wb[f'W{name_layer}'], deltaW) 
+            self.wb[f'b{name_layer}'] = np.add(self.wb[f'b{name_layer}'], deltaB)
 
 
     '''
@@ -233,11 +233,11 @@ class DidacticNeuralNetwork:
     '''
     def back_propagation(self, y):
         delta_t = []
-        num_layers = len(self.l_dim) - 1
-        interim=""
+        num_layers:int = len(self.l_dim) - 1
+        interim:str = ""
         #Reverse loop of the network layer
-        if self.momentum == C.NESTEROV and f"wold1" in self.deltaOld:
-                interim="_"
+        if self.momentum == C.NESTEROV and "wold1" in self.deltaOld:
+                interim = "_"
         for l in range(num_layers, 0, -1):
             dt = 0
             name_layer:str = str(l)
@@ -258,7 +258,7 @@ class DidacticNeuralNetwork:
     """
     :return: history_terror, history_tloss, validation_error. History Error of the train and validation error
     """
-    def train(self, validation=False):
+    def train(self, validation:bool = False):
         #initialize error/loss variable
         history_terror, history_tloss, validation_error = [], [], []
         metric_tr, metric_val = [], []
@@ -329,7 +329,7 @@ class DidacticNeuralNetwork:
                             self.wb[f"W_{l}"] = self.wb[f"W{l}"] + (self.alpha*self.deltaOld[f"wold{l}"])
                             self.wb[f"b_{l}"] = self.wb[f"b{l}"] + (self.alpha*self.deltaOld[f"bold{l}"])  
                     if self.momentum == C.NESTEROV  and f"wold{l}" in self.deltaOld:
-                        self.forward_propagation(batch_x.copy(), update=True,nesterov=True)              
+                        self.forward_propagation(batch_x.copy(), update=True, nesterov=True)              
                 #compute delta using back propagation on target batch
                 delta = self.back_propagation(batch_y)
                 # call update weights function
@@ -376,11 +376,15 @@ class DidacticNeuralNetwork:
                         
             if epoch >= 19 and self.early_stop:
                 #variance=np.var(history_tloss[-20:],ddof=1)
-                variance=0
+                variance = 0
                 if self.classification:
-                    variance=np.var(c_metric['v_misclassified'][-20:],ddof=1)
+                    variance = np.var(c_metric['v_misclassified'][-20:],ddof=1)
                 else:
-                    variance=np.var(validation_error[-20:],ddof=1)
+                    variance = np.var(validation_error[-20:],ddof=1)
+                    # if validation:
+                    #     variance = np.var(validation_error[-20:],ddof=1)
+                    # else:
+                    #     variance = np.var(traination_error[-20:],ddof=1) # da capire seserve l'errore di training perché  significa che nel training non ci sonono migliorie
                 if variance < self.treshold_variance:    
                 #if  np.linalg.norm(delta[-1]/batch_x.shape[0]) < 0.1:
                     selfcontrol += 1
@@ -420,18 +424,20 @@ class DidacticNeuralNetwork:
     :param dim_batch: the dimension of mini-batch, if 0 is equal to batch, if 1 is stochastic/online update version
     :param **kwargs: extra params for the training
     """
-    def fit(self, x_train, y_train, x_val=[], y_val=[], dim_batch = None):
+    def fit(self, x_train, y_train, x_val = [], y_val = [], dim_batch = None):
         #initialize a dictionary contain dataset information
         self.dataset = {}
         self.dataset[C.NUM_POINT_X] = x_train.shape[0]
         self.dataset[C.INPUT_TRAINING]= x_train.copy()
         self.dataset[C.OUTPUT_TRAINING]= y_train.copy()
-        if  x_val.size!=0 or y_val.size!=0:
+        
+        validation:bool = False
+        
+        if  x_val.size != 0 or y_val.size != 0:
             self.dataset[C.INPUT_VALIDATION]= x_val.copy()
             self.dataset[C.OUTPUT_VALIDATION]= y_val.copy()
-            validation=True
-        else:
-            validation=False
+            validation = True
+            
         
         if (dim_batch == None):
             dim_batch=self.dim_batch

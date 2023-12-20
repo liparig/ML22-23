@@ -182,7 +182,7 @@ class CandidatesHyperparameters:
         """
         if namedataset == 'monk':
             self.l_dim = [[17,2,1]]
-            self.a_functions = [[C.RELU,C.TANH]]#,[C.RELU, C.SIGMOID]
+            self.a_functions = [[C.RELU, C.TANH]]#,[C.RELU, C.SIGMOID]
             self.eta = [0.4]
             self.momentum = [(C.NESTEROV, 0.5)]
             self.reg = [ (False, False)] #(TIKHONOV, 0.01), (LASSO, 0.01), (False, False)

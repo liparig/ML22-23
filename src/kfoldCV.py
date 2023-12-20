@@ -101,14 +101,14 @@ class KfoldCV:
             start = time.time()
             
             if theta["classification"]:
-                labelMetric='Accuracy'
+                labelMetric = 'Accuracy'
             else:
-                labelMetric='MEE'
+                labelMetric = 'MEE'
 
             plot_curves(error['error'], error['validation'], error['metric_tr'], error['metric_val'], error_tr=error['loss'],
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = C.LABEL_PLOT_VALIDATION, path = plot_path, 
                         ylim = inYlim, titleplot = f"Model \#{candidatenumber} fold {fold['k']}",
-                        theta = theta,labelsY = ['Loss',labelMetric])
+                        theta = theta, labelsY = ['Loss', labelMetric])
             
            
             end = time.time()
@@ -200,8 +200,11 @@ class KfoldCV:
     
     def validate(self, default:str = "monk", FineGS:bool = False, plot:bool = True):
         
-        if default == "monk" or default == "cup":
+        if default in ["monk", "cup"]:
             self.candidates_hyperparameters.set_project_hyperparameters(default)
+        else: 
+            print(f'{default} is not valid')
+            return 
         """ K-Fold Cross Validation """
         # a first coarse Grid Search, values differ in order of magnitude
         create_candidate, total = grid_search.grid_search(hyperparameters = self.candidates_hyperparameters)
@@ -219,7 +222,7 @@ class KfoldCV:
         for i, theta in enumerate(create_candidate.get_all_candidates_dict()):
             kfoldLog.estimate_model(log, i+1, total)
             
-            self.estimate_model_error(theta, log, inCandidatenumber = i+1, plot=plot, pathPlot = path_dir_models_coarse)
+            self.estimate_model_error(theta, log, inCandidatenumber = i+1, plot = plot, pathPlot = path_dir_models_coarse)
             
         winner, modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification)
         winner = Candidate(winner)

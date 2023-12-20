@@ -92,14 +92,12 @@ def read_monk_Tr_Vl(name:str = TRAINMONK1, perc:float = 0.25):
     
     return inputs, targets, val_inputs, val_targets
 
-def read_cup(name,targetCol=3):
+def read_cup(name):
     # get directory
-    targets=[]
+    targets = []
     # read csv
     col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'target_x', 'target_y','target_z']
 
-  
-        
     cup_dataset = pd.read_csv(name, sep=',', skiprows=range(7), names=col_names)
 
     cup_dataset.set_index('Id', inplace=True)
@@ -111,7 +109,7 @@ def read_cup(name,targetCol=3):
         target_x = cup_dataset.pop('target_x').to_numpy(dtype=np.float32)
         target_y = cup_dataset.pop('target_y').to_numpy(dtype=np.float32)
         target_z = cup_dataset.pop('target_z').to_numpy(dtype=np.float32)
-        targets=np.vstack((target_x,target_y,target_z)).T
+        targets = np.vstack((target_x,target_y,target_z)).T
     
     inputs = cup_dataset.to_numpy(dtype=np.float32)
     # transform labels from pandas dataframe to numpy ndarray
