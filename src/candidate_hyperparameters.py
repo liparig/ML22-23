@@ -223,18 +223,20 @@ class CandidatesHyperparameters:
             self.classification=[True]
             '''
         elif namedataset=="cup":
-            self.l_dim = [[9,16,8,3],[9,32,16,3],[9,64,32,16,3]]
-            self.a_functions = [[C.SIGMOID,C.SIGMOID,'identity'],['relu','relu','identity'],['relu','relu','relu','identity'],[C.SIGMOID,C.SIGMOID,C.SIGMOID,'identity']]
-            self.eta=[0.1, 0.01]
-            self.momentum=[ ('',0) , ('nesterov',0.5) , ('classic',0.5) ]
-            self.reg=[ (False,False), ('tikhonov',0.0001),  ('lasso',0.0001) ]
-            self.dim_batch=[0,25]
-            self.tau=[ (False,False), (100,0.005), (70,0.001)]
-            self.patience=[20]
-            self.eps=[0.1,0.3]
-            self.distribution=['uniform']
+            self.l_dim = [[9,16,8,3],[9,32,16,3],[9,64,32,16,3],[9,64,32,16,8,3]]
+            self.a_functions = [[C.TANH,C.TANH,C.IDENTITY],[C.RELU,C.RELU,C.IDENTITY],[C.RELU,C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.RELU,C.RELU,C.IDENTITY]]
+            self.eta=[0.2, 0,1]
+            self.momentum=[ (False,False) , (C.NESTEROV,0.5) , (C.CLASSIC,0.5),(C.NESTEROV,0.9) , (C.CLASSIC,0.9) ]
+            self.reg=[ (False,False), ('tikhonov',0.01),  ('lasso',0.01) ]
+            self.dim_batch=[0,200]
+            self.tau=[ (1000,0.05), (1000,0.01)]
+            self.patience=[200]
+            self.eps=[0.2,0.7]
+            self.distribution=[C.UNIFORM,C.BASIC]
             self.bias = [0]
             self.classification=False
+            self.epochs = [2000]
+            self.treshold_variance = [1.e-6]
         
    
                 

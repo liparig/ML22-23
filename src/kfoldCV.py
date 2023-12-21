@@ -208,7 +208,7 @@ class KfoldCV:
         """ K-Fold Cross Validation """
         # a first coarse Grid Search, values differ in order of magnitude
         create_candidate, total = grid_search.grid_search(hyperparameters = self.candidates_hyperparameters)
-        
+      
         log, timestr = kfoldLog.start_log("ModelSelection")
         
         # Directory

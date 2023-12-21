@@ -14,7 +14,7 @@ INPUT_VALIDATION:str = 'x_val'
 OUTPUT_VALIDATION:str = 'y_val'
 
 FORMATTIMESTAMP:str = '%d%m%Y-%H%M'
-
+#HYPERPARAMETERS
 R_SEEDS:int = 22
 EPS:float = 0.7 #interval for initialization of the weights
 BIAS:float = 0 #w0
@@ -47,3 +47,6 @@ LABEL_PLOT_VALIDATION:str = "Validation"
 
 TIKHONOV:str = 'tikhonov'
 LASSO:str = 'lasso'
+
+CUP = "cup"
+MONK = "monk"
