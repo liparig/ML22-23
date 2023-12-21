@@ -161,3 +161,5 @@ cython_debug/
 
 plot
 KFoldCV
+plot2
+KFoldCV2

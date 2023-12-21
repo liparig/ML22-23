@@ -385,6 +385,7 @@ class DidacticNeuralNetwork:
                     #     variance = np.var(validation_error[-20:],ddof=1)
                     # else:
                     #     variance = np.var(traination_error[-20:],ddof=1) # da capire seserve l'errore di training perché  significa che nel training non ci sonono migliorie
+                    # capire con cosa confrontare la soglia
                 if variance < self.treshold_variance:    
                 #if  np.linalg.norm(delta[-1]/batch_x.shape[0]) < 0.1:
                     selfcontrol += 1
@@ -433,7 +434,7 @@ class DidacticNeuralNetwork:
         
         validation:bool = False
         
-        if  x_val.size != 0 or y_val.size != 0:
+        if  x_val.size != 0 and y_val.size != 0:
             self.dataset[C.INPUT_VALIDATION]= x_val.copy()
             self.dataset[C.OUTPUT_VALIDATION]= y_val.copy()
             validation = True
