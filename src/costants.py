@@ -29,6 +29,7 @@ PATIENCE:int = 20 #Max Epochs with small changes
 MOMENTUM = ("",0)
 EARLYSTOP:bool = True
 TRESHOLDVARIANCE:float = 1.e-6
+BATCH_SHUFFLE=True
 
 UNIFORM:str = 'uniform'
 RANDOM:str = 'random'
@@ -50,3 +51,22 @@ LASSO:str = 'lasso'
 
 CUP = "cup"
 MONK = "monk"
+
+#Label HYPERPARAMETERS key dictionary
+L_NET='l_dim'
+L_ACTIVATION= 'a_functions'
+L_ETA='eta'
+L_TAU='tau'
+L_REG='reg'
+L_DIMBATCH='dim_batch'
+L_MOMENTUM='momentum'
+L_EPOCHS='epochs'
+L_SHUFFLE='batch_shuffle'
+L_EPS= 'eps'
+L_DISTRIBUTION='distribution'
+L_BIAS='bias'
+L_SEED= 'seed'
+L_CLASSIFICATION= 'classification'
+L_EARLYSTOP='early_stop'
+L_PATIENCE='patience'
+L_TRESHOLD_VARIANCE='treshold_variance'

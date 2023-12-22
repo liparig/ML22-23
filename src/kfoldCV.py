@@ -20,6 +20,8 @@ class KfoldCV:
         self.inputs = inputs
         self.targets = targets
         self.kfolds:list = self.divide_dataset()
+        if k<=1:
+            raise Exception("Il numero di fold k deve essere maggiore di 1")    
         print(f"---- Dataset diviso in #{self.k} Fold ----")
         self.models_error:list = []
 
@@ -198,30 +200,31 @@ class KfoldCV:
         # input('premi')
         return self.models_error[lower_mean]["hyperparameters"], self.models_error[lower_mean]["candidateNumber"]
     
-    def validate(self, default:str = "monk", FineGS:bool = False, plot:bool = True):
+    def validate(self, default:str = "monk", theta =  None, FineGS:bool = False, plot:bool = True,prefixFilename=""):
         
         if default in ["monk", "cup"]:
             self.candidates_hyperparameters.set_project_hyperparameters(default)
         else: 
-            print(f'{default} is not valid')
-            return 
+            self.candidates_hyperparameters.set_project_hyperparameters(default=False, theta=theta)
+        
         """ K-Fold Cross Validation """
         # a first coarse Grid Search, values differ in order of magnitude
-        create_candidate, total = grid_search.grid_search(hyperparameters = self.candidates_hyperparameters)
-      
+        all_candidates, total = grid_search.grid_search(hyperparameters = self.candidates_hyperparameters)
+        if len(all_candidates.get_all_candidates_dict())==0:
+            print("Nessun candidato creato!")
         log, timestr = kfoldLog.start_log("ModelSelection")
         
         # Directory
-        new_directory_name:str = f"{C.PREFIX_DIR_COARSE}{timestr}"
+        new_directory_name:str = f"{prefixFilename}{C.PREFIX_DIR_COARSE}{timestr}"
         # Parent Directory path
         
         # Path
         path_dir_models_coarse = os.path.join(C.PATH_PLOT_DIR, new_directory_name)
         if not os.path.exists(path_dir_models_coarse):
             os.makedirs(path_dir_models_coarse)
-        for i, theta in enumerate(create_candidate.get_all_candidates_dict()):
+        for i, theta in enumerate(all_candidates.get_all_candidates_dict()):
             kfoldLog.estimate_model(log, i+1, total)
-            
+            print(theta)
             self.estimate_model_error(theta, log, inCandidatenumber = i+1, plot = plot, pathPlot = path_dir_models_coarse)
             
         winner, modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification)
@@ -232,12 +235,12 @@ class KfoldCV:
         if FineGS:
             oldErrors=self.models_error
             self.models_error.clear()
-            print(len(oldErrors))
             log, timestr = kfoldLog.start_log("FineModelSelection")
+            print(winner)
             possible_winners, total = grid_search.grid_search(hyperparameters = winner, coarse = False)
             print("---Start Fine Grid search...\n")
             # Directory
-            directory = f"Fine{timestr}"
+            directory = f"{prefixFilename}{C.PREFIX_DIR_FINE}{timestr}"
             # Parent Directory path
             parent_dir = "../plot/"
             # Path

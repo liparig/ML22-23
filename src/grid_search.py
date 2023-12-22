@@ -1,6 +1,7 @@
 #from validation.distribuited_computing import kfold_distributed_computing_cup
 from candidate_hyperparameters import CandidatesHyperparameters
 from candidate_hyperparameters import Candidate
+import costants as C
 
 def init_grid_search(candidates:CandidatesHyperparameters|Candidate, coarse:bool):
     """ This function fills the set of possibile hyperparameters for the Grid Search
@@ -38,7 +39,7 @@ def init_grid_search(candidates:CandidatesHyperparameters|Candidate, coarse:bool
         possibles_eps           = candidates.get_fine_range(candidates.eps)
         possibles_dim_batch     = candidates.get_fine_batch_size(candidates.dim_batch)
         possibles_epochs        = candidates.get_fine_int_range(candidates.epochs)
-        
+   
         
 def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool = True):
     candidates = CandidatesHyperparameters()
@@ -56,8 +57,8 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
          * len(possibles_momentum) * len(possibles_reg) * len(possibles_dim_batch)\
          * len(possibles_tau) * len(possibles_patience) * len(possibles_eps)\
          * len(possibles_distribution) *  len(possibles_bias)\
-         * len(possibles_epochs) * len(possibles_threshold_variance) \
-         
+         * len(possibles_epochs) * len(possibles_threshold_variance) 
+        
         # print(f'permutation: {permutation}, l:{possibles_l_dim}, f:{possibles_a_functions}, dimBatch:{possibles_dim_batch}')
         # input('premi')
         """ cycle over all the permutation values of hyperparameters """
@@ -65,32 +66,31 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
             for momentum in possibles_momentum:
                 for tau in possibles_tau:
                     for dim_batch in possibles_dim_batch:
-                            for l_dim in possibles_l_dim:
-                                for a_functions in possibles_a_functions:
-                                    # if there are some problems with the configuration dimensions of the layer or the activation functions
-                                    if len(a_functions) != 1 and len(a_functions) != len(l_dim) - 1:
-                                        permutation -= 1
-                                    else:
-                                        for eps in possibles_eps:
-                                            for distribution in possibles_distribution:
-                                                for patience in possibles_patience:
-                                                    for bias in possibles_bias:
-                                                        for reg in possibles_reg:
-                                                            for epochs in possibles_epochs:
-                                                                if count == 0 or count%100 == 0 or count == permutation-1:
-                                                                    print("Create the candidate:", count+1, "/", permutation)
-                                                                count += 1
-                                                                # random=np.random.rand(1)
-                                                                # if effective_count<5:
-                                                                #     effective_count+=1
-                                                                #     candidates.insert_candidate(l_dim=l_dim, a_functions=a_functions, eta=eta, tau=tau, reg=reg,\
-                                                                #         dim_batch=dim_batch, momentum=momentum,eps=eps,distribution=distribution,\
-                                                                #         bias=bias, classification=classification,patience=patience)
-                                                                # else: return candidates, effective_count
-                                                                candidates.insert_candidate(l_dim=l_dim, a_functions=a_functions, eta=eta, tau=tau, reg=reg,\
-                                                                        dim_batch=dim_batch, momentum=momentum,eps=eps,distribution=distribution,\
-                                                                        bias=bias, classification=classification,patience=patience,early_stop=early_stop,epochs=epochs)
-                                                                
+                        for l_dim in possibles_l_dim:
+                            for a_functions in possibles_a_functions:
+                                # if there are some problems with the configuration dimensions of the layer or the activation functions
+                                if len(a_functions) != 1 and len(a_functions) != len(l_dim) - 1:
+                                    permutation -= 1
+                                else:
+                                    for eps in possibles_eps:
+                                        for distribution in possibles_distribution:                                                    
+                                            for patience in possibles_patience:
+                                                for bias in possibles_bias:
+                                                    for reg in possibles_reg:
+                                                        for epochs in possibles_epochs:
+                                                            if count == 0 or count%100 == 0 or count == permutation-1:
+                                                                print("Create the candidate:", count+1, "/", permutation)
+                                                            count += 1
+                                                            # random=np.random.rand(1)
+                                                            # if effective_count<5:
+                                                            #     effective_count+=1
+                                                            #     candidates.insert_candidate(l_dim=l_dim, a_functions=a_functions, eta=eta, tau=tau, reg=reg,\
+                                                            #         dim_batch=dim_batch, momentum=momentum,eps=eps,distribution=distribution,\
+                                                            #         bias=bias, classification=classification,patience=patience)
+                                                            # else: return candidates, effective_count
+                                                            candidates.insert_candidate(l_dim=l_dim, a_functions=a_functions, eta=eta, tau=tau, reg=reg,\
+                                                                    dim_batch=dim_batch, momentum=momentum,eps=eps,distribution=distribution,\
+                                                                    bias=bias, classification=classification,patience=patience,early_stop=early_stop,epochs=epochs)
 
     else:
         """ cycle over all the permutation values of hyperparameters """

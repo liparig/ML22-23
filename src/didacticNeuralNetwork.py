@@ -33,7 +33,7 @@ class DidacticNeuralNetwork:
     3. init random weights 
     """
     def __init__(self, l_dim:list[int], a_functions:list[str] = [C.SIGMOID], l_function:str = C.MSE, eta:float = C.ETA, 
-                 tau = C.TAU, epochs:int = C.EPOCHS, batch_shuffle:bool = True, reg = C.REG, momentum = C.MOMENTUM, 
+                 tau = C.TAU, epochs:int = C.EPOCHS, batch_shuffle:bool = C.BATCH_SHUFFLE, reg = C.REG, momentum = C.MOMENTUM, 
                  classification:bool = False, early_stop:bool = True, patience:int = C.PATIENCE, treshold_variance:float = C.TRESHOLDVARIANCE, 
                  dim_batch:int = C.BATCH, plot = None, seed = C.R_SEEDS, **kwargs):
         self.gen = Generator(PCG64(seed))
