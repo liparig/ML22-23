@@ -65,6 +65,7 @@ class KfoldCV:
         x_val = fold["x_val"]
         y_val = fold["y_val"]
         start = time.time()
+        print("THETA",theta)
         model = dnn(**theta)
         end = time.time()
         print(f'seconds for make model {end-start}')
@@ -194,14 +195,11 @@ class KfoldCV:
                 means.append(result["mean_mee"])
          # choose the set of hyperparameters which gives the minimum mean error
         lower_mean = np.argmin(means)
-        # print(means)
-        # print(lower_mean)
-        # print(self.models_error[lower_mean])
-        # input('premi')
         return self.models_error[lower_mean]["hyperparameters"], self.models_error[lower_mean]["candidateNumber"]
     
-    def validate(self, default:str = "monk", theta =  None, FineGS:bool = False, plot:bool = True,prefixFilename=""):
-        
+    def validate(self, default:str = "monk", theta =  None, FineGS:bool = False, plot:bool = True,prefixFilename="",clearOldThetaWinner=True):
+        if clearOldThetaWinner:
+            self.models_error.clear()
         if default in ["monk", "cup"]:
             self.candidates_hyperparameters.set_project_hyperparameters(default)
         else: 
@@ -224,7 +222,6 @@ class KfoldCV:
             os.makedirs(path_dir_models_coarse)
         for i, theta in enumerate(all_candidates.get_all_candidates_dict()):
             kfoldLog.estimate_model(log, i+1, total)
-            print(theta)
             self.estimate_model_error(theta, log, inCandidatenumber = i+1, plot = plot, pathPlot = path_dir_models_coarse)
             
         winner, modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification)
@@ -236,7 +233,6 @@ class KfoldCV:
             oldErrors=self.models_error
             self.models_error.clear()
             log, timestr = kfoldLog.start_log("FineModelSelection")
-            print(winner)
             possible_winners, total = grid_search.grid_search(hyperparameters = winner, coarse = False)
             print("---Start Fine Grid search...\n")
             # Directory

@@ -44,9 +44,9 @@ class Candidate:
         if value == 0:
             return [0]
         else:
-            return [max(1, value *lower),
+            return [max(1, int(np.round(value * lower))),
                 value,
-                int(value *higher )]
+               int(np.round(value * higher ))]
         
     def get_fine_int_range(self,value):
         """
