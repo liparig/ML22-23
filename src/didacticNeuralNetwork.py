@@ -6,7 +6,7 @@ from activationFunctions  import derivatives
 import costants as C
 from lossFunctions import loss
 from regularization import regularization
-from metrics import DNN_metrics
+from metrics import dnn_metrics
 import math
 import numpy as np
 from numpy.random import Generator, PCG64
@@ -32,10 +32,10 @@ class DidacticNeuralNetwork:
     2. check dimensions of layers array and activation functions array
     3. init random weights 
     """
-    def __init__(self, l_dim:list[int], a_functions:list[str] = [C.SIGMOID], l_function:str = C.MSE, eta:float = C.ETA, 
+    def __init__(self, l_dim:list[int] = None, a_functions:list[str] = [C.SIGMOID], l_function:str = C.MSE, eta:float = C.ETA, 
                  tau = C.TAU, epochs:int = C.EPOCHS, batch_shuffle:bool = C.BATCH_SHUFFLE, reg = C.REG, momentum = C.MOMENTUM, 
                  classification:bool = False, early_stop:bool = True, patience:int = C.PATIENCE, treshold_variance:float = C.TRESHOLDVARIANCE, 
-                 dim_batch:int = C.BATCH, plot = None, seed = C.R_SEEDS, **kwargs):
+                 dim_batch:int = C.BATCH, plot = None, seed:int = C.R_SEEDS, **kwargs):
         self.gen = Generator(PCG64(seed))
         self.a_functions = a_functions
         self.__check_init__(l_dim, a_functions)
@@ -45,7 +45,7 @@ class DidacticNeuralNetwork:
         self.net = {}
         self.out = {}
         self.deltaOld = {}
-        self.metrics = DNN_metrics()
+        self.metrics = dnn_metrics()
         #save eta and momentum in self variable
         self.eta = eta
         self.momentum = momentum[0]
@@ -350,27 +350,27 @@ class DidacticNeuralNetwork:
                 validation_error.append(self.l_function.loss(self, self.dataset[C.OUTPUT_VALIDATION],out_v))
                 if self.classification:
                     mbc_v = self.metrics.metrics_binary_classification(self.dataset[C.OUTPUT_VALIDATION],out_v,treshold=0.5)
-                    c_metric['v_accuracy'].append(mbc_v['accuracy'])
-                    c_metric['v_precision'].append(mbc_v['precision'])
-                    c_metric['v_recall'].append(mbc_v['recall'])
-                    c_metric['v_specificity'].append(mbc_v['specificity'])
-                    c_metric['v_balanced'].append(mbc_v['balanced'])
-                    c_metric['v_misclassified'].append(mbc_v['misclassified'])
-                    c_metric['v_classified'].append(mbc_v['classified'])                
-                    metric_val.append(mbc_v['accuracy'])
+                    c_metric['v_accuracy'].append(mbc_v[C.ACCURACY])
+                    c_metric['v_precision'].append(mbc_v[C.PRECISION])
+                    c_metric['v_recall'].append(mbc_v[C.RECALL])
+                    c_metric['v_specificity'].append(mbc_v[C.SPECIFICITY])
+                    c_metric['v_balanced'].append(mbc_v[C.BALANCED])
+                    c_metric['v_misclassified'].append(mbc_v[C.MISSCLASSIFIED])
+                    c_metric['v_classified'].append(mbc_v[C.CLASSIFIED])                
+                    metric_val.append(mbc_v[C.ACCURACY])
                 else:
                     metric_val.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_VALIDATION], out_v))
                     
             if self.classification:
                 mbc = self.metrics.metrics_binary_classification(self.dataset[C.OUTPUT_TRAINING],out_t,treshold=0.5)
-                c_metric['t_accuracy'].append(mbc['accuracy'])
-                c_metric['t_precision'].append(mbc['precision'])
-                c_metric['t_recall'].append(mbc['recall'])
-                c_metric['t_specificity'].append(mbc['specificity'])
-                c_metric['t_balanced'].append(mbc['balanced'])
-                c_metric['t_misclassified'].append(mbc['misclassified'])
-                c_metric['t_classified'].append(mbc['classified'])
-                metric_tr.append(mbc['accuracy'])
+                c_metric['t_accuracy'].append(mbc[C.ACCURACY])
+                c_metric['t_precision'].append(mbc[C.PRECISION])
+                c_metric['t_recall'].append(mbc[C.RECALL])
+                c_metric['t_specificity'].append(mbc[C.SPECIFICITY])
+                c_metric['t_balanced'].append(mbc[C.BALANCED])
+                c_metric['t_misclassified'].append(mbc[C.MISSCLASSIFIED])
+                c_metric['t_classified'].append(mbc[C.CLASSIFIED])
+                metric_tr.append(mbc[C.ACCURACY])
             else:
                 metric_tr.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_TRAINING], out_t))
                         

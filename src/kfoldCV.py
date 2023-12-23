@@ -104,7 +104,7 @@ class KfoldCV:
             start = time.time()
             
             if theta["classification"]:
-                labelMetric = 'Accuracy'
+                labelMetric = C.ACCURACY
             else:
                 labelMetric = 'MEE'
 
@@ -197,19 +197,16 @@ class KfoldCV:
         lower_mean = np.argmin(means)
         return self.models_error[lower_mean]["hyperparameters"], self.models_error[lower_mean]["candidateNumber"]
     
-    def validate(self, default:str = "monk", theta =  None, FineGS:bool = False, plot:bool = True,prefixFilename="",clearOldThetaWinner=True):
+    def validate(self, inDefault:str = C.MONK, inTheta = None, FineGS:bool = False, plot:bool = True,prefixFilename = "", clearOldThetaWinner:bool = True):
         if clearOldThetaWinner:
             self.models_error.clear()
-        if default in ["monk", "cup"]:
-            self.candidates_hyperparameters.set_project_hyperparameters(default)
-        else: 
-            self.candidates_hyperparameters.set_project_hyperparameters(default=False, theta=theta)
+        self.candidates_hyperparameters.set_project_hyperparameters(default = inDefault, theta = inTheta)
         
         """ K-Fold Cross Validation """
         # a first coarse Grid Search, values differ in order of magnitude
         all_candidates, total = grid_search.grid_search(hyperparameters = self.candidates_hyperparameters)
-        if len(all_candidates.get_all_candidates_dict())==0:
-            print("Nessun candidato creato!")
+        if len(all_candidates.get_all_candidates_dict()) == 0:
+            print("The new candidates were not created")
         log, timestr = kfoldLog.start_log("ModelSelection")
         
         # Directory
@@ -230,7 +227,7 @@ class KfoldCV:
         kfoldLog.end_log(log)
 
         if FineGS:
-            oldErrors=self.models_error
+            # oldErrors = self.models_error
             self.models_error.clear()
             log, timestr = kfoldLog.start_log("FineModelSelection")
             possible_winners, total = grid_search.grid_search(hyperparameters = winner, coarse = False)

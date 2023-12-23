@@ -185,7 +185,7 @@ class CandidatesHyperparameters:
             candidates.append(self.get_candidate_dict(index))
         return candidates
     
-    def set_project_hyperparameters(self, default, theta=None):
+    def set_project_hyperparameters(self, default:str = C.MONK, theta = None):
         """
         :param dataset: quale dataset utilizzare
         :return: set di valori per gli hyperparameters per la Model Selection
@@ -207,9 +207,7 @@ class CandidatesHyperparameters:
             self.epochs = theta[C.L_EPOCHS]
             self.classification= theta[C.L_CLASSIFICATION]
             self.treshold_variance = theta[C.L_TRESHOLD_VARIANCE]
-            return
-        
-        if default == 'monk':
+        elif default == C.MONK:
             self.l_dim = [[17,2,1],[17,4,1]]
             self.a_functions = [[C.RELU,C.TANH],[C.TANH,C.TANH]]#,[C.RELU, C.SIGMOID]
             self.eta = [0.1,0.05]
@@ -251,12 +249,12 @@ class CandidatesHyperparameters:
             self.bias = [0]
             self.classification=[True]
             '''
-        elif default=="cup":
+        elif default == C.CUP:
             self.l_dim = [[9,16,8,3],[9,32,16,3],[9,64,32,16,3],[9,64,32,16,8,3]]
             self.a_functions = [[C.TANH,C.TANH,C.IDENTITY],[C.RELU,C.RELU,C.IDENTITY],[C.RELU,C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.RELU,C.RELU,C.IDENTITY]]
             self.eta=[0.2, 0,1]
             self.momentum=[ (False,False) , (C.NESTEROV,0.5) , (C.CLASSIC,0.5),(C.NESTEROV,0.9) , (C.CLASSIC,0.9) ]
-            self.reg=[ (False,False), ('tikhonov',0.01),  ('lasso',0.01) ]
+            self.reg=[ (False,False), (C.TIKHONOV,0.01),  (C.LASSO,0.01) ]
             self.dim_batch=[0,200]
             self.tau=[ (1000,0.05), (1000,0.01)]
             self.patience=[200]
@@ -266,6 +264,5 @@ class CandidatesHyperparameters:
             self.classification=False
             self.epochs = [2000]
             self.treshold_variance = [1.e-6]
-        
-   
-                
+        else: 
+            raise ValueError(f'Invalid {default} and {theta}')

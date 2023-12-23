@@ -1,12 +1,13 @@
 import numpy as np
+import costants as C
 
-class DNN_metrics:
+class dnn_metrics:
     '''
     Compute metrics_binary_classification
     :param y: target values
     :param y_hat: predicted values
     :param treshold: treshold values
-    :return result: dictionary with: 'accuracy','precision','recall','specificity','balanced'
+    :return result: dictionary with: C.ACCURACY,C.PRECISION,C.RECALL,C.SPECIFICITY,C.BALANCED
     '''
     def metrics_binary_classification(self, y, y_hat, treshold = 0.5):
         if np.squeeze(y).shape != np.squeeze(y_hat).shape:
@@ -16,28 +17,29 @@ class DNN_metrics:
         for predicted, target in zip(y_hat.flatten(),y.flatten()):
             if predicted < treshold:
                 if target == 0:
-                    tn+=1
+                    tn += 1
                 else:
-                    fn+=1
+                    fn += 1
             else:
                 if target == 1:
-                    tp+=1
+                    tp += 1
                 else:
-                    fp+=1
+                    fp += 1
 
-        accuracy=(tp+tn)/(tp+tn+fp+fn) if tp+tn+fp+fn >0 else 0
-        recall= tp/(tp+fn) if tp+fn >0 else 0
-        precision = tp/(tp+fp) if tp+fp >0 else 0
-        specificity= tn/(tn+fp) if tn+fp >0 else 0
-        balanced=0.5*(tp/(tp+fn)+tn/(tn+fp)) if tp+fn and tn+fp  >0 else 0
+        accuracy = (tp+tn)/(tp+tn+fp+fn) if tp+tn+fp+fn > 0 else 0
+        recall = tp/(tp+fn) if tp+fn > 0 else 0
+        precision = tp/(tp+fp) if tp+fp > 0 else 0
+        specificity = tn/(tn+fp) if tn+fp > 0 else 0
+        balanced = 0.5*(tp/(tp+fn)+tn/(tn+fp)) if tp+fn and tn+fp  >0 else 0
 
-        return {'misclassified': fp+fn,
-        'classified':tp+tn,
-        'accuracy':accuracy,
-        'precision':precision,
-        'recall':recall,
-        'specificity':specificity,
-        'balanced':balanced
+        return {
+            C.MISSCLASSIFIED: fp+fn,
+            C.CLASSIFIED:tp+tn,
+            C.ACCURACY:accuracy,
+            C.PRECISION:precision,
+            C.RECALL:recall,
+            C.SPECIFICITY:specificity,
+            C.BALANCED:balanced
         } 
 
     '''

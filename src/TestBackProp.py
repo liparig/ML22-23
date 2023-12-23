@@ -135,8 +135,8 @@ def update_wb(eta,l_dim ,delta, wb,pattern):
         for l in range(len(l_dim) - 1, 0, -1):
             name_layer:str = str(l)
 
-            deltaW =  ((delta[l-1].T @out[f"out{l-1}"]))  / pattern
-            deltaB =  ((np.sum(delta[l-1].T,axis=1,keepdims=True)))/ pattern
+            deltaW =  (delta[l-1].T @out[f"out{l-1}"])  / pattern
+            deltaB =  np.sum(delta[l-1].T, axis=1, keepdims=True)/ pattern
 
             
             deltaW = p_eta * deltaW
@@ -154,7 +154,7 @@ def update_wb(eta,l_dim ,delta, wb,pattern):
     :param y: target values
     :param y_hat: predicted values
     :param treshold: treshold values
-    :return result: dictionary with: 'accuracy','precision','recall','specificity','balanced'
+    :return result: dictionary with: C.ACCURACY,C.PRECISION,C.RECALL,C.SPECIFICITY,C.BALANCED
     '''
 def metrics_binary_classification( y, y_hat, treshold = 0.5):
         if np.squeeze(y).shape != np.squeeze(y_hat).shape:
@@ -179,13 +179,13 @@ def metrics_binary_classification( y, y_hat, treshold = 0.5):
         specificity= tn/(tn+fp) if tn+fp >0 else 0
         balanced=0.5*(tp/(tp+fn)+tn/(tn+fp)) if tp+fn and tn+fp  >0 else 0
 
-        return {'misclassified': fp+fn,
-        'classified':tp+tn,
-        'accuracy':accuracy,
-        'precision':precision,
-        'recall':recall,
-        'specificity':specificity,
-        'balanced':balanced
+        return {C.MISSCLASSIFIED: fp+fn,
+        C.CLASSIFIED:tp+tn,
+        C.ACCURACY:accuracy,
+        C.PRECISION:precision,
+        C.RECALL:recall,
+        C.SPECIFICITY:specificity,
+        C.BALANCED:balanced
         } 
         
 import readMonk_and_Cup as readMC
@@ -201,7 +201,7 @@ def main():
     targety=TR_y_monk1
     #inputx=np.array([[0,0],[0,0],[1,1],[1,1]])
     #targety=[0,0,1,1]
-    pattern=inputx.shape[0]
+    # pattern=inputx.shape[0]
     print("Pattern")
     wb=init_wb(l_dim)
     num_layers:int = len(l_dim)

@@ -49,24 +49,34 @@ LABEL_PLOT_VALIDATION:str = "Validation"
 TIKHONOV:str = 'tikhonov'
 LASSO:str = 'lasso'
 
-CUP = "cup"
-MONK = "monk"
+CUP:str = "cup"
+MONK:str = "monk"
 
 #Label HYPERPARAMETERS key dictionary
-L_NET='l_dim'
-L_ACTIVATION= 'a_functions'
-L_ETA='eta'
-L_TAU='tau'
-L_REG='reg'
-L_DIMBATCH='dim_batch'
-L_MOMENTUM='momentum'
-L_EPOCHS='epochs'
-L_SHUFFLE='batch_shuffle'
-L_EPS= 'eps'
-L_DISTRIBUTION='distribution'
-L_BIAS='bias'
-L_SEED= 'seed'
-L_CLASSIFICATION= 'classification'
-L_EARLYSTOP='early_stop'
-L_PATIENCE='patience'
-L_TRESHOLD_VARIANCE='treshold_variance'
+L_NET:str = 'l_dim'
+L_ACTIVATION:str = 'a_functions'
+L_ETA:str = 'eta'
+L_TAU:str = 'tau'
+L_REG:str = 'reg'
+L_DIMBATCH:str = 'dim_batch'
+L_MOMENTUM:str = 'momentum'
+L_EPOCHS:str = 'epochs'
+L_SHUFFLE:str = 'batch_shuffle'
+L_EPS:str =  'eps'
+L_DISTRIBUTION:str = 'distribution'
+L_BIAS:str = 'bias'
+L_SEED:str =  'seed'
+L_CLASSIFICATION:str =  'classification'
+L_EARLYSTOP:str = 'early_stop'
+L_PATIENCE:str = 'patience'
+L_TRESHOLD_VARIANCE:str = 'treshold_variance'
+
+
+#Label metrics key dictionary
+MISSCLASSIFIED:str = 'missclassified'
+CLASSIFIED:str = 'classified'
+ACCURACY:str = 'accuracy'
+PRECISION:str = 'precision'
+RECALL:str = 'recall'
+SPECIFICITY:str = 'specificity'
+BALANCED:str = 'balanced'
