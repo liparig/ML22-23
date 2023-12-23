@@ -381,7 +381,7 @@ class DidacticNeuralNetwork:
                 metric_tr.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_TRAINING], out_t))
                         
             if epoch>1 and self.early_stop:
-                if validation_error[-1] >= validation_error[-2] or np.square(validation_error[-2]-validation_error[-1]) < self.treshold_variance:
+                if validation_error[-1] >= validation_error[-2]:
                     selfcontrol += 1
                     if self.patience == selfcontrol:
                         break

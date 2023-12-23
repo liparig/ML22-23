@@ -28,7 +28,7 @@ EPOCHS:int = 1000 #Max Epochs
 PATIENCE:int = 20 #Max Epochs with small changes
 MOMENTUM = ("",0)
 EARLYSTOP:bool = True
-TRESHOLDVARIANCE:float = 1.e-8
+TRESHOLDVARIANCE:float = 1.e-12
 BATCH_SHUFFLE=True
 
 UNIFORM:str = 'uniform'
