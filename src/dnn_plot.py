@@ -84,10 +84,7 @@ def main(loss_tr, loss_vs, metr_tr, val_metr, error_tr=False,path = None, ylim =
     _, ax = plt.subplots(1, 2, figsize = (18, 6))
     ax[0].grid(True)
     ax[1].grid(True)
-    """
-    if(len(titlesSubplot) > 1):
-        ax[0].set_title(titlesSubplot[0])
-        ax[1].set_title(titlesSubplot[1])"""
+
    
     ax[0].plot(range(len(loss_tr)), loss_tr, color='b', linestyle='dashed', label=lbl_tr)
     ax[0].plot(range(len(loss_vs)), loss_vs, color='r', label=lbl_vs)

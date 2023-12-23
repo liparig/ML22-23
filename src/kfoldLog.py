@@ -1,15 +1,15 @@
 from io import TextIOWrapper
-from costants import FORMATTIMESTAMP
+import costants as C
 import time
 import os
 
       
 def start_log(fileName:str):
         # Writing to file
-        timestr:str = time.strftime(FORMATTIMESTAMP)
-        if(not(os.path.isdir('../KFoldCV'))):
-            os.makedirs('../KFoldCV')
-        msfile = open(f"../KFoldCV/{fileName}_{timestr}.txt", "w")
+        timestr:str = time.strftime(C.FORMATTIMESTAMP)
+        if(not(os.path.isdir(C.PATH_KFOLDCV_DIR))):
+            os.makedirs(C.PATH_KFOLDCV_DIR)
+        msfile = open(f"{C.PATH_KFOLDCV_DIR}/{fileName}_{timestr}.txt", "w")
         return msfile, timestr
 
 def estimate_model(file:TextIOWrapper, index:int, total:int, stdoutput:bool = True, txt:bool = True):

@@ -186,16 +186,13 @@ class DidacticNeuralNetwork:
     :param pattern: number of pattern predicted  
     :return: void
     '''
-    def update_wb(self, delta, pattern:float, batch_number = 1, LMS:bool = C.LMS):
-        if LMS == False:
-            pattern = 1
-            batch_number = 1
-        p_eta:float = (self.eta) / batch_number
+    def update_wb(self, delta, pattern:float):
+        p_eta:float = (self.eta) 
         for l in range(len(self.l_dim) - 1, 0, -1):
             name_layer:str = str(l)
             #print(f"Name {name_layer}",self.out[f"out{l-1}"].shape)
-            deltaW = (delta[l-1].T @self.out[f"out{l-1}"])  / pattern 
-            deltaB = (np.sum(delta[l-1].T,axis=1,keepdims=True)) / pattern
+            deltaW = (delta[l-1].T @self.out[f"out{l-1}"])  
+            deltaB = (np.sum(delta[l-1].T,axis=1,keepdims=True))
             
             #save the old gradient for the Nesterov momentum if needed
             if self.momentum == C.NESTEROV:
@@ -333,21 +330,30 @@ class DidacticNeuralNetwork:
                 #compute delta using back propagation on target batch
                 delta = self.back_propagation(batch_y)
                 # call update weights function
-                self.update_wb(delta, batch_x.shape[0],batch_number,False)
+                self.update_wb(delta, batch_x.shape[0])
                 # update bacth error
                 terror = (self.l_function.loss(self, batch_y, out))
-                batch_terror += terror
+                batch_terror += terror 
                 batch_tloss += terror + p_term
-            #endregion
             
-            #append the error and the loss (mean if min-bacth or stochastic)
-            history_terror.append(batch_terror/(b+1))
-            history_tloss.append(batch_tloss/(b+1))
+            #endregion
+            out = self.forward_propagation(x_dev, update=False)
+            if self.regular:
+                for l in range(1, len(self.l_dim)):
+                    """Note that often the bias w0 is omitted from the regularizer (because its inclusion causes the results to be not independent from target shift/scaling) or it may be included but with its own regularization coefficient (see Bishop book, Hastie et al. book)"""
+                    #p_term += self.regular.penalty(self, self.lambdar, self.wb[f"W{l}"]) + self.regular.penalty(self, self.lambdar, self.wb[f"b{l}"])
+                    p_term = self.regular.penalty(self, self.lambdar, self.wb[f"W{l}"]) 
+             #append the error and the loss (mean if min-bacth or stochastic)
+            terror = (self.l_function.loss(self, y_dev, out))/out.shape[0]
+            history_terror.append(terror)
+            history_tloss.append(terror + p_term)
+            #history_terror.append(terror)
+            #history_tloss.append(terror + p_term)    
             out_t = self.forward_propagation(inputs = self.dataset[C.INPUT_TRAINING], update=False)
             #if there'is validation compute validation metric for regression and classification
             if validation:
                 out_v = self.forward_propagation(inputs = self.dataset[C.INPUT_VALIDATION], update=False)
-                validation_error.append(self.l_function.loss(self, self.dataset[C.OUTPUT_VALIDATION],out_v))
+                validation_error.append(self.l_function.loss(self, self.dataset[C.OUTPUT_VALIDATION],out_v)/out_v.shape[0])
                 if self.classification:
                     mbc_v = self.metrics.metrics_binary_classification(self.dataset[C.OUTPUT_VALIDATION],out_v,treshold=0.5)
                     c_metric['v_accuracy'].append(mbc_v[C.ACCURACY])
@@ -374,20 +380,8 @@ class DidacticNeuralNetwork:
             else:
                 metric_tr.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_TRAINING], out_t))
                         
-            if epoch >= 19 and self.early_stop:
-                #variance=np.var(history_tloss[-20:],ddof=1)
-                variance = 0
-                if self.classification:
-                    variance = np.var(c_metric['v_misclassified'][-20:],ddof=1)
-                else:
-                    variance = np.var(validation_error[-20:],ddof=1)
-                    # if validation:
-                    #     variance = np.var(validation_error[-20:],ddof=1)
-                    # else:
-                    #     variance = np.var(traination_error[-20:],ddof=1) # da capire seserve l'errore di training perché  significa che nel training non ci sonono migliorie
-                    # capire con cosa confrontare la soglia
-                if variance < self.treshold_variance:    
-                #if  np.linalg.norm(delta[-1]/batch_x.shape[0]) < 0.1:
+            if epoch>1 and self.early_stop:
+                if validation_error[-1] >= validation_error[-2] or np.square(validation_error[-2]-validation_error[-1]) < self.treshold_variance:
                     selfcontrol += 1
                     if self.patience == selfcontrol:
                         break

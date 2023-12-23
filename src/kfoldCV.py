@@ -189,10 +189,10 @@ class KfoldCV:
     def the_winner_is(self, classification = True):
         means = []
         for result in self.models_error:
-            if classification:
-                means.append(-result["mean_v_accuracy"])
-            else:
-                means.append(result["mean_mee"])
+            #if classification:
+               # means.append(-result["mean_v_accuracy"])
+           # else:
+            means.append(result["mean_mee"])
          # choose the set of hyperparameters which gives the minimum mean error
         lower_mean = np.argmin(means)
         return self.models_error[lower_mean]["hyperparameters"], self.models_error[lower_mean]["candidateNumber"]
