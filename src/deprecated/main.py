@@ -1,6 +1,6 @@
 from didacticNeuralNetwork import DidacticNeuralNetwork as dnn 
 from kfoldCV import KfoldCV
-import readMonk_and_Cup as readMC
+import readMonkAndCup as readMC
 
 
 TR_x_monk1,TR_y_monk1 = readMC.get_train_Monk_1()

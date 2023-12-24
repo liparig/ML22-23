@@ -1,6 +1,6 @@
 #from validation.distribuited_computing import kfold_distributed_computing_cup
-from candidate_hyperparameters import CandidatesHyperparameters
-from candidate_hyperparameters import Candidate
+from candidateHyperparameters import CandidatesHyperparameters
+from candidateHyperparameters import Candidate
 import costants as C
 
 def init_grid_search(candidates:CandidatesHyperparameters|Candidate, coarse:bool):
