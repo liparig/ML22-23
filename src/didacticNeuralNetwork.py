@@ -286,97 +286,77 @@ class DidacticNeuralNetwork:
        
         #train start    
         for epoch in range(self.epochs):
-            #initialize variable for partial error and loss
-            batch_terror, batch_tloss = 0, 0
+            #initialize variable for partial error and loss utili?
+            #batch_terror, batch_tloss = 0, 0
 
             #if learning decay used update of eta
             if self.learning_decay and self.decay_step >= epoch:
-                alpha = epoch / self.decay_step
-                self.eta = (1 - alpha) * eta_0 + (alpha) * self.eta_tau
+                self.eta_decay(eta_0, epoch)
             
             #region MINIBATCH
             #if mini-batch and shuffled true index of the set are shuffled
             if self.dim_batch != self.dataset[C.NUM_POINT_X] and self.shuffle:
-                newindex = list(range(self.dataset[C.NUM_POINT_X]))
-                self.gen.shuffle(newindex)
-                x_dev = x_dev[newindex]
-                y_dev = y_dev[newindex]    
+                x_dev, y_dev = self.shuffle_dataset(x_dev, y_dev)    
             #if mini-batch loop the divided input set
             batch_number=math.ceil(self.dataset[C.NUM_POINT_X] / self.dim_batch)
+            #batch or minibatch training
             for b in range(batch_number):
                 #initialize penalty term for loss calculation of each mini-batch
                 p_term = 0
                 #initialize index for dataset partition
-                start = b * self.dim_batch
-                end = start + self.dim_batch
-                batch_x = np.asarray(x_dev[start: end])
-                batch_y = np.asarray(y_dev[start: end])
+                batch_x, batch_y = self.extract_batch(x_dev, y_dev, b)
                 #propagation on network layer
                 out = self.forward_propagation(batch_x.copy(), update=True)
                 #print("\n\n\nOUT\n\n\n",out,"\n\n\n\n----\n\n\n")
                 #if it's used nesterov or regularization, walk the network for compute penalty term and intermediate w
                 if self.regular or self.momentum == C.NESTEROV:        
                     for l in range(1, len(self.l_dim)):
-                        if self.regular:
-                            """Note that often the bias w0 is omitted from the regularizer (because its inclusion causes the results to be not independent from target shift/scaling) or it may be included but with its own regularization coefficient (see Bishop book, Hastie et al. book)"""
+                        """if self.regular:
+                           #Note that often the bias w0 is omitted from the regularizer (because its inclusion causes the results to be not independent from target shift/scaling) or it may be included but with its own regularization coefficient (see Bishop book, Hastie et al. book)
                             #p_term += self.regular.penalty(self, self.lambdar, self.wb[f"W{l}"]) + self.regular.penalty(self, self.lambdar, self.wb[f"b{l}"])
-                            p_term += self.regular.penalty(self, self.lambdar, self.wb[f"W{l}"]) 
-
+                            p_term += self.regular.penalty(self, self.lambdar, self.wb[f"W{l}"])"""
+                        #Apply Nesterov momentum computing the interim W_=w+ alpha*oldw
                         if self.momentum == C.NESTEROV and f"wold{l}" in self.deltaOld :
                             self.wb[f"W_{l}"] = self.wb[f"W{l}"] + (self.alpha*self.deltaOld[f"wold{l}"])
                             self.wb[f"b_{l}"] = self.wb[f"b{l}"] + (self.alpha*self.deltaOld[f"bold{l}"])  
+                    #compute the output of the interim w for delta w computation
                     if self.momentum == C.NESTEROV  and f"wold{l}" in self.deltaOld:
                         self.forward_propagation(batch_x.copy(), update=True, nesterov=True)              
                 #compute delta using back propagation on target batch
                 delta = self.back_propagation(batch_y)
                 # call update weights function
                 self.update_wb(delta, batch_x.shape[0])
-                # update bacth error
+                """ # update bacth error
                 terror = (self.l_function.loss(self, batch_y, out))
                 batch_terror += terror 
-                batch_tloss += terror + p_term
+                batch_tloss += terror + p_term"""
             
-            #endregion
-            out = self.forward_propagation(x_dev, update=False)
+            #endregion 
+            #compute output for epoch errors and metrics evaluation
+            out_t = self.forward_propagation(inputs = self.dataset[C.INPUT_TRAINING], update=False)
             if self.regular:
                 for l in range(1, len(self.l_dim)):
                     """Note that often the bias w0 is omitted from the regularizer (because its inclusion causes the results to be not independent from target shift/scaling) or it may be included but with its own regularization coefficient (see Bishop book, Hastie et al. book)"""
                     #p_term += self.regular.penalty(self, self.lambdar, self.wb[f"W{l}"]) + self.regular.penalty(self, self.lambdar, self.wb[f"b{l}"])
                     p_term = self.regular.penalty(self, self.lambdar, self.wb[f"W{l}"]) 
              #append the error and the loss (mean if min-bacth or stochastic)
-            terror = (self.l_function.loss(self, y_dev, out))/out.shape[0]
+            terror = (self.l_function.loss(self, y_dev, out_t))
             history_terror.append(terror)
             history_tloss.append(terror + p_term)
-            #history_terror.append(terror)
-            #history_tloss.append(terror + p_term)    
-            out_t = self.forward_propagation(inputs = self.dataset[C.INPUT_TRAINING], update=False)
             #if there'is validation compute validation metric for regression and classification
             if validation:
                 out_v = self.forward_propagation(inputs = self.dataset[C.INPUT_VALIDATION], update=False)
-                validation_error.append(self.l_function.loss(self, self.dataset[C.OUTPUT_VALIDATION],out_v)/out_v.shape[0])
+                validation_error.append(self.l_function.loss(self, self.dataset[C.OUTPUT_VALIDATION],out_v))
                 if self.classification:
-                    mbc_v = self.metrics.metrics_binary_classification(self.dataset[C.OUTPUT_VALIDATION],out_v,treshold=0.5)
-                    c_metric['v_accuracy'].append(mbc_v[C.ACCURACY])
-                    c_metric['v_precision'].append(mbc_v[C.PRECISION])
-                    c_metric['v_recall'].append(mbc_v[C.RECALL])
-                    c_metric['v_specificity'].append(mbc_v[C.SPECIFICITY])
-                    c_metric['v_balanced'].append(mbc_v[C.BALANCED])
-                    c_metric['v_misclassified'].append(mbc_v[C.MISSCLASSIFIED])
-                    c_metric['v_classified'].append(mbc_v[C.CLASSIFIED])                
-                    metric_val.append(mbc_v[C.ACCURACY])
+                    self.append_binary_classification_metric(c_metric, out_v,self.dataset[C.OUTPUT_VALIDATION],treshold=0.5,dataset='v')
+                    metric_val.append(c_metric['v_accuracy'][-1])
                 else:
                     metric_val.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_VALIDATION], out_v))
                     
             if self.classification:
-                mbc = self.metrics.metrics_binary_classification(self.dataset[C.OUTPUT_TRAINING],out_t,treshold=0.5)
-                c_metric['t_accuracy'].append(mbc[C.ACCURACY])
-                c_metric['t_precision'].append(mbc[C.PRECISION])
-                c_metric['t_recall'].append(mbc[C.RECALL])
-                c_metric['t_specificity'].append(mbc[C.SPECIFICITY])
-                c_metric['t_balanced'].append(mbc[C.BALANCED])
-                c_metric['t_misclassified'].append(mbc[C.MISSCLASSIFIED])
-                c_metric['t_classified'].append(mbc[C.CLASSIFIED])
-                metric_tr.append(mbc[C.ACCURACY])
+                self.append_binary_classification_metric(c_metric, out_t,self.dataset[C.OUTPUT_TRAINING],treshold=0.5,dataset='t')
+                self.metrics.metrics_binary_classification(self.dataset[C.OUTPUT_TRAINING],out_t,treshold=0.5)
+                metric_tr.append(c_metric['t_accuracy'][-1])
             else:
                 metric_tr.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_TRAINING], out_t))
                         
@@ -388,7 +368,36 @@ class DidacticNeuralNetwork:
                 else:
                     selfcontrol = 0
                     
-        return {'error':history_terror,'loss':history_tloss, 'metric_tr':metric_tr, 'metric_val':metric_val, 'validation':validation_error, 'c_metrics':c_metric, 'epochs':epoch + 1}  
+        return {'error':history_terror, 'loss':history_tloss, 'metric_tr':metric_tr, 'metric_val':metric_val, 'validation':validation_error, 'c_metrics':c_metric, 'epochs':epoch + 1} 
+    
+    #dataset can be 'v' or 't'
+    def append_binary_classification_metric(self, c_metric, predicted, target, treshold=0.5, dataset='v'):
+        mbc = self.metrics.metrics_binary_classification(target,predicted,treshold)
+        c_metric[f'{dataset}_accuracy'].append(mbc[C.ACCURACY])
+        c_metric[f'{dataset}_precision'].append(mbc[C.PRECISION])
+        c_metric[f'{dataset}_recall'].append(mbc[C.RECALL])
+        c_metric[f'{dataset}_specificity'].append(mbc[C.SPECIFICITY])
+        c_metric[f'{dataset}_balanced'].append(mbc[C.BALANCED])
+        c_metric[f'{dataset}_misclassified'].append(mbc[C.MISSCLASSIFIED])
+        c_metric[f'{dataset}_classified'].append(mbc[C.CLASSIFIED])                
+
+    def extract_batch(self, x_dev, y_dev, b):
+        start = b * self.dim_batch
+        end = start + self.dim_batch
+        batch_x = np.asarray(x_dev[start: end])
+        batch_y = np.asarray(y_dev[start: end])
+        return batch_x,batch_y
+
+    def shuffle_dataset(self, x_dev, y_dev):
+        newindex = list(range(self.dataset[C.NUM_POINT_X]))
+        self.gen.shuffle(newindex)
+        x_dev = x_dev[newindex]
+        y_dev = y_dev[newindex]
+        return x_dev,y_dev
+
+    def eta_decay(self, eta_0, epoch):
+        alpha = epoch / self.decay_step
+        self.eta = (1 - alpha) * eta_0 + (alpha) * self.eta_tau 
 
     '''
     Check problem in dataset inputs and add an error message to the exception:
