@@ -151,9 +151,9 @@ class KfoldCV:
             rmse    += errors['root_mean_squared_error']
             mee     += errors['mean_euclidean_error']
             epochs  += errors['epochs']
-            if errors['c_metrics']['v_accuracy']:
-                t_accuracy += errors['c_metrics']['t_accuracy'][-1]
-                v_accuracy += errors['c_metrics']['v_accuracy'][-1]
+            if errors['c_metrics'][f'{C.VALIDATION}_accuracy']:
+                t_accuracy += errors['c_metrics'][f'{C.TRAINING}_accuracy'][-1]
+                v_accuracy += errors['c_metrics'][f'{C.VALIDATION}_accuracy'][-1]
 
         mean_train  = t_mse / self.k
         mean_validation = v_mse / self.k
@@ -174,11 +174,11 @@ class KfoldCV:
             'varianceMSE':varianceMSE
         }
 
-        if errors['c_metrics']['v_accuracy']:
+        if errors['c_metrics'][f'{C.VALIDATION}_accuracy']:
             mean_t_accuracy = t_accuracy / self.k
             mean_v_accuracy = v_accuracy / self.k
-            model_error['mean_t_accuracy'] = mean_t_accuracy
-            model_error['mean_v_accuracy'] = mean_v_accuracy
+            model_error[f'mean_{C.TRAINING}_accuracy'] = mean_t_accuracy
+            model_error[f'mean_{C.VALIDATION}_accuracy'] = mean_v_accuracy
             #print( f"Classification Accuracy Training: {mean_t_accuracy} - Validation {mean_v_accuracy}")
         kfoldLog.model_performance(log, hyperparameters, model_error)
         self.models_error.append(model_error)
@@ -186,7 +186,7 @@ class KfoldCV:
     '''
     :return: the model with the best estimated error
     '''
-    def the_winner_is(self, classification = True):
+    def the_winner_is(self):#, classification = True):
         means = []
         for result in self.models_error:
             #if classification:
@@ -221,7 +221,7 @@ class KfoldCV:
             kfoldLog.estimate_model(log, i+1, total)
             self.estimate_model_error(theta, log, inCandidatenumber = i+1, plot = plot, pathPlot = path_dir_models_coarse)
             
-        winner, modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification)
+        winner, modelnumber = self.the_winner_is()#classification = self.candidates_hyperparameters.classification)
         winner = Candidate(winner)
         kfoldLog.the_winner_is(log, modelnumber, winner.to_string())
         kfoldLog.end_log(log)
@@ -245,7 +245,7 @@ class KfoldCV:
                 kfoldLog.estimate_model(log, j+1, total)
                 meanMSE = self.estimate_model_error(theta, log, inCandidatenumber = j+1, plot = plot, pathPlot = path_dir_models_fine)
 
-            winner, modelnumber = self.the_winner_is(classification = self.candidates_hyperparameters.classification)
+            winner, modelnumber = self.the_winner_is()#classification = self.candidates_hyperparameters.classification)
             winner = Candidate(winner)
             kfoldLog.the_fine_winner_is(log, modelnumber, winner.to_string(), metric = f"MeanMee: {meanMSE}")
             kfoldLog.end_log(log)

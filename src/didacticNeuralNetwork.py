@@ -6,7 +6,7 @@ from activationFunctions  import derivatives
 import costants as C
 from lossFunctions import loss
 from regularization import regularization
-from metrics import dnn_metrics
+from metrics import DnnMetrics
 import math
 import numpy as np
 from numpy.random import Generator, PCG64
@@ -45,7 +45,7 @@ class DidacticNeuralNetwork:
         self.net = {}
         self.out = {}
         self.deltaOld = {}
-        self.metrics = dnn_metrics()
+        self.metrics = DnnMetrics()
         #save eta and momentum in self variable
         self.eta = eta
         self.momentum = momentum[0]
@@ -186,21 +186,20 @@ class DidacticNeuralNetwork:
     :param pattern: number of pattern predicted  
     :return: void
     '''
-    def update_wb(self, delta, pattern:float):
-        p_eta:float = (self.eta) 
+    def update_wb(self, delta):
         for l in range(len(self.l_dim) - 1, 0, -1):
             name_layer:str = str(l)
             #print(f"Name {name_layer}",self.out[f"out{l-1}"].shape)
-            deltaW = (delta[l-1].T @self.out[f"out{l-1}"])  
-            deltaB = (np.sum(delta[l-1].T,axis=1,keepdims=True))
+            deltaW = delta[l-1].T @self.out[f"out{l-1}"]
+            deltaB = np.sum(delta[l-1].T, axis=1, keepdims=True)
             
             #save the old gradient for the Nesterov momentum if needed
             if self.momentum == C.NESTEROV:
                 self.deltaOld[f'wold{name_layer}'] = deltaW
                 self.deltaOld[f'bold{name_layer}'] = deltaB
 
-            deltaW = p_eta * deltaW
-            deltaB = p_eta * deltaB
+            deltaW = self.eta * deltaW
+            deltaB = self.eta * deltaB
 
            
             #if momentum classic is set add the momentum deltaW
@@ -261,21 +260,21 @@ class DidacticNeuralNetwork:
         metric_tr, metric_val = [], []
         c_metric:dict[str, list] = {
             #training
-            't_misclassified': [],
-            't_classified':[],
-            't_accuracy':[],
-            't_precision':[],
-            't_recall':[],
-            't_specificity':[],
-            't_balanced':[],
+            f'{C.TRAINING}_misclassified': [],
+            f'{C.TRAINING}_classified':[],
+            f'{C.TRAINING}_accuracy':[],
+            f'{C.TRAINING}_precision':[],
+            f'{C.TRAINING}_recall':[],
+            f'{C.TRAINING}_specificity':[],
+            f'{C.TRAINING}_balanced':[],
             #validation
-            'v_misclassified': [],
-            'v_classified':[],
-            'v_accuracy':[],
-            'v_precision':[],
-            'v_recall':[],
-            'v_specificity':[],
-            'v_balanced':[]
+            f'{C.VALIDATION}_misclassified': [],
+            f'{C.VALIDATION}_classified':[],
+            f'{C.VALIDATION}_accuracy':[],
+            f'{C.VALIDATION}_precision':[],
+            f'{C.VALIDATION}_recall':[],
+            f'{C.VALIDATION}_specificity':[],
+            f'{C.VALIDATION}_balanced':[]
         }
         selfcontrol:int = 0
         eta_0:float = self.eta
@@ -298,15 +297,16 @@ class DidacticNeuralNetwork:
             if self.dim_batch != self.dataset[C.NUM_POINT_X] and self.shuffle:
                 x_dev, y_dev = self.shuffle_dataset(x_dev, y_dev)    
             #if mini-batch loop the divided input set
-            batch_number=math.ceil(self.dataset[C.NUM_POINT_X] / self.dim_batch)
+            batch_number = math.ceil(self.dataset[C.NUM_POINT_X] / self.dim_batch)
             #batch or minibatch training
             for b in range(batch_number):
                 #initialize penalty term for loss calculation of each mini-batch
-                p_term = 0
+                p_term:float = 0
                 #initialize index for dataset partition
                 batch_x, batch_y = self.extract_batch(x_dev, y_dev, b)
                 #propagation on network layer
-                out = self.forward_propagation(batch_x.copy(), update=True)
+                # out = self.forward_propagation(batch_x.copy(), update=True)
+                self.forward_propagation(batch_x.copy(), update = True)
                 #print("\n\n\nOUT\n\n\n",out,"\n\n\n\n----\n\n\n")
                 #if it's used nesterov or regularization, walk the network for compute penalty term and intermediate w
                 if self.regular or self.momentum == C.NESTEROV:        
@@ -325,7 +325,7 @@ class DidacticNeuralNetwork:
                 #compute delta using back propagation on target batch
                 delta = self.back_propagation(batch_y)
                 # call update weights function
-                self.update_wb(delta, batch_x.shape[0])
+                self.update_wb(delta)
                 """ # update bacth error
                 terror = (self.l_function.loss(self, batch_y, out))
                 batch_terror += terror 
@@ -348,15 +348,15 @@ class DidacticNeuralNetwork:
                 out_v = self.forward_propagation(inputs = self.dataset[C.INPUT_VALIDATION], update=False)
                 validation_error.append(self.l_function.loss(self, self.dataset[C.OUTPUT_VALIDATION],out_v))
                 if self.classification:
-                    self.append_binary_classification_metric(c_metric, out_v,self.dataset[C.OUTPUT_VALIDATION],treshold=0.5,dataset='v')
-                    metric_val.append(c_metric['v_accuracy'][-1])
+                    self.append_binary_classification_metric(c_metric, out_v,self.dataset[C.OUTPUT_VALIDATION],treshold=0.5,dataset=C.VALIDATION)
+                    metric_val.append(c_metric[f'{C.VALIDATION}_accuracy'][-1])
                 else:
                     metric_val.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_VALIDATION], out_v))
                     
             if self.classification:
-                self.append_binary_classification_metric(c_metric, out_t,self.dataset[C.OUTPUT_TRAINING],treshold=0.5,dataset='t')
+                self.append_binary_classification_metric(c_metric, out_t,self.dataset[C.OUTPUT_TRAINING],treshold=0.5,dataset=C.TRAINING)
                 self.metrics.metrics_binary_classification(self.dataset[C.OUTPUT_TRAINING],out_t,treshold=0.5)
-                metric_tr.append(c_metric['t_accuracy'][-1])
+                metric_tr.append(c_metric[f'{C.TRAINING}_accuracy'][-1])
             else:
                 metric_tr.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_TRAINING], out_t))
                         
@@ -370,8 +370,8 @@ class DidacticNeuralNetwork:
                     
         return {'error':history_terror, 'loss':history_tloss, 'metric_tr':metric_tr, 'metric_val':metric_val, 'validation':validation_error, 'c_metrics':c_metric, 'epochs':epoch + 1} 
     
-    #dataset can be 'v' or 't'
-    def append_binary_classification_metric(self, c_metric, predicted, target, treshold=0.5, dataset='v'):
+    #dataset can be C.VALIDATION or 'C.TRANING'
+    def append_binary_classification_metric(self, c_metric, predicted, target, treshold=0.5, dataset = C.VALIDATION):
         mbc = self.metrics.metrics_binary_classification(target,predicted,treshold)
         c_metric[f'{dataset}_accuracy'].append(mbc[C.ACCURACY])
         c_metric[f'{dataset}_precision'].append(mbc[C.PRECISION])
@@ -393,9 +393,9 @@ class DidacticNeuralNetwork:
         self.gen.shuffle(newindex)
         x_dev = x_dev[newindex]
         y_dev = y_dev[newindex]
-        return x_dev,y_dev
+        return x_dev, y_dev
 
-    def eta_decay(self, eta_0, epoch):
+    def eta_decay(self, eta_0:float, epoch:int):
         alpha = epoch / self.decay_step
         self.eta = (1 - alpha) * eta_0 + (alpha) * self.eta_tau 
 

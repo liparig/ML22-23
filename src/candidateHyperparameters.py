@@ -44,30 +44,33 @@ class Candidate:
         if value == 0:
             return [0]
         else:
-            return [max(1, int(np.round(value * lower))),
+            return [
+                max(1, int(np.round(value * lower))),
                 value,
-               int(np.round(value * higher ))]
+                int(np.round(value * higher))
+            ]
         
     def get_fine_int_range(self,value):
         """
         :param param: a specific value for an hyperparameter
         :return: a small range of this values
         """
-        higher = 1.25
-        lower = 0.75
-        return [int(value * lower),
-                value,
-                int(value * higher)]
+        higher:float = 1.25
+        lower:float = 0.75
+        return [
+            int(value * lower),
+            value,
+            int(value * higher)
+        ]
 
-
-    def get_fine_tuple(self,value):
-        if not isinstance(value[1], int) or not isinstance(value[1], float):
+    def get_fine_tuple(self, value):
+        if isinstance(value[1], bool):
             return [value]
-        higher = 1.25
-        lower = 0.8
-        return [(value[0],np.round(value * lower, 7)),
+        higher:float = 1.25
+        lower:float = 0.8
+        return [(float(value[0]), np.round(value[1] * lower, 7)),
                 value,
-                (value[0],np.round(value * higher, 7))]
+                (float(value[0]), np.round(value[1] * higher, 7))]
 
     def to_string(self):
         return f" Hyperparameters: 'l_dim':{self.l_dim},\
@@ -85,8 +88,8 @@ class Candidate:
             'seed': {self.seed},\
             'classification':{self.classification},\
             'early_stop':{self.early_stop},\
-            'patience': {self.patience}"
-            #'treshold_variance':{self.treshold_variance}"
+            'patience': {self.patience}, \
+            'treshold_variance':{self.treshold_variance}"
 
     def get_dictionary(self):
         return {C.L_NET:self.l_dim,
@@ -106,7 +109,7 @@ class Candidate:
             C.L_EARLYSTOP:self.early_stop,
             C.L_PATIENCE: self.patience,
             C.L_TRESHOLD_VARIANCE:self.treshold_variance
-            }
+        }
         
 
 class CandidatesHyperparameters:
@@ -178,7 +181,8 @@ class CandidatesHyperparameters:
             C.L_EARLYSTOP:self.early_stop[index],
             C.L_PATIENCE: self.patience[index],
             C.L_TRESHOLD_VARIANCE:self.treshold_variance[index]
-            }
+        }
+    
     def get_all_candidates_dict(self):
         candidates:list = []
         for index in range (self.count):
@@ -187,8 +191,8 @@ class CandidatesHyperparameters:
     
     def set_project_hyperparameters(self, default:str = C.MONK, theta = None):
         """
-        :param dataset: quale dataset utilizzare
-        :return: set di valori per gli hyperparameters per la Model Selection
+        :param default: it's the default config that was used
+        :return: setting of parameters for the config theta that will use by model 
         """
         if theta != None:
             self.l_dim = theta[C.L_NET]

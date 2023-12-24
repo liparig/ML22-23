@@ -81,3 +81,11 @@ PRECISION:str = 'precision'
 RECALL:str = 'recall'
 SPECIFICITY:str = 'specificity'
 BALANCED:str = 'balanced'
+
+# type of dataser
+TRAINING:str = 'training'
+VALIDATION:str = 'validation'
+
+# prefix file name and directorys
+PREFIXBATCH:str = '_Batch_'
+PREFIXMINIBATCH:str = '_Mini_'

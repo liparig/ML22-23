@@ -1,7 +1,7 @@
 import numpy as np
 import costants as C
 
-class dnn_metrics:
+class DnnMetrics:
     '''
     Compute metrics_binary_classification
     :param y: target values

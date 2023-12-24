@@ -5,9 +5,6 @@ import costants as C
 
 #from memory_profiler import profile
 import multiprocessing as mp
-
-
-
     
 def __theta_toCaption(theta:dict):
     caption=""
@@ -50,7 +47,7 @@ def __theta_toCaption(theta:dict):
 def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, error_tr=False, path = None, ylim = (0., 10.), lbl_tr:str = C.LABEL_PLOT_TRAINING,
                 lbl_vs:str = C.LABEL_PLOT_VALIDATION, titleplot:str = '',
                 theta:dict ={}, labelsX:list[str] = ['Epochs','Epochs'], labelsY:list[str] = ['Loss','Metric']):
-    proc=mp.Process(target=main, args=(loss_tr, loss_vs, metr_tr, val_metr,error_tr, path, ylim , lbl_tr,lbl_vs, titleplot,theta, labelsX, labelsY))
+    proc=mp.Process(target=draw, args=(loss_tr, loss_vs, metr_tr, val_metr,error_tr, path, ylim , lbl_tr,lbl_vs, titleplot,theta, labelsX, labelsY))
     proc.daemon=False
     proc.start()
     proc.join()
@@ -58,7 +55,7 @@ def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, error_tr=False, path = None
     
 
 #@profile
-def main(loss_tr, loss_vs, metr_tr, val_metr, error_tr=False,path = None, ylim = (0., 10.), lbl_tr:str = C.LABEL_PLOT_TRAINING,
+def draw(loss_tr, loss_vs, metr_tr, val_metr, error_tr=False,path = None, ylim = (0., 10.), lbl_tr:str = C.LABEL_PLOT_TRAINING,
                 lbl_vs:str = C.LABEL_PLOT_VALIDATION, titleplot:str = '',
                 theta:dict ={}, labelsX:list[str] = ['Epochs','Epochs'], labelsY:list[str] = ['Loss','Metric']):
     """
@@ -114,6 +111,3 @@ def main(loss_tr, loss_vs, metr_tr, val_metr, error_tr=False,path = None, ylim =
     
     plt.clf()
     plt.close()
-    
-if __name__ == "__main__":
-    main()
