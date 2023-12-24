@@ -28,7 +28,7 @@ EPOCHS:int = 1000 #Max Epochs
 PATIENCE:int = 20 #Max Epochs with small changes
 MOMENTUM = ("",0)
 EARLYSTOP:bool = True
-TRESHOLDVARIANCE:float = 1.e-6
+TRESHOLDVARIANCE:float = 1.e-12
 BATCH_SHUFFLE=True
 
 UNIFORM:str = 'uniform'
@@ -40,6 +40,7 @@ CLASSIC:str = 'classic'
 NESTEROV:str = 'nesterov'
 
 PATH_PLOT_DIR:str = "../plot/"
+PATH_KFOLDCV_DIR:str="../KFoldCV"
 PREFIX_DIR_COARSE:str = "Coarse"
 PREFIX_DIR_FINE:str = "Fine"
 

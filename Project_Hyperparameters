@@ -1,0 +1,133 @@
+{
+  "batch_monk1": {
+    "l_dim": [
+      [
+        17,
+        4,
+        1
+      ]
+    ],
+    "a_functions": [
+      [
+        "tanh"
+      ]
+    ],
+    "eta": [
+      0.8,
+      0.5
+    ],
+    "tau": [
+      [
+        500,
+        0.08
+      ]
+    ],
+    "reg": [
+      [
+        false,
+        false
+      ]
+    ],
+    "dim_batch": [
+      0
+    ],
+    "momentum": [
+      [
+        false,
+        false
+      ]
+    ],
+    "epochs": [
+      2000
+    ],
+    "batch_shuffle": true,
+    "eps": [
+      0.1,
+      0.3
+    ],
+    "distribution": [
+      "uniform"
+    ],
+    "bias": [
+      0
+    ],
+    "seed": [
+      52
+    ],
+    "classification": true,
+    "early_stop": true,
+    "patience": [
+      30
+    ],
+    "treshold_variance": [
+      1e-06
+    ]
+  },
+  "minibatch_monk1": {
+    "l_dim": [
+      [
+        17,
+        4,
+        1
+      ]
+    ],
+    "a_functions": [
+      [
+        "tanh"
+      ]
+    ],
+    "eta": [
+      0.05
+    ],
+    "tau": [
+      [
+        30,
+        0.005
+      ],
+      [
+        70,
+        0.005
+      ]
+    ],
+    "reg": [
+      [
+        false,
+        false
+      ]
+    ],
+    "dim_batch": [
+      20
+    ],
+    "momentum": [
+      [
+        "nesterov",
+        0.9
+      ]
+    ],
+    "epochs": [
+      2000
+    ],
+    "batch_shuffle": true,
+    "eps": [
+      0.1,
+      0.3
+    ],
+    "distribution": [
+      "uniform"
+    ],
+    "bias": [
+      0
+    ],
+    "seed": [
+      52
+    ],
+    "classification": true,
+    "early_stop": true,
+    "patience": [
+      30
+    ],
+    "treshold_variance": [
+      1e-06
+    ]
+  }
+}
