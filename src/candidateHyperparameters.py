@@ -250,18 +250,18 @@ class CandidatesHyperparameters:
             self.classification=[True]
             '''
         elif default == C.CUP:
-            self.l_dim = [[9,16,8,3],[9,32,16,3],[9,64,32,16,3],[9,64,32,16,8,3]]
-            self.a_functions = [[C.TANH,C.TANH,C.IDENTITY],[C.RELU,C.RELU,C.IDENTITY],[C.RELU,C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.RELU,C.RELU,C.IDENTITY]]
+            self.l_dim = [[9,16,8,3]]#,[9,32,16,3],[9,64,32,16,3],[9,64,32,16,8,3]]
+            self.a_functions = [[C.TANH,C.TANH,C.IDENTITY]]#,[C.RELU,C.RELU,C.IDENTITY],[C.RELU,C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.RELU,C.RELU,C.IDENTITY]]
             self.eta=[0.2, 0,1]
-            self.momentum=[ (False,False) , (C.NESTEROV,0.5) , (C.CLASSIC,0.5),(C.NESTEROV,0.9) , (C.CLASSIC,0.9) ]
-            self.reg=[ (False,False), (C.TIKHONOV,0.01),  (C.LASSO,0.01) ]
-            self.dim_batch=[0,200]
-            self.tau=[ (1000,0.05), (1000,0.01)]
+            self.momentum=[ (False,False) ]#, (C.NESTEROV,0.5) , (C.CLASSIC,0.5),(C.NESTEROV,0.9) , (C.CLASSIC,0.9) ]
+            self.reg=[ (False,False)]#, (C.TIKHONOV,0.01),  (C.LASSO,0.01) ]
+            self.dim_batch=[0, 200]
+            self.tau=[ (1000,0.05)]#, (1000,0.01)]
             self.patience=[200]
-            self.eps=[0.2,0.7]
-            self.distribution=[C.UNIFORM,C.BASIC]
+            self.eps=[0.2, 0.7]
+            self.distribution=[C.UNIFORM]#,C.BASIC]
             self.bias = [0]
-            self.classification=False
+            self.classification = False
             self.epochs = [2000]
             self.treshold_variance = [1.e-6]
         else: 

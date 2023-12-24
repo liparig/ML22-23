@@ -1,6 +1,6 @@
 from didacticNeuralNetwork import DidacticNeuralNetwork as dnn
 from kfoldCV import KfoldCV 
-import readMonk_and_Cup as readMC
+import readMonkAndCup as readMC
 import costants as C
 
 def main():

@@ -1,14 +1,14 @@
-from dnn_plot import plot_curves
+from dnnPlot import plot_curves
 import numpy as np
 import costants as C
 from didacticNeuralNetwork import DidacticNeuralNetwork as dnn
-from candidate_hyperparameters import Candidate
-from candidate_hyperparameters import CandidatesHyperparameters
+from candidateHyperparameters import Candidate
+from candidateHyperparameters import CandidatesHyperparameters
 import time
 import os
 
 import kfoldLog
-import grid_search
+import gridSearch
 # importing the module
 # from memory_profiler import profile
 
@@ -204,7 +204,7 @@ class KfoldCV:
         
         """ K-Fold Cross Validation """
         # a first coarse Grid Search, values differ in order of magnitude
-        all_candidates, total = grid_search.grid_search(hyperparameters = self.candidates_hyperparameters)
+        all_candidates, total = gridSearch.grid_search(hyperparameters = self.candidates_hyperparameters)
         if len(all_candidates.get_all_candidates_dict()) == 0:
             print("The new candidates were not created")
         log, timestr = kfoldLog.start_log("ModelSelection")
@@ -230,7 +230,7 @@ class KfoldCV:
             # oldErrors = self.models_error
             self.models_error.clear()
             log, timestr = kfoldLog.start_log("FineModelSelection")
-            possible_winners, total = grid_search.grid_search(hyperparameters = winner, coarse = False)
+            possible_winners, total = gridSearch.grid_search(hyperparameters = winner, coarse = False)
             print("---Start Fine Grid search...\n")
             # Directory
             directory = f"{prefixFilename}{C.PREFIX_DIR_FINE}{timestr}"

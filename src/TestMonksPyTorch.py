@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import readMonk_and_Cup as readMC
+import readMonkAndCup as readMC
 
 
 TR_x_monk1,TR_y_monk1 = readMC.get_train_Monk_1()

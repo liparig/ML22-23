@@ -188,7 +188,7 @@ def metrics_binary_classification( y, y_hat, treshold = 0.5):
         C.BALANCED:balanced
         } 
         
-import readMonk_and_Cup as readMC
+import readMonkAndCup as readMC
 
 def main():
     init_global()
