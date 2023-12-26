@@ -192,8 +192,11 @@ class KfoldCV:
             #if classification:
                # means.append(-result["mean_v_accuracy"])
            # else:
-            means.append(result["mean_mee"])
+            if(not np.isnan(result["mean_mee"])):
+                means.append(result["mean_mee"])
          # choose the set of hyperparameters which gives the minimum mean error
+        # print(means)
+        # input('premi')
         lower_mean = np.argmin(means)
         return self.models_error[lower_mean]["hyperparameters"], self.models_error[lower_mean]["candidateNumber"]
     
@@ -206,7 +209,7 @@ class KfoldCV:
         # a first coarse Grid Search, values differ in order of magnitude
         all_candidates, total = gridSearch.grid_search(hyperparameters = self.candidates_hyperparameters)
         if len(all_candidates.get_all_candidates_dict()) == 0:
-            print("The new candidates were not created")
+            print("The new candidates were not created, probably the activate functions were setted very bad")
         log, timestr = kfoldLog.start_log("ModelSelection")
         
         # Directory

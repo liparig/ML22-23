@@ -63,14 +63,14 @@ class Candidate:
             int(value * higher)
         ]
 
-    def get_fine_tuple(self, value):
-        if isinstance(value[1], bool):
+    def get_fine_tuple(self,value):
+        if not isinstance(value[1], int) or not isinstance(value[1], float):
             return [value]
-        higher:float = 1.25
-        lower:float = 0.8
-        return [(float(value[0]), np.round(value[1] * lower, 7)),
+        higher = 1.25
+        lower = 0.8
+        return [(value[0],np.round(value * lower, 7)),
                 value,
-                (float(value[0]), np.round(value[1] * higher, 7))]
+                (value[0],np.round(value * higher, 7))]
 
     def to_string(self):
         return f" Hyperparameters: 'l_dim':{self.l_dim},\
@@ -254,15 +254,16 @@ class CandidatesHyperparameters:
             self.classification=[True]
             '''
         elif default == C.CUP:
-            self.l_dim = [[9,16,8,3]]#,[9,32,16,3],[9,64,32,16,3],[9,64,32,16,8,3]]
+            self.l_dim = [[9,4,4,3]]#,[9,32,16,3],[9,64,32,16,3],[9,64,32,16,8,3]]
             self.a_functions = [[C.TANH,C.TANH,C.IDENTITY]]#,[C.RELU,C.RELU,C.IDENTITY],[C.RELU,C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.RELU,C.RELU,C.IDENTITY]]
-            self.eta=[0.2, 0,1]
-            self.momentum=[ (False,False) ]#, (C.NESTEROV,0.5) , (C.CLASSIC,0.5),(C.NESTEROV,0.9) , (C.CLASSIC,0.9) ]
-            self.reg=[ (False,False)]#, (C.TIKHONOV,0.01),  (C.LASSO,0.01) ]
+            self.eta=[0.2, 0.1]
+            self.momentum=[(False,False) ]#, (C.NESTEROV,0.5) , (C.CLASSIC,0.5),(C.NESTEROV,0.9) , (C.CLASSIC,0.9) ]
+            self.reg=[(False,False)]#, (C.TIKHONOV,0.01),  (C.LASSO,0.01) ]
             self.dim_batch=[0, 200]
-            self.tau=[ (1000,0.05)]#, (1000,0.01)]
+            self.tau=[(1000,0.05)]#, (1000,0.01)]
             self.patience=[200]
             self.eps=[0.2, 0.7]
+            self.early_stop = True
             self.distribution=[C.UNIFORM]#,C.BASIC]
             self.bias = [0]
             self.classification = False

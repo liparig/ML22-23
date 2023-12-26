@@ -2,6 +2,7 @@
 SIGMOID:str = 'sigmoid'
 TANH:str = 'tanh'
 RELU:str = 'relu'
+LEAKYRELU:str = 'leakyRelu'
 IDENTITY:str = 'identity'
 
 MSE:str = 'mse'

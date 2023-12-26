@@ -190,9 +190,16 @@ class DidacticNeuralNetwork:
         for l in range(len(self.l_dim) - 1, 0, -1):
             name_layer:str = str(l)
             #print(f"Name {name_layer}",self.out[f"out{l-1}"].shape)
-            deltaW = delta[l-1].T @self.out[f"out{l-1}"]
+            # the problem of overflow is  here TODO!!!!
+            deltaW = delta[l-1].T @ self.out[f"out{l-1}"]
+            # deltaW = deltaW / np.linalg.norm(deltaW)
             deltaB = np.sum(delta[l-1].T, axis=1, keepdims=True)
-            
+            # deltaB = deltaB / np.linalg.norm(deltaB)
+            # print(f'delta: {delta}, type:{type(delta)}')
+            # print(f'outl-1: {self.out[f"out{l-1}"]}, type:{self.out[f"out{l-1}"].dtype}')
+            # print(f'deltaW: {deltaW}, type:{deltaW.dtype}')
+            # print(f'deltaW: {deltaB}, type:{deltaB.dtype}')
+            # input('premi')
             #save the old gradient for the Nesterov momentum if needed
             if self.momentum == C.NESTEROV:
                 self.deltaOld[f'wold{name_layer}'] = deltaW

@@ -47,16 +47,26 @@ def d_relu(net):
     net[net > 0] = 1
     return net
 
+def leaky_relu(net):
+    return np.maximum(net, 0.01*net)
+
+def d_leaky_relu(net):
+    net[net <= 0] = 0.01
+    net[net > 0] = 1
+    return net
+
 activations = {
     C.SIGMOID: sigmoid,
     C.TANH: tanh,
     C.RELU: relu,
+    C.LEAKYRELU: leaky_relu,
     C.IDENTITY:identity,
 }
 derivatives = {
     C.SIGMOID: d_sigmoid,
     C.TANH: d_tanh,
     C.RELU: d_relu,
+    C.LEAKYRELU: d_leaky_relu,
     C.IDENTITY:d_identity
 }
 

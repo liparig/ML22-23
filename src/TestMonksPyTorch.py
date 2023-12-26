@@ -16,8 +16,8 @@ TR_x_monk3,TR_y_monk3 = readMC.get_train_Monk_3()
 TS_x_monk3,TS_y_monk3 = readMC.get_test_Monk_3()
 
 
-X = torch.tensor(TR_x_monk1, dtype=torch.float32)
-y = torch.tensor(TR_y_monk1, dtype=torch.float32).reshape(-1, 1)
+X = torch.tensor(TR_x_monk1, dtype=torch.float64)
+y = torch.tensor(TR_y_monk1, dtype=torch.float64).reshape(-1, 1)
 
 model = nn.Sequential(
     nn.Linear(17, 4),

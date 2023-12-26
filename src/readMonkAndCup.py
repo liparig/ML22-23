@@ -74,7 +74,7 @@ def read_monk_Tr_Vl(name:str = TRAINMONK1, perc:float = 0.25):
     monk_dataset = monk_dataset.sample(frac = 1)
     
     # get labels from dataset
-    monk_targets = monk_dataset.pop('class').to_numpy(dtype=np.float32)
+    monk_targets = monk_dataset.pop('class').to_numpy(dtype=np.float64)
     
     # 1-hot encoding (and transform dataframe to numpy array)
     monk_dataset = OneHotEncoder().fit_transform(monk_dataset).toarray().astype(np.int64)
@@ -106,12 +106,12 @@ def read_cup(name):
     print(cup_dataset)
     if name == TRAINCUP:
         # get targets aside
-        target_x = cup_dataset.pop('target_x').to_numpy(dtype=np.float32)
-        target_y = cup_dataset.pop('target_y').to_numpy(dtype=np.float32)
-        target_z = cup_dataset.pop('target_z').to_numpy(dtype=np.float32)
+        target_x = cup_dataset.pop('target_x').to_numpy(dtype=np.float64)
+        target_y = cup_dataset.pop('target_y').to_numpy(dtype=np.float64)
+        target_z = cup_dataset.pop('target_z').to_numpy(dtype=np.float64)
         targets = np.vstack((target_x,target_y,target_z)).T
     
-    inputs = cup_dataset.to_numpy(dtype=np.float32)
+    inputs = cup_dataset.to_numpy(dtype=np.float64)
     # transform labels from pandas dataframe to numpy ndarray
     
     return inputs, targets
@@ -129,13 +129,13 @@ def get_cup_house_test(perc=0.25):
     
     cup_dataset = cup_dataset.sample(frac = 1)
     dim = math.ceil(len(cup_dataset) * perc)
-    inputs = cup_dataset.to_numpy(dtype=np.float32)[: -dim,:]
-    val_inputs =cup_dataset.to_numpy(dtype=np.float32)[-dim:,:]
+    inputs = cup_dataset.to_numpy(dtype=np.float64)[: -dim,:]
+    val_inputs = cup_dataset.to_numpy(dtype=np.float64)[-dim:,:]
     
     # get targets aside
-    inputs,targets = inputs[:, :-3], inputs[:, -3:]
-    val_inputs,val_targets=val_inputs[:, :-3], val_inputs[:, -3:]
+    inputs, targets = inputs[:, :-3], inputs[:, -3:]
+    val_inputs, val_targets=val_inputs[:, :-3], val_inputs[:, -3:]
     
     # transform labels from pandas dataframe to numpy ndarray
     
-    return inputs, targets,val_inputs,val_targets
+    return inputs, targets, val_inputs, val_targets
