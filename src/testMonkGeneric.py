@@ -15,7 +15,8 @@ def monk_evaluation(TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, theta, dirName, 
 def holdoutTest(winner,TR_x_set,TR_y_set,TS_x_set,TS_y_set,):
     # Hold-out Test 1
     model = dnn(**winner)
-    errors=model.fit(TR_x_set,TR_y_set,TS_x_set,TS_y_set)
+    tr_x,tr_y,val_x,val_y=readMC.split_Tr_Val(TR_x_set,TR_y_set,perc=0.20)
+    errors=model.fit(tr_x,tr_y,val_x,val_y)
     out = model.forward_propagation(TS_x_set)
     classificationAccuracy = model.metrics.metrics_binary_classification(TS_y_set, out)
     print("Test Accuracy:", classificationAccuracy[C.ACCURACY], "\nClassified:", classificationAccuracy[C.CLASSIFIED], "Missclassified:", classificationAccuracy[C.MISSCLASSIFIED],"Precision",classificationAccuracy[C.PRECISION])
@@ -26,7 +27,7 @@ def savePlotFig(errors, dirName, fileName, title, theta):
     path_dir_models_coarse = os.path.join(C.PATH_PLOT_DIR, dirName)
     if not os.path.exists(path_dir_models_coarse):
             os.makedirs(path_dir_models_coarse)
-    # error_tr=False if errors['error']-errors['loss']==0 else errors['loss']
+    error_tr=False if errors['loss']==0 else errors['loss']
     plot_curves(errors['error'], errors['validation'], errors['metric_tr'], errors['metric_val'], error_tr=False,
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = C.LABEL_PLOT_VALIDATION, path = f"{path_dir_models_coarse}/{fileName}", 
                         ylim = (-0.5, 1.5), titleplot = title,
@@ -36,8 +37,8 @@ def main(inTR_x_monk, inTR_y_monk, inTS_x_monk, inTS_y_monk, dirName):
     theta_batch = {
         C.L_NET:[[17,2,1]], #unit for layer between 2 and 4. it's written in the slide
         C.L_ACTIVATION:[[C.TANH]],
-        C.L_ETA:[0.8 ,0.5],
-        C.L_TAU: [(500, 0.2)],
+        C.L_ETA:[0.7],
+        C.L_TAU: [(False,False)],
         C.L_REG:[(False,False),(C.TIKHONOV,0.01)],
         C.L_DIMBATCH:[0],
         C.L_MOMENTUM: [(False,False)],
@@ -49,17 +50,17 @@ def main(inTR_x_monk, inTR_y_monk, inTS_x_monk, inTS_y_monk, dirName):
         C.L_SEED: [52],
         C.L_CLASSIFICATION:True,
         C.L_EARLYSTOP:True,
-        C.L_PATIENCE: [20,50],
+        C.L_PATIENCE: [20],
         C.L_TRESHOLD_VARIANCE:[C.TRESHOLDVARIANCE]    
     }
     
-    monk_evaluation(inTR_x_monk, inTR_y_monk, inTS_x_monk, inTS_y_monk, theta_batch, dirName, prefixFilename = C.PREFIXBATCH, fold = 2)
+    #monk_evaluation(inTR_x_monk, inTR_y_monk, inTS_x_monk, inTS_y_monk, theta_batch, dirName, prefixFilename = C.PREFIXBATCH, fold = 3)
     
     theta_mini = theta_batch.copy()
-    theta_mini[C.L_ETA]=[0.007,0.0007]
-    theta_mini[C.L_TAU]=[(200, 0.0007),(100, 0.00007)]
+    theta_mini[C.L_ETA]=[0.07]
+    theta_mini[C.L_TAU]=[(200, 0.0007)]
     theta_mini[C.L_DIMBATCH]=[1,25]
-    theta_mini[C.L_MOMENTUM]= [(False,False),(C.NESTEROV,0.8),(C.CLASSIC,0.8)]
+    theta_mini[C.L_MOMENTUM]= [(False,False)]
     
     monk_evaluation(inTR_x_monk, inTR_y_monk, inTS_x_monk, inTS_y_monk, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH, fold = 2)
     
