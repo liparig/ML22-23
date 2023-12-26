@@ -290,8 +290,8 @@ class DidacticNeuralNetwork:
         if self.regular:
             history_tloss.append(terror)
            
-        self.training_metrics(metric_tr,c_metric,out_t,False)
-        self.validation_metrics(validation_error,metric_val,c_metric)
+        self.training_metrics(metric_tr, c_metric, out_t, False)
+        self.validation_metrics(validation_error, metric_val, c_metric)
 
         selfcontrol:int = 0
         eta_0:float = self.eta
@@ -322,7 +322,8 @@ class DidacticNeuralNetwork:
                 #initialize index for dataset partition
                 batch_x, batch_y = self.extract_batch(x_dev, y_dev, b)
                 #propagation on network layer
-                out_t = self.forward_propagation(batch_x.copy(), update=True)
+                # out_t = self.forward_propagation(batch_x.copy(), update=True)
+                self.forward_propagation(batch_x.copy(), update = True)
                 #print("\n\n\nOUT\n\n\n",out,"\n\n\n\n----\n\n\n")
                 #if it's used nesterov or regularization, walk the network for compute penalty term and intermediate w
                 if self.regular or self.momentum == C.NESTEROV:        

@@ -27,8 +27,9 @@ def savePlotFig(errors, dirName, fileName, title, theta):
     path_dir_models_coarse = os.path.join(C.PATH_PLOT_DIR, dirName)
     if not os.path.exists(path_dir_models_coarse):
             os.makedirs(path_dir_models_coarse)
-    error_tr=False if errors['loss']==0 else errors['loss']
-    plot_curves(errors['error'], errors['validation'], errors['metric_tr'], errors['metric_val'], error_tr=False,
+    # is false if the loss is zero else take the loss 
+    inError_tr = False if errors['loss']==0 else errors['loss']
+    plot_curves(errors['error'], errors['validation'], errors['metric_tr'], errors['metric_val'], error_tr = inError_tr,
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = C.LABEL_PLOT_VALIDATION, path = f"{path_dir_models_coarse}/{fileName}", 
                         ylim = (-0.5, 1.5), titleplot = title,
                         theta = theta, labelsY = ['Loss',  C.ACCURACY])
