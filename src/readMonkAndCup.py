@@ -92,6 +92,18 @@ def read_monk_Tr_Vl(name:str = TRAINMONK1, perc:float = 0.25):
     
     return inputs, targets, val_inputs, val_targets
 
+def split_Tr_Val(Tr_x:list,Tr_y:list,perc:float=0.25):
+    dim = math.ceil(len(Tr_x) * perc)
+    
+    # get targets aside
+    inputs = Tr_x[: -dim,:]
+    targets = Tr_y[: -dim]
+    val_inputs = Tr_x[-dim:,:]
+    val_targets = Tr_y[-dim:]
+    
+    return inputs, targets, val_inputs, val_targets
+
+
 def read_cup(name):
     # get directory
     targets = []
