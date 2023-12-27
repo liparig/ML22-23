@@ -211,6 +211,7 @@ class CandidatesHyperparameters:
             self.epochs = theta[C.L_EPOCHS]
             self.classification= theta[C.L_CLASSIFICATION]
             self.treshold_variance = theta[C.L_TRESHOLD_VARIANCE]
+            self.seed=theta[C.L_SEED]
         elif default == C.MONK:
             self.l_dim = [[17,2,1],[17,4,1]]
             self.a_functions = [[C.RELU,C.TANH],[C.TANH,C.TANH]]#,[C.RELU, C.SIGMOID]

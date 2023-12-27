@@ -176,8 +176,6 @@ class DidacticNeuralNetwork:
         # Transpose and puntual multiplication of apply the derivative
         fprime = d_activation(net) # net is a vector with all the nets for the unit layer
         fprime = fprime if isinstance(fprime, int) else fprime.T
-        # print(f'shape delta_in: {delta_in.shape}, w_layer: {w_layer.shape}, dt {dt.shape}')
-        # input('premi')
         dj = dt * fprime
         return dj
     '''
@@ -186,14 +184,16 @@ class DidacticNeuralNetwork:
     :param pattern: number of pattern predicted  
     :return: void
     '''
-    def update_wb(self, delta):
+    def update_wb(self, delta,pattern=1):
         for l in range(len(self.l_dim) - 1, 0, -1):
             name_layer:str = str(l)
             #print(f"Name {name_layer}",self.out[f"out{l-1}"].shape)
-            # the problem of overflow is  here TODO!!!!
-            deltaW = delta[l-1].T @ self.out[f"out{l-1}"]
+            #The problem of overflow is  here TODO!!!!
+            deltaW = np.divide(delta[l-1].T @ self.out[f"out{l-1}"], pattern)
+
             # deltaW = deltaW / np.linalg.norm(deltaW)
-            deltaB = np.sum(delta[l-1].T, axis=1, keepdims=True)
+            deltaB = np.divide(np.sum(delta[l-1].T, axis=1, keepdims=True) ,pattern)
+            
             # deltaB = deltaB / np.linalg.norm(deltaB)
             # print(f'delta: {delta}, type:{type(delta)}')
             # print(f'outl-1: {self.out[f"out{l-1}"]}, type:{self.out[f"out{l-1}"].dtype}')
@@ -211,12 +211,11 @@ class DidacticNeuralNetwork:
            
             #if momentum classic is set add the momentum deltaW
             if self.momentum == C.CLASSIC and f'wold{name_layer}' in self.deltaOld:
-                deltaW += self.alpha*self.deltaOld[f'wold{name_layer}']
-                deltaB += self.alpha*self.deltaOld[f'bold{name_layer}']
+                deltaW = np.add(deltaW,self.alpha*self.deltaOld[f'wold{name_layer}'])
+                deltaB = np.add(deltaB,self.alpha*self.deltaOld[f'bold{name_layer}'])
                 #save the old gradient for the momentum if needed
                 self.deltaOld[f'wold{name_layer}'] = deltaW
                 self.deltaOld[f'bold{name_layer}'] = deltaB
-            
 
             
             #if regularization is set subtract the penalty term.
@@ -261,10 +260,10 @@ class DidacticNeuralNetwork:
     """
     :return: history_terror, history_tloss, validation_error. History Error of the train and validation error
     """
-    def train(self, validation:bool = False):
+    def train(self, validation:bool = False,test:bool=False):
         #initialize error/loss variable
-        history_terror, history_tloss, validation_error = [], [], []
-        metric_tr, metric_val = [], []
+        history_terror, history_tloss, validation_error,test_error = [], [], [],[]
+        metric_tr, metric_val, metric_test = [], [],[]
         c_metric:dict[str, list] = {
             #training
             f'{C.TRAINING}_misclassified': [],
@@ -281,17 +280,29 @@ class DidacticNeuralNetwork:
             f'{C.VALIDATION}_precision':[],
             f'{C.VALIDATION}_recall':[],
             f'{C.VALIDATION}_specificity':[],
-            f'{C.VALIDATION}_balanced':[]
+            f'{C.VALIDATION}_balanced':[],
+            #test
+            f'{C.TEST}_misclassified': [],
+            f'{C.TEST}_classified':[],
+            f'{C.TEST}_accuracy':[],
+            f'{C.TEST}_precision':[],
+            f'{C.TEST}_recall':[],
+            f'{C.TEST}_specificity':[],
+            f'{C.TEST}_balanced':[]
         }
-        #compute errors at epoch 0
+        """#compute errors at epoch 0
         out_t = self.forward_propagation(inputs = self.dataset[C.INPUT_TRAINING], update=False)
-        terror = (self.l_function.loss(self, self.dataset[C.OUTPUT_TRAINING], out_t))
+        terror = (self.l_function.loss(self, self.dataset[C.OUTPUT_TRAINING], out_t)/out_t.shape[0])
         history_terror.append(terror)
         if self.regular:
             history_tloss.append(terror)
            
         self.training_metrics(metric_tr, c_metric, out_t, False)
-        self.validation_metrics(validation_error, metric_val, c_metric)
+        if validation:
+            self.validation_metrics(validation_error, metric_val, c_metric)
+        if test:
+            self.test_metrics(test_error, metric_test, c_metric)
+        """
 
         selfcontrol:int = 0
         eta_0:float = self.eta
@@ -342,10 +353,10 @@ class DidacticNeuralNetwork:
                 #compute delta using back propagation on target batch
                 delta = self.back_propagation(batch_y)
                 # call update weights function
-                self.update_wb(delta)
+                self.update_wb(delta,batch_x.shape[0])
                 # update bacth error
                 out_t = self.forward_propagation(batch_x, update=False)
-                terror = (self.l_function.loss(self, batch_y, out_t))
+                terror = (self.l_function.loss(self, batch_y, out_t)/batch_x.shape[0])
                 batch_terror += terror 
                 if self.regular:
                     batch_tloss += terror + p_term
@@ -360,20 +371,35 @@ class DidacticNeuralNetwork:
            
             self.training_metrics(metric_tr, c_metric, out_t, batch_number>1)
 
-            #if there'is validation compute validation metric for regression and classification
+            #if there'is validation or test compute validation and test metric for regression and classification
             if validation:
-                self.validation_metrics(validation_error, metric_val, c_metric)            
-            
+                self.validation_metrics(validation_error, metric_val, c_metric)
+            if test:
+                self.test_metrics(test_error, metric_test, c_metric)                       
+
             
             if epoch>1 and self.early_stop:
-                if validation_error[-1] >= validation_error[-2] or np.square(validation_error[-1]-validation_error[-2])<self.treshold_variance:
+                if validation_error[-1] >= validation_error[-2] or np.square(validation_error[-1]-validation_error[-2]) < self.treshold_variance:
                     selfcontrol += 1
                     if self.patience == selfcontrol:
                         break
                 else:
                     selfcontrol = 0
-                    
-        return {'error':history_terror, 'loss':history_tloss, 'metric_tr':metric_tr, 'metric_val':metric_val, 'validation':validation_error, 'c_metrics':c_metric, 'epochs':epoch + 1} 
+        result={}
+        result['error']=history_terror
+        result['loss']=history_tloss
+        result['metric_tr']=metric_tr
+        result['c_metrics']=c_metric
+        result['epochs']=epoch + 1
+        
+        if validation:
+            result['validation']=validation_error
+            result['metric_val']=metric_val
+        if test:
+            result['test']=test_error
+            result['metric_test']=metric_test
+            
+        return result
 
     def training_metrics(self, metric_tr, c_metric, out_t, evaluate_out_t):
         if evaluate_out_t:
@@ -387,12 +413,21 @@ class DidacticNeuralNetwork:
 
     def validation_metrics(self, validation_error, metric_val, c_metric):
         out_v = self.forward_propagation(inputs = self.dataset[C.INPUT_VALIDATION], update=False)
-        validation_error.append(self.l_function.loss(self, self.dataset[C.OUTPUT_VALIDATION],out_v))
+        validation_error.append(self.l_function.loss(self, self.dataset[C.OUTPUT_VALIDATION],out_v)/out_v.shape[0])
         if self.classification:
             self.append_binary_classification_metric(c_metric, out_v,self.dataset[C.OUTPUT_VALIDATION],treshold=0.5,dataset=C.VALIDATION)
             metric_val.append(c_metric[f'{C.VALIDATION}_accuracy'][-1])
         else:
             metric_val.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_VALIDATION], out_v))
+            
+    def test_metrics(self, test_error, metric_test, c_metric):
+        out_test = self.forward_propagation(inputs = self.dataset[C.INPUT_TEST], update=False)
+        test_error.append(self.l_function.loss(self, self.dataset[C.OUTPUT_TEST],out_test)/out_test.shape[0])
+        if self.classification:
+            self.append_binary_classification_metric(c_metric, out_test,self.dataset[C.OUTPUT_TEST],treshold=0.5,dataset=C.TEST)
+            metric_test.append(c_metric[f'{C.TEST}_accuracy'][-1])
+        else:
+            metric_test.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_TEST], out_test))
     
     #dataset can be C.VALIDATION or 'C.TRANING'
     def append_binary_classification_metric(self, c_metric, predicted, target, treshold=0.5, dataset = C.VALIDATION):
@@ -452,7 +487,7 @@ class DidacticNeuralNetwork:
     :param dim_batch: the dimension of mini-batch, if 0 is equal to batch, if 1 is stochastic/online update version
     :param **kwargs: extra params for the training
     """
-    def fit(self, x_train, y_train, x_val = [], y_val = [], dim_batch = None):
+    def fit(self, x_train, y_train, x_val = [], y_val = [],x_test = [], y_test = [], dim_batch = None):
         #initialize a dictionary contain dataset information
         self.dataset = {}
         self.dataset[C.NUM_PATTERN_X] = x_train.shape[0]
@@ -461,10 +496,19 @@ class DidacticNeuralNetwork:
         
         validation:bool = False
         
-        if  x_val.size != 0 and y_val.size != 0:
+        if  len(x_val) > 0 and len(y_val)> 0:
             self.dataset[C.INPUT_VALIDATION]= x_val.copy()
             self.dataset[C.OUTPUT_VALIDATION]= y_val.copy()
+            self.check_dimension(x_val, y_val, 1, msg = "[check_dimension] Error in Validation datasets:")
             validation = True
+            
+        test:bool = False
+        
+        if  len(x_test)> 0 and len(y_test)> 0:
+            self.dataset[C.INPUT_TEST]= x_test.copy()
+            self.dataset[C.OUTPUT_TEST]= y_test.copy()
+            self.check_dimension(x_test, y_test, 1, msg = "[check_dimension] Error in Test datasets:")
+            test = True
             
         
         if (dim_batch == None):
@@ -477,8 +521,7 @@ class DidacticNeuralNetwork:
             self.dim_batch = dim_batch
 
         self.check_dimension(x_train, y_train, dim_batch, msg = "[check_dimension] Error in Training datasets:")
-        self.check_dimension(x_val, y_val, 1, msg = "[check_dimension] Error in Validation datasets:")
-
-        return self.train(validation)
+        
+        return self.train(validation,test)
 
     

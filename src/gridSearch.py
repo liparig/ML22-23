@@ -9,7 +9,7 @@ def init_grid_search(candidates:CandidatesHyperparameters|Candidate, coarse:bool
     """
     global possibles_eta, possibles_momentum, possibles_reg, possibles_dim_batch, possibles_l_dim, possibles_a_functions,\
     possibles_tau, possibles_eps, possibles_distribution, possibles_bias, possibles_patience, classification, early_stop,\
-    possibles_epochs, possibles_threshold_variance
+    possibles_epochs, possibles_threshold_variance,seed
 
     possibles_l_dim              = candidates.l_dim
     possibles_a_functions        = candidates.a_functions
@@ -19,6 +19,7 @@ def init_grid_search(candidates:CandidatesHyperparameters|Candidate, coarse:bool
     classification               = candidates.classification  
     early_stop                   = candidates.early_stop
     possibles_threshold_variance = candidates.treshold_variance
+    seed                         = candidates.seed
     
     # Default values for Coarse Grid Search (values differ in order of magnitude)
     if coarse:
@@ -90,7 +91,7 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
                                                             # else: return candidates, effective_count
                                                             candidates.insert_candidate(l_dim=l_dim, a_functions=a_functions, eta=eta, tau=tau, reg=reg,\
                                                                     dim_batch=dim_batch, momentum=momentum,eps=eps,distribution=distribution,\
-                                                                    bias=bias, classification=classification,patience=patience,early_stop=early_stop,epochs=epochs)
+                                                                    bias=bias, classification=classification,patience=patience,early_stop=early_stop,epochs=epochs,seed=seed)
 
     else:
         """ cycle over all the permutation values of hyperparameters """
@@ -108,6 +109,6 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
                                 candidates.insert_candidate(l_dim=hyperparameters.l_dim, a_functions=hyperparameters.a_functions, eta=eta, tau=tau, reg=reg,\
             dim_batch = dim_batch, momentum=momentum,eps=eps,distribution=hyperparameters.distribution,\
             bias = hyperparameters.bias, classification=hyperparameters.classification,patience=hyperparameters.patience,\
-                epochs=hyperparameters.epochs ,early_stop=hyperparameters.early_stop)
+                epochs=hyperparameters.epochs ,early_stop=hyperparameters.early_stop,seed=hyperparameters.seed)
                                 
     return candidates, count#effective_count

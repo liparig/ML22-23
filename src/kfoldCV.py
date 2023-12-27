@@ -135,7 +135,7 @@ class KfoldCV:
         '''
         t_mse, v_mse, mae, rmse, mee, epochs ,t_accuracy, v_accuracy = 0, 0, 0, 0, 0, 0, 0, 0
         #d_row = self.divide_dataset(hyperparameters)
-        varianceMSE = []
+       
         for fold in self.kfolds:
             #print(f"- Fold {i} ",end="")
             start = time.time()
@@ -144,7 +144,6 @@ class KfoldCV:
             print(f'seconds for train fold {end-start}')
             h_train = errors['error']
             h_validation = errors['validation']
-            varianceMSE.append(h_validation)
             t_mse   += h_train[-1]
             v_mse   += h_validation[-1]
             mae     += errors['mean_absolute_error']
@@ -171,7 +170,6 @@ class KfoldCV:
             "mean_rmse":mean_rmse,
             'mean_mee':mean_mee,
             'mean_epochs':mean_epochs,
-            'varianceMSE':varianceMSE
         }
 
         if errors['c_metrics'][f'{C.VALIDATION}_accuracy']:
@@ -182,7 +180,7 @@ class KfoldCV:
             #print( f"Classification Accuracy Training: {mean_t_accuracy} - Validation {mean_v_accuracy}")
         kfoldLog.model_performance(log, hyperparameters, model_error)
         self.models_error.append(model_error)
-        return v_mse
+        
     '''
     :return: the model with the best estimated error
     '''
@@ -198,7 +196,9 @@ class KfoldCV:
         # print(means)
         # input('premi')
         lower_mean = np.argmin(means)
-        return self.models_error[lower_mean]["hyperparameters"], self.models_error[lower_mean]["candidateNumber"]
+        meanmetrics={key: self.models_error[lower_mean][key] for key in ['mean_train','mean_validation','mean_mae','mean_rmse', 'mean_mee','mean_epochs']}
+
+        return self.models_error[lower_mean]["hyperparameters"], self.models_error[lower_mean]["candidateNumber"],meanmetrics
     
     def validate(self, inDefault:str = C.MONK, inTheta = None, FineGS:bool = False, plot:bool = True,prefixFilename = "", clearOldThetaWinner:bool = True):
         if clearOldThetaWinner:
@@ -224,7 +224,7 @@ class KfoldCV:
             kfoldLog.estimate_model(log, i+1, total)
             self.estimate_model_error(theta, log, inCandidatenumber = i+1, plot = plot, pathPlot = path_dir_models_coarse)
             
-        winner, modelnumber = self.the_winner_is()#classification = self.candidates_hyperparameters.classification)
+        winner, modelnumber, meanmetrics = self.the_winner_is()#classification = self.candidates_hyperparameters.classification)
         winner = Candidate(winner)
         kfoldLog.the_winner_is(log, modelnumber, winner.to_string())
         kfoldLog.end_log(log)
@@ -246,10 +246,10 @@ class KfoldCV:
         
             for j, theta in enumerate(possible_winners.get_all_candidates_dict()):
                 kfoldLog.estimate_model(log, j+1, total)
-                meanMSE = self.estimate_model_error(theta, log, inCandidatenumber = j+1, plot = plot, pathPlot = path_dir_models_fine)
+                self.estimate_model_error(theta, log, inCandidatenumber = j+1, plot = plot, pathPlot = path_dir_models_fine)
 
-            winner, modelnumber = self.the_winner_is()#classification = self.candidates_hyperparameters.classification)
+            winner, modelnumber,meanmetrics = self.the_winner_is()#classification = self.candidates_hyperparameters.classification)
             winner = Candidate(winner)
-            kfoldLog.the_fine_winner_is(log, modelnumber, winner.to_string(), metric = f"MeanMee: {meanMSE}")
+            kfoldLog.the_fine_winner_is(log, modelnumber, winner.to_string(), metric = f"MeanMee: {meanmetrics['mean_mee']}")
             kfoldLog.end_log(log)
-        return winner
+        return winner,meanmetrics

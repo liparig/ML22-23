@@ -3,7 +3,20 @@ import costants as C
 import time
 import os
 
-      
+def Model_Assessment_log(fileDir:str, fileName:str, hyperparameters:str, result:str):
+        # Writing to file
+        timestr:str = time.strftime(C.FORMATTIMESTAMP)
+        if(not(os.path.isdir(C.PATH_MODEL_ASSESSMENT_DIR))):
+            os.makedirs(C.PATH_MODEL_ASSESSMENT_DIR)
+        if(not(os.path.isdir(f"{C.PATH_MODEL_ASSESSMENT_DIR}/{fileDir}"))):
+            os.makedirs(f"{C.PATH_MODEL_ASSESSMENT_DIR}/{fileDir}")
+        mafile = open(f"{C.PATH_MODEL_ASSESSMENT_DIR}/{fileDir}/{fileName}_{timestr}.txt", "a")
+        mafile.write(f"{hyperparameters}\n")
+        mafile.write(f"{result}\n") 
+        
+        mafile.close() 
+        return mafile, timestr
+   
 def start_log(fileName:str):
         # Writing to file
         timestr:str = time.strftime(C.FORMATTIMESTAMP)

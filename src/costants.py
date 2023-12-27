@@ -13,6 +13,8 @@ INPUT_TRAINING:str = 'x_train'
 OUTPUT_TRAINING:str = 'y_train'
 INPUT_VALIDATION:str = 'x_val'
 OUTPUT_VALIDATION:str = 'y_val'
+INPUT_TEST:str = 'x_test'
+OUTPUT_TEST:str = 'y_test'
 
 FORMATTIMESTAMP:str = '%d%m%Y-%H%M'
 #HYPERPARAMETERS
@@ -29,7 +31,7 @@ EPOCHS:int = 1000 #Max Epochs
 PATIENCE:int = 20 #Max Epochs with small changes
 MOMENTUM = ("",0)
 EARLYSTOP:bool = True
-TRESHOLDVARIANCE:float = 1.e-12
+TRESHOLDVARIANCE:float = 1.e-10
 BATCH_SHUFFLE=True
 
 UNIFORM:str = 'uniform'
@@ -42,6 +44,7 @@ NESTEROV:str = 'nesterov'
 
 PATH_PLOT_DIR:str = "../plot/"
 PATH_KFOLDCV_DIR:str="../KFoldCV"
+PATH_MODEL_ASSESSMENT_DIR="../Model_Assessment"
 PREFIX_DIR_COARSE:str = "Coarse"
 PREFIX_DIR_FINE:str = "Fine"
 
@@ -83,9 +86,10 @@ RECALL:str = 'recall'
 SPECIFICITY:str = 'specificity'
 BALANCED:str = 'balanced'
 
-# type of dataser
+# type of dataset
 TRAINING:str = 'training'
 VALIDATION:str = 'validation'
+TEST:str = 'test'
 
 # prefix file name and directorys
 PREFIXBATCH:str = '_Batch_'
