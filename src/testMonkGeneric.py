@@ -53,15 +53,15 @@ def savePlotFig(errors, dirName, fileName, title, theta):
 def main(inTR_x_monk, inTR_y_monk, inTS_x_monk, inTS_y_monk, dirName):
     theta_batch = {
         C.L_NET:[[17,2,1]], #unit for layer between 2 and 4. it's written in the slide
-        C.L_ACTIVATION:[[C.TANH]],
+        C.L_ACTIVATION:[[C.LEAKYRELU,C.TANH]],
         C.L_ETA:[0.9],
         C.L_TAU: [(False,False)],
         C.L_REG:[(False,False)],
         C.L_DIMBATCH:[0],
-        C.L_MOMENTUM: [(C.CLASSIC,0.8)],
+        C.L_MOMENTUM: [(False,False)],
         C.L_EPOCHS:[500],
         C.L_SHUFFLE:True,
-        C.L_EPS: [0.1],
+        C.L_EPS: [0.01],
         C.L_DISTRIBUTION:[C.UNIFORM],
         C.L_BIAS:[0],
         C.L_SEED: 25,
@@ -71,7 +71,7 @@ def main(inTR_x_monk, inTR_y_monk, inTS_x_monk, inTS_y_monk, dirName):
         C.L_TRESHOLD_VARIANCE:[1.e-10]    
     }
     
-    monk_evaluation(inTR_x_monk, inTR_y_monk, inTS_x_monk, inTS_y_monk, theta_batch, dirName, prefixFilename = C.PREFIXBATCH, fold = 5)
+    #monk_evaluation(inTR_x_monk, inTR_y_monk, inTS_x_monk, inTS_y_monk, theta_batch, dirName, prefixFilename = C.PREFIXBATCH, fold = 2)
     
     theta_mini = theta_batch.copy()
     theta_mini[C.L_ETA]=[0.09, 0.03]
@@ -81,14 +81,14 @@ def main(inTR_x_monk, inTR_y_monk, inTS_x_monk, inTS_y_monk, dirName):
     #monk_evaluation(inTR_x_monk, inTR_y_monk, inTS_x_monk, inTS_y_monk, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH, fold = 5)
     
     theta_batch_NOES = theta_batch.copy()
-    theta_batch_NOES[C.L_EARLYSTOP]=False
-    theta_batch_NOES[C.L_EPOCHS]:[300]
+    theta_batch_NOES[C.L_EARLYSTOP]= False
+    theta_batch_NOES[C.L_EPOCHS]=[500]
     
     monk_evaluation(inTR_x_monk, inTR_y_monk, inTS_x_monk, inTS_y_monk, theta_batch_NOES, dirName, prefixFilename = C.PREFIXBATCH+"NO_ES", fold = 2)
     
     theta_mini_NoES = theta_mini.copy()
     theta_mini_NoES[C.L_EARLYSTOP]=False
-    theta_mini_NoES[C.L_EPOCHS]:[210,500]
+    theta_mini_NoES[C.L_EPOCHS]=[210,500]
 
 
     

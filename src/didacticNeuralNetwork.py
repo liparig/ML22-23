@@ -116,7 +116,7 @@ class DidacticNeuralNetwork:
         return wb
         
     def linear(self, w, X,b):
-        return np.dot(w, X.T) + b
+        return np.add(np.dot(w, X.T) , b)
     '''
     Compute the forward propagation on the network. Update the network dimension and nets and outputs of the layers
     :parm inputs: Inputs values matrix to predict if None the last training input will be execute.
@@ -133,17 +133,19 @@ class DidacticNeuralNetwork:
             name_layer:str = str(l)
             w = self.wb[f'W{interim}{name_layer}'] # on the row there are the weights for 
             b = self.wb[f'b{interim}{name_layer}']
+           
             #apply linear function
-            net = np.asarray(self.linear(w, in_out, b))
+            net = self.linear(w, in_out, b)
             #apply activation function to the net
             af = activations[self.a_functions[l-1]]
             #traspose the result row unit column pattern
-            in_out = np.asarray(af(net).T)
+            in_out = af(net).T
             #if update true record the net and out of the units on the layer
             if update:
                 self.out[f"out{interim}0"] = inputs
                 self.net[f'net{interim}{name_layer}'] = net
                 self.out[f'out{interim}{name_layer}'] = in_out
+        
         return in_out
     '''
     Compute delta_k gradient of outputlayer
@@ -184,29 +186,20 @@ class DidacticNeuralNetwork:
     :param pattern: number of pattern predicted  
     :return: void
     '''
-    def update_wb(self, delta,pattern=1):
+    def update_wb(self, delta, gradients,pattern):
         for l in range(len(self.l_dim) - 1, 0, -1):
             name_layer:str = str(l)
-            #print(f"Name {name_layer}",self.out[f"out{l-1}"].shape)
-            #The problem of overflow is  here TODO!!!!
-            deltaW = np.divide(delta[l-1].T @ self.out[f"out{l-1}"], pattern)
+            gradw = np.divide(gradients[l-1] , pattern)
+            gradb = np.divide(np.sum(delta[l-1].T, axis=1, keepdims=True) ,pattern)
 
-            # deltaW = deltaW / np.linalg.norm(deltaW)
-            deltaB = np.divide(np.sum(delta[l-1].T, axis=1, keepdims=True) ,pattern)
             
-            # deltaB = deltaB / np.linalg.norm(deltaB)
-            # print(f'delta: {delta}, type:{type(delta)}')
-            # print(f'outl-1: {self.out[f"out{l-1}"]}, type:{self.out[f"out{l-1}"].dtype}')
-            # print(f'deltaW: {deltaW}, type:{deltaW.dtype}')
-            # print(f'deltaW: {deltaB}, type:{deltaB.dtype}')
-            # input('premi')
             #save the old gradient for the Nesterov momentum if needed
             if self.momentum == C.NESTEROV:
-                self.deltaOld[f'wold{name_layer}'] = deltaW
-                self.deltaOld[f'bold{name_layer}'] = deltaB
+                self.deltaOld[f'wold{name_layer}'] = gradw
+                self.deltaOld[f'bold{name_layer}'] = gradb
 
-            deltaW = self.eta * deltaW
-            deltaB = self.eta * deltaB
+            deltaW = self.eta * gradw
+            deltaB = self.eta * gradb
 
            
             #if momentum classic is set add the momentum deltaW
@@ -223,7 +216,6 @@ class DidacticNeuralNetwork:
                 deltaW -= self.regular.derivative(self, self.lambdar, self.wb[f'W{name_layer}'])
                 deltaB -= self.regular.derivative(self, self.lambdar, self.wb[f'b{name_layer}'])
 
-           
             self.wb[f'W{name_layer}'] = np.add(self.wb[f'W{name_layer}'], deltaW) 
             self.wb[f'b{name_layer}'] = np.add(self.wb[f'b{name_layer}'], deltaB)
 
@@ -235,17 +227,17 @@ class DidacticNeuralNetwork:
     '''
     def back_propagation(self, y):
         delta_t = []
+        gradients=[]
         num_layers:int = len(self.l_dim) - 1
         interim:str = ""
-        #Reverse loop of the network layer
         if self.momentum == C.NESTEROV and "wold1" in self.deltaOld:
                 interim = "_"
+        #Reverse loop of the network layer
         for l in range(num_layers, 0, -1):
             dt = 0
             name_layer:str = str(l)
-            # print(f'name_layer 228 ddn: {name_layer}')
             #recover the activation function of the layer
-            af = self.a_functions[num_layers-1]
+            af = self.a_functions[l-1]
             #if not the output layer compute gradients delta_j
             if l != num_layers:
                 dt = self.compute_delta_j(delta_t[-1], self.wb[f'W{interim}{l+1}'], self.net[f'net{interim}{name_layer}'], derivatives[af])
@@ -254,8 +246,12 @@ class DidacticNeuralNetwork:
             #append the gradient matrix
             # print(f'dt.shape {dt.shape}, dt {dt}')
             # input('premi')
+            #The problem of overflow is  here TODO!!!!
+            gradW = dt.T @ self.out[f"out{interim}{l-1}"]
             delta_t.append(dt)
-        return delta_t[::-1]
+            gradients.append(gradW)
+
+        return delta_t[::-1], gradients[::-1]
 
     """
     :return: history_terror, history_tloss, validation_error. History Error of the train and validation error
@@ -290,6 +286,7 @@ class DidacticNeuralNetwork:
             f'{C.TEST}_specificity':[],
             f'{C.TEST}_balanced':[]
         }
+
         """#compute errors at epoch 0
         out_t = self.forward_propagation(inputs = self.dataset[C.INPUT_TRAINING], update=False)
         terror = (self.l_function.loss(self, self.dataset[C.OUTPUT_TRAINING], out_t)/out_t.shape[0])
@@ -314,7 +311,7 @@ class DidacticNeuralNetwork:
         batch_number = math.ceil(self.dataset[C.NUM_PATTERN_X] / self.dim_batch)
         #train start    
         for epoch in range(self.epochs):
-            #initialize variable for partial error and loss
+            #initialize variable for training partial error and loss
             batch_terror, batch_tloss = 0, 0
 
             #if learning decay used update of eta
@@ -333,9 +330,7 @@ class DidacticNeuralNetwork:
                 #initialize index for dataset partition
                 batch_x, batch_y = self.extract_batch(x_dev, y_dev, b)
                 #propagation on network layer
-                # out_t = self.forward_propagation(batch_x.copy(), update=True)
                 self.forward_propagation(batch_x.copy(), update = True)
-                #print("\n\n\nOUT\n\n\n",out,"\n\n\n\n----\n\n\n")
                 #if it's used nesterov or regularization, walk the network for compute penalty term and intermediate w
                 if self.regular or self.momentum == C.NESTEROV:        
                     for l in range(1, len(self.l_dim)):
@@ -351,12 +346,14 @@ class DidacticNeuralNetwork:
                     if self.momentum == C.NESTEROV  and f"wold{l}" in self.deltaOld:
                         self.forward_propagation(batch_x.copy(), update=True, nesterov=True)              
                 #compute delta using back propagation on target batch
-                delta = self.back_propagation(batch_y)
+                delta,gradients= self.back_propagation(batch_y)
                 # call update weights function
-                self.update_wb(delta,batch_x.shape[0])
+                self.update_wb(delta,gradients,batch_x.shape[0])
                 # update bacth error
                 out_t = self.forward_propagation(batch_x, update=False)
-                terror = (self.l_function.loss(self, batch_y, out_t)/batch_x.shape[0])
+
+                terror = self.l_function.loss(self, batch_y, out_t)
+                terror = np.sum(terror)/out_t.shape[0]
                 batch_terror += terror 
                 if self.regular:
                     batch_tloss += terror + p_term
@@ -398,7 +395,7 @@ class DidacticNeuralNetwork:
         if test:
             result['test']=test_error
             result['metric_test']=metric_test
-            
+       
         return result
 
     def training_metrics(self, metric_tr, c_metric, out_t, evaluate_out_t):
@@ -413,7 +410,9 @@ class DidacticNeuralNetwork:
 
     def validation_metrics(self, validation_error, metric_val, c_metric):
         out_v = self.forward_propagation(inputs = self.dataset[C.INPUT_VALIDATION], update=False)
-        validation_error.append(self.l_function.loss(self, self.dataset[C.OUTPUT_VALIDATION],out_v)/out_v.shape[0])
+        v_error=np.sum(self.l_function.loss(self, self.dataset[C.OUTPUT_VALIDATION],out_v))
+        v_error=v_error/out_v.shape[0]
+        validation_error.append(v_error)
         if self.classification:
             self.append_binary_classification_metric(c_metric, out_v,self.dataset[C.OUTPUT_VALIDATION],treshold=0.5,dataset=C.VALIDATION)
             metric_val.append(c_metric[f'{C.VALIDATION}_accuracy'][-1])
@@ -422,7 +421,9 @@ class DidacticNeuralNetwork:
             
     def test_metrics(self, test_error, metric_test, c_metric):
         out_test = self.forward_propagation(inputs = self.dataset[C.INPUT_TEST], update=False)
-        test_error.append(self.l_function.loss(self, self.dataset[C.OUTPUT_TEST],out_test)/out_test.shape[0])
+        test_loss=np.sum(self.l_function.loss(self, self.dataset[C.OUTPUT_TEST],out_test))
+        test_loss=test_loss/out_test.shape[0]
+        test_error.append(test_loss)
         if self.classification:
             self.append_binary_classification_metric(c_metric, out_test,self.dataset[C.OUTPUT_TEST],treshold=0.5,dataset=C.TEST)
             metric_test.append(c_metric[f'{C.TEST}_accuracy'][-1])

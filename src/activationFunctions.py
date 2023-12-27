@@ -36,10 +36,10 @@ def tanh(net):
 
 
 def d_tanh(net):
-    return np.subtract(1,np.power(np.tanh(net), 2)
-    )
+    return np.subtract([1.],np.power(np.tanh(net), 2))
 
 def relu(net):
+   
     return np.maximum(net, 0)
 
 def d_relu(net):
@@ -48,11 +48,20 @@ def d_relu(net):
     return net
 
 def leaky_relu(net):
-    return np.maximum(net, 0.01*net)
+    rel=[]
+    for x in net.flatten():
+        rel.append(x if x >= 0 else 0.01 * x) 
+    net=np.array(rel).reshape(net.shape)
+
+    return net
 
 def d_leaky_relu(net):
-    net[net <= 0] = 0.01
-    net[net > 0] = 1
+    
+    rel=[]
+    for x in net.flatten():
+        rel.append(1 if x >= 0 else 0.01) 
+    net=np.array(rel).reshape(net.shape)
+
     return net
 
 activations = {
