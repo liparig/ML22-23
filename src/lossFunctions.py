@@ -9,6 +9,7 @@ class MSE:
         return: loss in terms of squared error (divided for 2 to semplify the derivative)
         """
     def loss(self, Y, Y_hat):
+
         dp = np.subtract(Y, Y_hat)
         squares = np.square(dp)
         loss = squares * (0.5)

@@ -39,6 +39,12 @@ class DidacticNeuralNetwork:
         self.gen = Generator(PCG64(seed))
         self.a_functions = a_functions
         self.__check_init__(l_dim, a_functions)
+        if self.a_functions[-1]==C.TANH:
+            self.classi=(-1,1)
+            self.threshold_accuracy=0.3
+        else:
+            self.classi=(0,1)
+            self.threshold_accuracy=0.5
         self.l_dim = l_dim
         self.l_function = loss[l_function]
         self.wb = self.init_wb(l_dim, **kwargs)
@@ -103,20 +109,22 @@ class DidacticNeuralNetwork:
         num_layers:int = len(l_dim)
         for l in range(1, num_layers):
             name_layer:str = str(l)
+            wlayer=np.zeros((l_dim[l],l_dim[l-1]))
             if distribution == C.UNIFORM:
-              wb[f'W{name_layer}'] = self.gen.uniform(low = -eps, high = eps, size = (l_dim[l], l_dim[l-1]))
+                wlayer=self.gen.uniform(low = -eps, high = eps, size = (l_dim[l], l_dim[l-1]))
             elif distribution == C.BASIC:
-                wb[f'W{name_layer}'] = self.gen.uniform(low = -1/l_dim[0], high = 1/l_dim[0], size = (l_dim[l], l_dim[l-1]))
+                wlayer=self.gen.uniform(low = -1/l_dim[l-1], high = 1/l_dim[l-1], size = (l_dim[l], l_dim[l-1]))
             else:
                 #Initialization of random weitghs ruled by eps
-                wb[f'W{name_layer}'] = self.gen.random(size = (l_dim[l], l_dim[l-1])) * eps
+                wlayer = self.gen.uniform(size = (l_dim[l], l_dim[l-1])) * eps
+            wb[f'W{name_layer}']=wlayer
             #Initialization of bias of the layer
             wb[f'b{name_layer}'] = np.full((l_dim[l], 1),bias)
-            
         return wb
         
     def linear(self, w, X,b):
-        return np.add(np.dot(w, X.T) , b)
+        net =  np.add(X @ w.T , b.T)
+        return net
     '''
     Compute the forward propagation on the network. Update the network dimension and nets and outputs of the layers
     :parm inputs: Inputs values matrix to predict if None the last training input will be execute.
@@ -131,15 +139,16 @@ class DidacticNeuralNetwork:
             interim="_"
         for l in range(1, len(self.l_dim)):
             name_layer:str = str(l)
-            w = self.wb[f'W{interim}{name_layer}'] # on the row there are the weights for 
+            w = self.wb[f'W{interim}{name_layer}'] # on the row there are the weights for units
             b = self.wb[f'b{interim}{name_layer}']
            
             #apply linear function
             net = self.linear(w, in_out, b)
             #apply activation function to the net
             af = activations[self.a_functions[l-1]]
+            
             #traspose the result row unit column pattern
-            in_out = af(net).T
+            in_out = af(net)
             #if update true record the net and out of the units on the layer
             if update:
                 self.out[f"out{interim}0"] = inputs
@@ -161,9 +170,10 @@ class DidacticNeuralNetwork:
         #derivative of the layer activation function
         f_prime = d_activation(net)
         #compute delta with a puntual multiplication
-        delta_k = dp.T * f_prime
-        #return delta transpose for use rows patterns
-        return delta_k.T
+        delta_k = dp * f_prime
+        #return delta rows patterns
+        return delta_k
+    
     '''
     Compute delta_j gradient of hidden layer
     :param delta_in: the delta matrix backpropagated by the upper layer.
@@ -177,7 +187,6 @@ class DidacticNeuralNetwork:
         dt = delta_in @ w_layer
         # Transpose and puntual multiplication of apply the derivative
         fprime = d_activation(net) # net is a vector with all the nets for the unit layer
-        fprime = fprime if isinstance(fprime, int) else fprime.T
         dj = dt * fprime
         return dj
     '''
@@ -188,6 +197,7 @@ class DidacticNeuralNetwork:
     '''
     def update_wb(self, delta, gradients,pattern):
         for l in range(len(self.l_dim) - 1, 0, -1):
+
             name_layer:str = str(l)
             gradw = np.divide(gradients[l-1] , pattern)
             gradb = np.divide(np.sum(delta[l-1].T, axis=1, keepdims=True) ,pattern)
@@ -200,17 +210,16 @@ class DidacticNeuralNetwork:
 
             deltaW = self.eta * gradw
             deltaB = self.eta * gradb
-
            
             #if momentum classic is set add the momentum deltaW
-            if self.momentum == C.CLASSIC and f'wold{name_layer}' in self.deltaOld:
-                deltaW = np.add(deltaW,self.alpha*self.deltaOld[f'wold{name_layer}'])
-                deltaB = np.add(deltaB,self.alpha*self.deltaOld[f'bold{name_layer}'])
+            if self.momentum == C.CLASSIC:
+                if f'wold{name_layer}' in self.deltaOld:
+                    deltaW = np.add(deltaW,self.alpha*self.deltaOld[f'wold{name_layer}'])
+                    deltaB = np.add(deltaB,self.alpha*self.deltaOld[f'bold{name_layer}'])
                 #save the old gradient for the momentum if needed
                 self.deltaOld[f'wold{name_layer}'] = deltaW
                 self.deltaOld[f'bold{name_layer}'] = deltaB
 
-            
             #if regularization is set subtract the penalty term.
             if self.regular:
                 deltaW -= self.regular.derivative(self, self.lambdar, self.wb[f'W{name_layer}'])
@@ -218,6 +227,7 @@ class DidacticNeuralNetwork:
 
             self.wb[f'W{name_layer}'] = np.add(self.wb[f'W{name_layer}'], deltaW) 
             self.wb[f'b{name_layer}'] = np.add(self.wb[f'b{name_layer}'], deltaB)
+
 
 
     '''
@@ -376,8 +386,13 @@ class DidacticNeuralNetwork:
 
             
             if epoch>1 and self.early_stop:
-                if validation_error[-1] >= validation_error[-2] or np.square(validation_error[-1]-validation_error[-2]) < self.treshold_variance:
+                if validation: 
+                    e_stop = np.square(validation_error[-1] - validation_error[-2]) < self.treshold_variance
+                else:
+                    e_stop = np.square(history_terror[-1] - history_terror[-2]) < self.treshold_variance
+                if e_stop:
                     selfcontrol += 1
+                    print("Errore nuovo",history_terror[-1],"Errore vecchio",history_terror[-2],selfcontrol)
                     if self.patience == selfcontrol:
                         break
                 else:
@@ -402,7 +417,7 @@ class DidacticNeuralNetwork:
         if evaluate_out_t:
             out_t = self.forward_propagation(inputs = self.dataset[C.INPUT_TRAINING], update=False)
         if self.classification:
-            self.append_binary_classification_metric(c_metric, out_t,self.dataset[C.OUTPUT_TRAINING],treshold=0.5,dataset=C.TRAINING)
+            self.append_binary_classification_metric(c_metric, out_t,self.dataset[C.OUTPUT_TRAINING],treshold=self.threshold_accuracy,classi=self.classi,dataset=C.TRAINING)
             self.metrics.metrics_binary_classification(self.dataset[C.OUTPUT_TRAINING],out_t,treshold=0.5)
             metric_tr.append(c_metric[f'{C.TRAINING}_accuracy'][-1])
         else:
@@ -414,7 +429,7 @@ class DidacticNeuralNetwork:
         v_error=v_error/out_v.shape[0]
         validation_error.append(v_error)
         if self.classification:
-            self.append_binary_classification_metric(c_metric, out_v,self.dataset[C.OUTPUT_VALIDATION],treshold=0.5,dataset=C.VALIDATION)
+            self.append_binary_classification_metric(c_metric, out_v,self.dataset[C.OUTPUT_VALIDATION],treshold=self.threshold_accuracy,classi=self.classi,dataset=C.VALIDATION)
             metric_val.append(c_metric[f'{C.VALIDATION}_accuracy'][-1])
         else:
             metric_val.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_VALIDATION], out_v))
@@ -425,14 +440,14 @@ class DidacticNeuralNetwork:
         test_loss=test_loss/out_test.shape[0]
         test_error.append(test_loss)
         if self.classification:
-            self.append_binary_classification_metric(c_metric, out_test,self.dataset[C.OUTPUT_TEST],treshold=0.5,dataset=C.TEST)
+            self.append_binary_classification_metric(c_metric, out_test,self.dataset[C.OUTPUT_TEST],treshold=self.threshold_accuracy,classi=self.classi,dataset=C.TEST)
             metric_test.append(c_metric[f'{C.TEST}_accuracy'][-1])
         else:
             metric_test.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_TEST], out_test))
     
     #dataset can be C.VALIDATION or 'C.TRANING'
-    def append_binary_classification_metric(self, c_metric, predicted, target, treshold=0.5, dataset = C.VALIDATION):
-        mbc = self.metrics.metrics_binary_classification(target,predicted,treshold)
+    def append_binary_classification_metric(self, c_metric, predicted, target, treshold=0.5 ,classi=(0,1), dataset = C.VALIDATION):
+        mbc = self.metrics.metrics_binary_classification(target,predicted,treshold,classi)
         c_metric[f'{dataset}_accuracy'].append(mbc[C.ACCURACY])
         c_metric[f'{dataset}_precision'].append(mbc[C.PRECISION])
         c_metric[f'{dataset}_recall'].append(mbc[C.RECALL])

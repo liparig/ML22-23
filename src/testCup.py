@@ -35,22 +35,22 @@ def savePlotFig(errors, dirName, fileName, title, theta):
      
 def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
     theta_batch = {
-        C.L_NET:[[9,16,16,3]],
-        C.L_ACTIVATION:[[C.RELU,C.RELU,C.IDENTITY]],
-        C.L_ETA:[0.5, 0.8],
+        C.L_NET:[[9,5,3,2,3]],
+        C.L_ACTIVATION:[[C.LEAKYRELU,C.LEAKYRELU,C.LEAKYRELU,C.IDENTITY]],
+        C.L_ETA:[0.2, 0.1],
         C.L_TAU: [(False,False), (1000,0.005)],
-        C.L_REG:[(C.TIKHONOV,0.5), (C.LASSO,0.5)],
+        C.L_REG:[(C.TIKHONOV,0.001), (C.LASSO,0.001)],
         C.L_DIMBATCH:[0],
         C.L_MOMENTUM: [(False,False)],
         C.L_EPOCHS:[500, 1000],
         C.L_SHUFFLE:True,
-        C.L_EPS: [0.1],
+        C.L_EPS: [0.7],
         C.L_DISTRIBUTION:[C.UNIFORM],
         C.L_BIAS:[0],
         C.L_SEED: [52],
         C.L_CLASSIFICATION:False,
         C.L_EARLYSTOP:True,
-        C.L_PATIENCE: [400],
+        C.L_PATIENCE: [15],
         C.L_TRESHOLD_VARIANCE:[C.TRESHOLDVARIANCE]    
     }
     

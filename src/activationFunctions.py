@@ -12,10 +12,8 @@ def d_identity(x):
     return 1
 
 def sigmoid(net):
-    
-    """sigmoid_m=[]
-    
-    #avoid overflow
+    sigmoid_m=[]
+     #avoid overflow
     for x in net.flatten():
         if x<0:
             sigmoid_m.append(np.exp(x)/(1+np.exp(x)))
@@ -23,12 +21,12 @@ def sigmoid(net):
             sigmoid_m.append(1 / (1 + np.exp(-x)))
             
     sigmoid_m=np.array(sigmoid_m)
-    sigmoid_m=sigmoid_m.reshape(net.shape)"""
-    return np.where(net >= 0, 1/(1 + np.exp(-net)), np.exp(net)/(1 + np.exp(net)))
+    sigmoid_m=sigmoid_m.reshape(net.shape)
+    return sigmoid_m
 
 
 def d_sigmoid(net):
-    return np.multiply(sigmoid(net) , np.subtract( 1 , sigmoid(net)))
+    return np.multiply(sigmoid(net) , np.subtract( np.ones(net.shape) , sigmoid(net)))
 
 
 def tanh(net):
@@ -36,15 +34,18 @@ def tanh(net):
 
 
 def d_tanh(net):
-    return np.subtract([1.],np.power(np.tanh(net), 2))
+
+    return np.subtract(np.ones(net.shape),np.square(np.tanh(net)))
 
 def relu(net):
    
     return np.maximum(net, 0)
 
 def d_relu(net):
-    net[net <= 0] = 0
-    net[net > 0] = 1
+    rel=[]
+    for x in net.flatten():
+        rel.append(1 if x > 0 else 0) 
+    net=np.array(rel).reshape(net.shape)
     return net
 
 def leaky_relu(net):

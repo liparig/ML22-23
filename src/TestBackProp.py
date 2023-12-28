@@ -13,7 +13,12 @@ def init_wb(l_dim, distribution:str = C.UNIFORM, eps:float = C.EPS, bias = C.BIA
         for l in range(1, num_layers):
             name_layer:str = str(l)
             if distribution == C.UNIFORM:
-               wb[f'W{name_layer}'] = gen.uniform(low = -eps, high = eps, size = (l_dim[l], l_dim[l-1]))
+                wlayer=np.zeros((l_dim[l],l_dim[l-1]))
+                for u in range(l_dim[l]):
+                    wlayer[u]=gen.uniform(low = -eps, high = eps, size = (1, l_dim[l-1]))
+                wb[f'W{name_layer}']=wlayer
+                print(wb)
+                input("permi")
             else:
                 #Initialization of random weitghs ruled by eps
                 wb[f'W{name_layer}'] = gen.random(size = (l_dim[l], l_dim[l-1])) * eps

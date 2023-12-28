@@ -20,23 +20,23 @@ TESTMONK2 = BASE_DIR+"/MonkDatasets/monks-2.test"
 TESTMONK3 = BASE_DIR+"/MonkDatasets/monks-3.test"
 TESTCUP= BASE_DIR+"/CupDatasets/Cup23/ML-CUP23-TS.csv"
 
-def get_train_Monk_1():
-    return read_monk(TRAINMONK1)
+def get_train_Monk_1(tanh=False):
+    return read_monk(TRAINMONK1,tanh)
 
-def get_test_Monk_1():
-    return read_monk(TESTMONK1)
+def get_test_Monk_1(tanh=False):
+    return read_monk(TESTMONK1,tanh)
 
-def get_train_Monk_2():
-    return read_monk(TRAINMONK2)
+def get_train_Monk_2(tanh=False):
+    return read_monk(TRAINMONK2,tanh)
 
-def get_test_Monk_2():
-    return read_monk(TESTMONK2)
+def get_test_Monk_2(tanh=False):
+    return read_monk(TESTMONK2,tanh)
 
-def get_train_Monk_3():
-    return read_monk(TRAINMONK3)
+def get_train_Monk_3(tanh=False):
+    return read_monk(TRAINMONK3,tanh)
 
-def get_test_Monk_3():
-    return read_monk(TESTMONK3)
+def get_test_Monk_3(tanh=False):
+    return read_monk(TESTMONK3,tanh)
 
 def get_train_CUP():
     return read_cup(TRAINCUP)
@@ -44,7 +44,7 @@ def get_train_CUP():
 def get_test_CUP():
     return read_cup(TESTCUP)
 
-def read_monk(name):
+def read_monk(name,tanh=True):
     # read the dataset
     col_names = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'Id']
     monk_dataset = pd.read_csv(name, sep=' ', names=col_names)
@@ -53,15 +53,15 @@ def read_monk(name):
     # shuffle the DataFrame rows
     monk_dataset = monk_dataset.sample(frac = 1)
     
-    # get labels from dataset
+    # get targets from dataset
     monk_targets = monk_dataset.pop('class')
-    
     # 1-hot encoding (and transform dataframe to numpy array)
-    monk_dataset = OneHotEncoder().fit_transform(monk_dataset).toarray().astype(np.int64)
-    
-    # transform labels from pandas dataframe to numpy ndarray
-    monk_targets = monk_targets.to_numpy()[:, np.newaxis]
+    monk_dataset = OneHotEncoder().fit_transform(monk_dataset).toarray().astype(np.float64)
 
+    # transform targets from pandas dataframe to numpy ndarray
+    monk_targets = monk_targets.to_numpy()[:,np.newaxis].astype(np.float64)
+    if tanh:
+        monk_targets[monk_targets==0]=-1
     return monk_dataset, monk_targets
 
 def read_monk_Tr_Vl(name:str = TRAINMONK1, perc:float = 0.25):
@@ -74,10 +74,10 @@ def read_monk_Tr_Vl(name:str = TRAINMONK1, perc:float = 0.25):
     monk_dataset = monk_dataset.sample(frac = 1)
     
     # get labels from dataset
-    monk_targets = monk_dataset.pop('class').to_numpy(dtype=np.float64)
+    monk_targets = monk_dataset.pop('class').to_numpy(dtype=np.int32)
     
     # 1-hot encoding (and transform dataframe to numpy array)
-    monk_dataset = OneHotEncoder().fit_transform(monk_dataset).toarray().astype(np.int64)
+    monk_dataset = OneHotEncoder().fit_transform(monk_dataset).toarray().astype(np.float64)
     
     dim = math.ceil(len(monk_dataset) * perc)
     
@@ -115,7 +115,6 @@ def read_cup(name):
     cup_dataset.set_index('Id', inplace=True)
     # shuffle the DataFrame rows
     cup_dataset = cup_dataset.sample(frac = 1)
-    print(cup_dataset)
     if name == TRAINCUP:
         # get targets aside
         target_x = cup_dataset.pop('target_x').to_numpy(dtype=np.float64)

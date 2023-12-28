@@ -9,22 +9,26 @@ class DnnMetrics:
     :param treshold: treshold values
     :return result: dictionary with: C.ACCURACY,C.PRECISION,C.RECALL,C.SPECIFICITY,C.BALANCED
     '''
-    def metrics_binary_classification(self, y, y_hat, treshold = 0.5):
+    def metrics_binary_classification(self, y, y_hat, treshold = 0.5,classi=(0,1)):
         if np.squeeze(y).shape != np.squeeze(y_hat).shape:
             raise Exception(f"Sets have different shape Y:{y.shape} Y_hat:{y_hat.shape}")
 
         tp,tn,fp,fn=0,0,0,0
+        countP=0
         for predicted, target in zip(y_hat.flatten(),y.flatten()):
             if predicted < treshold:
-                if target == 0:
+                if target == classi[0]:
                     tn += 1
                 else:
                     fn += 1
             else:
-                if target == 1:
+                if target == classi[1]:
                     tp += 1
                 else:
                     fp += 1
+            if np.abs(predicted - target) < treshold:
+                countP+=1
+            
 
         accuracy = (tp+tn)/(tp+tn+fp+fn) if tp+tn+fp+fn > 0 else 0
         recall = tp/(tp+fn) if tp+fn > 0 else 0
