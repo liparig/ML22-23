@@ -109,6 +109,7 @@ class DidacticNeuralNetwork:
         num_layers:int = len(l_dim)
         for l in range(1, num_layers):
             name_layer:str = str(l)
+            active= self.a_functions[l-1]
             wlayer=np.zeros((l_dim[l],l_dim[l-1]))
             match distribution:
                 case C.UNIFORM:
@@ -116,23 +117,30 @@ class DidacticNeuralNetwork:
                 case C.BASIC:
                     wlayer=self.gen.uniform(low = -1/l_dim[l-1], high = 1/l_dim[l], size = (l_dim[l], l_dim[l-1]))
                 case C.RANDOM:
-                    wlayer = self.gen.uniform(size = (l_dim[l], l_dim[l-1])) * eps
+                    #Initialization of random weitghs ruled by eps
+                    wlayer = self.gen.random(size = (l_dim[l], l_dim[l-1])) * eps
                 case C.GLOROT:
-                     if self.a_functions[-1]==C.SIGMOID:
-                        r=4*np.sqrt(6/(l_dim[l-1]+l_dim[l]))
-                     else:
-                        r= np.sqrt(6/(l_dim[l-1]+l_dim[l]))
-                     wlayer = wlayer=self.gen.uniform(low = -r, high = r, size = (l_dim[l], l_dim[l-1]))
+                    match active:
+                        case C.SIGMOID:
+                            r = 4*np.sqrt(6/(l_dim[l-1]+l_dim[l]))
+                        case active if active in [C.RELU , C.LEAKYRELU]:
+                            #HE initialization
+                            r = np.sqrt(2)*np.sqrt(6/(l_dim[l-1]+l_dim[l]))
+                        case C.TANH:
+                            r= np.sqrt(6/(l_dim[l-1]+l_dim[l]))
+                        case _:
+                            wlayer=self.gen.uniform(low = -eps, high = eps, size = (l_dim[l], l_dim[l-1]))
+                    wlayer = wlayer=self.gen.uniform(low = -r, high = r, size = (l_dim[l], l_dim[l-1]))
                 case _:
-                     #Initialization of random weitghs ruled by eps
-                    wlayer = self.gen.uniform(size = (l_dim[l], l_dim[l-1])) * eps
+                    print("Nessuna distribuzione specificata!")
+            
             wb[f'W{name_layer}']=wlayer
             #Initialization of bias of the layer
-            wb[f'b{name_layer}'] = np.full((l_dim[l], 1),bias)
+            wb[f'b{name_layer}'] = np.full((1 , l_dim[l]),bias)
         return wb
         
     def linear(self, w, X, b):
-        net =  np.add(X @ w.T, b.T)
+        net =  np.add(X @ w.T, b)
         return net
     '''
     Compute the forward propagation on the network. Update the network dimension and nets and outputs of the layers
@@ -150,7 +158,8 @@ class DidacticNeuralNetwork:
             name_layer:str = str(l)
             w = self.wb[f'W{interim}{name_layer}'] # on the row there are the weights for units
             b = self.wb[f'b{interim}{name_layer}']
-           
+            
+
             #apply linear function
             net = self.linear(w, in_out, b)
             #apply activation function to the net
@@ -163,7 +172,6 @@ class DidacticNeuralNetwork:
                 self.out[f"out{interim}0"] = inputs
                 self.net[f'net{interim}{name_layer}'] = net
                 self.out[f'out{interim}{name_layer}'] = in_out
-        
         return in_out
     '''
     Compute delta_k gradient of outputlayer
@@ -180,7 +188,6 @@ class DidacticNeuralNetwork:
         f_prime = d_activation(net)
         #compute delta with a puntual multiplication
         delta_k = dp * f_prime
-        #return delta rows patterns
         return delta_k
     
     '''
@@ -193,6 +200,7 @@ class DidacticNeuralNetwork:
     '''    
     def compute_delta_j(self, delta_in, w_layer, net, d_activation):
         # matrix multiplication for delta_t
+        # k da i a n -> delta_k * wkj
         dt = delta_in @ w_layer
         # Transpose and puntual multiplication of apply the derivative
         fprime = d_activation(net) # net is a vector with all the nets for the unit layer
@@ -206,12 +214,10 @@ class DidacticNeuralNetwork:
     '''
     def update_wb(self, delta, gradients,pattern):
         for l in range(len(self.l_dim) - 1, 0, -1):
-
             name_layer:str = str(l)
-            gradw = np.divide(gradients[l-1] , pattern)
-            gradb = np.divide(np.sum(delta[l-1].T, axis=1, keepdims=True) ,pattern)
-
             
+            gradw = np.divide(gradients[l-1] , pattern)
+            gradb = np.divide(np.sum(delta[l-1], axis=0, keepdims=True) ,pattern)
             #save the old gradient for the Nesterov momentum if needed
             if self.momentum == C.NESTEROV:
                 self.deltaOld[f'wold{name_layer}'] = gradw
@@ -219,7 +225,7 @@ class DidacticNeuralNetwork:
 
             deltaW = self.eta * gradw
             deltaB = self.eta * gradb
-           
+
             #if momentum classic is set add the momentum deltaW
             if self.momentum == C.CLASSIC:
                 if f'wold{name_layer}' in self.deltaOld:
@@ -232,7 +238,7 @@ class DidacticNeuralNetwork:
             #if regularization is set subtract the penalty term.
             if self.regular:
                 deltaW -= self.regular.derivative(self, self.lambdar, self.wb[f'W{name_layer}'])
-                deltaB -= self.regular.derivative(self, self.lambdar, self.wb[f'b{name_layer}'])
+                #deltaB -= self.regular.derivative(self, self.lambdar, self.wb[f'b{name_layer}'])
 
             self.wb[f'W{name_layer}'] = np.add(self.wb[f'W{name_layer}'], deltaW) 
             self.wb[f'b{name_layer}'] = np.add(self.wb[f'b{name_layer}'], deltaB)
@@ -263,10 +269,8 @@ class DidacticNeuralNetwork:
             else:
                 dt = self.compute_delta_k(y, self.out[f'out{interim}{name_layer}'], self.net[f'net{interim}{name_layer}'], derivatives[af])
             #append the gradient matrix
-            # print(f'dt.shape {dt.shape}, dt {dt}')
-            # input('premi')
-            #The problem of overflow is  here TODO!!!!
             gradW = dt.T @ self.out[f"out{interim}{l-1}"]
+
             delta_t.append(dt)
             gradients.append(gradW)
 
@@ -385,15 +389,13 @@ class DidacticNeuralNetwork:
             if self.regular:
                 history_tloss.append((batch_tloss)/(b+1))
            
-            self.training_metrics(metric_tr, c_metric, out_t, batch_number>1)
+            out_t=self.training_metrics(metric_tr, c_metric, out_t, batch_number>1)
 
             #if there'is validation or test compute validation and test metric for regression and classification
             if validation:
                 self.validation_metrics(validation_error, metric_val, c_metric)
             if test:
                 self.test_metrics(test_error, metric_test, c_metric)                       
-
-            
             if epoch>1 and self.early_stop:
                 if validation: 
                     e_stop = np.square(validation_error[-1] - validation_error[-2]) < self.treshold_variance
@@ -403,6 +405,7 @@ class DidacticNeuralNetwork:
                     selfcontrol += 1
                     print("Errore nuovo",history_terror[-1],"Errore vecchio",history_terror[-2],selfcontrol)
                     if self.patience == selfcontrol:
+                        print("Lost Patience")
                         break
                 else:
                     selfcontrol = 0
@@ -419,7 +422,6 @@ class DidacticNeuralNetwork:
         if test:
             result['test']=test_error
             result['metric_test']=metric_test
-       
         return result
 
     def training_metrics(self, metric_tr, c_metric, out_t, evaluate_out_t):
@@ -431,6 +433,7 @@ class DidacticNeuralNetwork:
             metric_tr.append(c_metric[f'{C.TRAINING}_accuracy'][-1])
         else:
             metric_tr.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_TRAINING], out_t))
+        return out_t
 
     def validation_metrics(self, validation_error, metric_val, c_metric):
         out_v = self.forward_propagation(inputs = self.dataset[C.INPUT_VALIDATION], update=False)

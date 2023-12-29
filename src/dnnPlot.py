@@ -44,10 +44,10 @@ def __theta_toCaption(theta:dict):
     caption = r"\begin{center} \textit{\small{" + caption + r"}} \end{center}"
     return caption
 
-def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, error_tr=False, path = None, ylim = (0., 10.), lbl_tr:str = C.LABEL_PLOT_TRAINING,
+def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, error_tr=False, path = None, ylim = (0., 10.), yMSElim = (0, 0), lbl_tr:str = C.LABEL_PLOT_TRAINING,
                 lbl_vs:str = C.LABEL_PLOT_VALIDATION, titleplot:str = '',
                 theta:dict ={}, labelsX:list[str] = ['Epochs','Epochs'], labelsY:list[str] = ['Loss','Metric']):
-    proc=mp.Process(target=draw, args=(loss_tr, loss_vs, metr_tr, val_metr,error_tr, path, ylim , lbl_tr,lbl_vs, titleplot,theta, labelsX, labelsY))
+    proc=mp.Process(target=draw, args=(loss_tr, loss_vs, metr_tr, val_metr,error_tr, path, ylim ,yMSElim, lbl_tr,lbl_vs, titleplot,theta, labelsX, labelsY))
     proc.daemon=False
     proc.start()
     proc.join()
@@ -55,7 +55,7 @@ def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, error_tr=False, path = None
     
 
 #@profile
-def draw(loss_tr, loss_vs, metr_tr, val_metr, error_tr=False,path = None, ylim = (0., 10.), lbl_tr:str = C.LABEL_PLOT_TRAINING,
+def draw(loss_tr, loss_vs, metr_tr, val_metr, error_tr=False,path = None, ylim = (0., 10.),yMSElim=(0,0) ,lbl_tr:str = C.LABEL_PLOT_TRAINING,
                 lbl_vs:str = C.LABEL_PLOT_VALIDATION, titleplot:str = '',
                 theta:dict ={}, labelsX:list[str] = ['Epochs','Epochs'], labelsY:list[str] = ['Loss','Metric']):
     """
@@ -92,6 +92,8 @@ def draw(loss_tr, loss_vs, metr_tr, val_metr, error_tr=False,path = None, ylim =
     ax[0].set_xlabel(labelsX[0], fontweight='bold')
     #ax[0].set_xlabel(labelsX[0] + "\\*" + caption ,fontweight='bold')
     ax[0].set_ylabel(labelsY[0], fontweight='bold')
+    if yMSElim!= (0,0):
+        ax[0].set_ylim(yMSElim)
     
     ax[1].plot(range(len(metr_tr)), metr_tr, color='b', linestyle='dashed', label=lbl_tr)
     ax[1].plot(range(len(val_metr)), val_metr, color='r', label=lbl_vs)

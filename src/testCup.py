@@ -5,15 +5,17 @@ from dnnPlot import plot_curves
 import os
 import kfoldLog
 import readMonkAndCup as readMC
+import numpy as np
+import time 
 
 def cup_evaluation(TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, theta, dirName, prefixFilename, fold = 2):
     kfCV = KfoldCV(TR_x_cup, TR_y_cup, fold) 
     winner,meanmetrics = kfCV.validate(inTheta =  theta, FineGS = True, prefixFilename = prefixFilename)
     winnerTheta=winner.get_dictionary()
-    trerrors,euclidianAccuracy=holdoutTest(winnerTheta, TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup,val_per=0,meanepochs=int(meanmetrics['mean_epochs']))
+    trerrors,euclidianAccuracy,result_with_header=holdoutTest(winnerTheta, TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup,val_per=0.25,meanepochs=int(meanmetrics['mean_epochs']))
     savePlotFig(trerrors, dirName, prefixFilename, f"{dirName}{prefixFilename}", theta = winnerTheta)
-    kfoldLog.Model_Assessment_log(dirName,prefixFilename,f"Model Hyperparameters:\n {winnerTheta}\n",f"Model Selection Result obtained in {fold}# folds:\n{meanmetrics}\n Errors in re-trainings:\n{trerrors['epochs']}\n")
-
+    kfoldLog.Model_Assessment_log(dirName,prefixFilename,f"Model Hyperparameters:\n {winnerTheta}\n",f"Model Selection Result obtained in {fold}# folds:\n{meanmetrics}\n Mean Euclidian Error:\n{euclidianAccuracy}\n")
+    np.savetxt(f'{C.PATH_MODEL_ASSESSMENT_DIR}/{dirName}/{prefixFilename}_output_{time.strftime(C.FORMATTIMESTAMP)}.csv', result_with_header, delimiter=',', fmt='%s', header='', comments='')
 
 def holdoutTest(winner,TR_x_set,TR_y_set,TS_x_set,TS_y_set,val_per=0.25,meanepochs=0):
     # Hold-out Test 1
@@ -27,51 +29,79 @@ def holdoutTest(winner,TR_x_set,TR_y_set,TS_x_set,TS_y_set,val_per=0.25,meanepoc
         errors=model.fit(TR_x_set,TR_y_set,[],[],TS_x_set,TS_y_set)
     out = model.forward_propagation(TS_x_set)
     euclidianAccuracy = model.metrics.mean_euclidean_error(TS_y_set, out)
+    # Scrivo risultati su file
+    # Unisco gli array lungo l'asse delle colonne
+    result = np.concatenate((TS_y_set, out), axis=1)
+    # Nomi delle colonne
+    col_names = ['target_y', 'target_x', 'target_z', 'out_y', 'out_x', 'out_z']
+    # Aggiungi i nomi delle colonne come prima riga
+    result_with_header = np.vstack([col_names, result])
+    
     print("Test euclidianError:", euclidianAccuracy)
     
-    return errors,euclidianAccuracy
+    return errors,euclidianAccuracy,result_with_header
 
 def savePlotFig(errors, dirName, fileName, title, theta):
     # Path
     path_dir_models_coarse = os.path.join(C.PATH_PLOT_DIR, dirName)
     if not os.path.exists(path_dir_models_coarse):
             os.makedirs(path_dir_models_coarse)
-    # error_tr=False if errors['error']-errors['loss']==0 else errors['loss']
-    plot_curves(errors['error'], errors['validation'], errors['metric_tr'], errors['metric_val'], error_tr=False,
-                        lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = C.LABEL_PLOT_VALIDATION, path = f"{path_dir_models_coarse}/{fileName}", 
-                        ylim = (-0.5, 1.5), titleplot = title,
-                        theta = theta, labelsY = ['Loss',  C.ACCURACY])
+    # is false if the loss is zero else take the loss 
+    inError_tr = False if errors['loss']==0 else errors['loss']
+    labelError='validation'
+    metric='metric_val'
+    if len(errors['test'])>0:
+        labelError='test'
+        metric='metric_test'
+    plot_curves(errors['error'], errors[labelError], errors['metric_tr'], errors[metric], error_tr = inError_tr,
+                        lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = labelError.capitalize(), path = f"{path_dir_models_coarse}/{fileName}", 
+                        ylim = (-0.5, 10),yMSElim=(0,(errors['error'][-1])*3) ,titleplot = title,
+                        theta = theta, labelsY = ['Loss',  "MEE"])
      
 def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
     theta_batch = {
-        C.L_NET:[[9,4,3]],
-        C.L_ACTIVATION:[[C.LEAKYRELU,C.IDENTITY]],
-        C.L_ETA:[0.02, 0.01],
-        C.L_TAU: [(300,0.002), (300,0.001)],
-        C.L_REG:[(C.TIKHONOV,0.001), (C.LASSO,0.001)],
-        C.L_DIMBATCH:[100],
-        C.L_MOMENTUM: [(False,False)],
-        C.L_EPOCHS:[500, 1000],
+        C.L_NET:[[9,20,3],[9,15,5,3]],
+        C.L_ACTIVATION:[[C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.IDENTITY]],
+        C.L_ETA:[0.003],
+        C.L_TAU: [(False,False)],
+        C.L_REG:[(C.LASSO,0.001),(C.TIKHONOV,0.001)],
+        C.L_DIMBATCH:[0],
+        C.L_MOMENTUM: [(C.CLASSIC,0.6)],
+        C.L_EPOCHS:[500],
         C.L_SHUFFLE:True,
-        C.L_EPS: [0.3],
-        C.L_DISTRIBUTION:[C.UNIFORM],
+        C.L_EPS: [0.001],
+        C.L_DISTRIBUTION:[C.GLOROT],
         C.L_BIAS:[0],
         C.L_SEED: [52],
         C.L_CLASSIFICATION:False,
         C.L_EARLYSTOP:True,
-        C.L_PATIENCE: [15],
-        C.L_TRESHOLD_VARIANCE:[C.TRESHOLDVARIANCE]    
+        C.L_PATIENCE: [10],
+        C.L_TRESHOLD_VARIANCE:[1.e-3]    
     }
     
     cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, theta_batch, dirName, prefixFilename = C.PREFIXBATCH, fold = 5)
     
-    # theta_mini = theta_batch.copy()
-    # theta_mini[C.L_ETA]=[0.007,0.0007]
-    # theta_mini[C.L_TAU]=[(200, 0.0007),(100, 0.00007)]
-    # theta_mini[C.L_DIMBATCH]=[1,50,100]
-    # theta_mini[C.L_MOMENTUM]= [(False,False),(C.NESTEROV,0.8),(C.CLASSIC,0.8)]
+    theta_mini = {
+        C.L_NET:[[9,20,3],[9,15,5,3]],
+        C.L_ACTIVATION:[[C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.IDENTITY]],
+        C.L_ETA:[0.00003],
+        C.L_TAU: [(20,0.0003)],
+        C.L_REG:[(C.LASSO,0.00001),(C.TIKHONOV,0.00001)],
+        C.L_DIMBATCH:[1,50,100],
+        C.L_MOMENTUM: [(C.CLASSIC,0.6)],
+        C.L_EPOCHS:[500],
+        C.L_SHUFFLE:True,
+        C.L_EPS: [0.001],
+        C.L_DISTRIBUTION:[C.GLOROT],
+        C.L_BIAS:[0],
+        C.L_SEED: [52],
+        C.L_CLASSIFICATION:False,
+        C.L_EARLYSTOP:True,
+        C.L_PATIENCE: [10],
+        C.L_TRESHOLD_VARIANCE:[1.e-3]    
+    }
     
-    # cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH, fold = 2)
+    cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH, fold = 2)
     
 if __name__ == "__main__":
     

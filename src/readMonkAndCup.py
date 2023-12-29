@@ -141,12 +141,12 @@ def get_cup_house_test(perc=0.25):
     cup_dataset = cup_dataset.sample(frac = 1)
     dim = math.ceil(len(cup_dataset) * perc)
     inputs = cup_dataset.to_numpy(dtype=np.float64)[: -dim,:]
-    val_inputs = cup_dataset.to_numpy(dtype=np.float64)[-dim:,:]
+    test_inputs = cup_dataset.to_numpy(dtype=np.float64)[-dim:,:]
     
     # get targets aside
     inputs, targets = inputs[:, :-3], inputs[:, -3:]
-    val_inputs, val_targets=val_inputs[:, :-3], val_inputs[:, -3:]
+    test_inputs, test_targets=test_inputs[:, :-3], test_inputs[:, -3:]
     
     # transform labels from pandas dataframe to numpy ndarray
     
-    return inputs, targets, val_inputs, val_targets
+    return inputs, targets, test_inputs, test_targets

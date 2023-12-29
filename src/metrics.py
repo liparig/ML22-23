@@ -76,7 +76,7 @@ class DnnMetrics:
     Compute Mean Euclidean Error
     :param y: target values
     :param y_hat: predicted values
-    :return MEE: root mean squared error value
+    :return MEE: root mean squared error value ( Norm)
     '''
     def mean_euclidean_error(self, y:np.ndarray, y_hat:np.ndarray):
-        return np.divide(np.sqrt(np.sum(np.square(np.subtract(y, y_hat)))), float(len(y.flatten())))
+        return np.divide(np.linalg.norm(np.subtract(y, y_hat)), float(y.shape[0]))
