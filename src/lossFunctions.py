@@ -21,7 +21,7 @@ class MSE:
     """
     def d_loss(self, Y, Y_hat):
         #return np.subtract(np.squeeze(Y), np.squeeze(Y_hat))
-        return np.subtract( Y, Y_hat)
+        return np.subtract(Y, Y_hat)
         #return (np.squeeze(Y) - np.squeeze(Y_hat))/len(Y_hat)
 
 

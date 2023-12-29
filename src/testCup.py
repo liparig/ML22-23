@@ -3,24 +3,33 @@ from kfoldCV import KfoldCV
 import costants as C
 from dnnPlot import plot_curves 
 import os
-
+import kfoldLog
 import readMonkAndCup as readMC
 
 def cup_evaluation(TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, theta, dirName, prefixFilename, fold = 2):
     kfCV = KfoldCV(TR_x_cup, TR_y_cup, fold) 
-    winner = kfCV.validate(inTheta =  theta, FineGS = True, prefixFilename = prefixFilename)
+    winner,meanmetrics = kfCV.validate(inTheta =  theta, FineGS = True, prefixFilename = prefixFilename)
     winnerTheta=winner.get_dictionary()
-    errors=holdoutTest(winnerTheta, TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup)
-    savePlotFig(errors, dirName, prefixFilename, f"{dirName}{prefixFilename}", theta = winnerTheta)
+    trerrors,euclidianAccuracy=holdoutTest(winnerTheta, TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup,val_per=0,meanepochs=int(meanmetrics['mean_epochs']))
+    savePlotFig(trerrors, dirName, prefixFilename, f"{dirName}{prefixFilename}", theta = winnerTheta)
+    kfoldLog.Model_Assessment_log(dirName,prefixFilename,f"Model Hyperparameters:\n {winnerTheta}\n",f"Model Selection Result obtained in {fold}# folds:\n{meanmetrics}\n Errors in re-trainings:\n{trerrors['epochs']}\n")
 
-def holdoutTest(winner,TR_x_set,TR_y_set,TS_x_set,TS_y_set,):
+
+def holdoutTest(winner,TR_x_set,TR_y_set,TS_x_set,TS_y_set,val_per=0.25,meanepochs=0):
     # Hold-out Test 1
     model = dnn(**winner)
-    errors=model.fit(TR_x_set,TR_y_set,TS_x_set,TS_y_set)
+    if val_per>0:
+        tr_x,tr_y,val_x,val_y=readMC.split_Tr_Val(TR_x_set,TR_y_set,perc=val_per)
+        errors=model.fit(tr_x,tr_y,val_x,val_y,TS_x_set,TS_y_set)
+        print("Size Dataset x", tr_x.shape,"y",tr_y.shape,"valx",val_x.shape,"valy",val_y.shape)
+    else:
+        model.epochs=meanepochs
+        errors=model.fit(TR_x_set,TR_y_set,[],[],TS_x_set,TS_y_set)
     out = model.forward_propagation(TS_x_set)
     euclidianAccuracy = model.metrics.mean_euclidean_error(TS_y_set, out)
     print("Test euclidianError:", euclidianAccuracy)
-    return errors
+    
+    return errors,euclidianAccuracy
 
 def savePlotFig(errors, dirName, fileName, title, theta):
     # Path
@@ -35,16 +44,16 @@ def savePlotFig(errors, dirName, fileName, title, theta):
      
 def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
     theta_batch = {
-        C.L_NET:[[9,5,3,2,3]],
-        C.L_ACTIVATION:[[C.LEAKYRELU,C.LEAKYRELU,C.LEAKYRELU,C.IDENTITY]],
-        C.L_ETA:[0.2, 0.1],
-        C.L_TAU: [(False,False), (1000,0.005)],
+        C.L_NET:[[9,4,3]],
+        C.L_ACTIVATION:[[C.LEAKYRELU,C.IDENTITY]],
+        C.L_ETA:[0.02, 0.01],
+        C.L_TAU: [(300,0.002), (300,0.001)],
         C.L_REG:[(C.TIKHONOV,0.001), (C.LASSO,0.001)],
-        C.L_DIMBATCH:[0],
+        C.L_DIMBATCH:[100],
         C.L_MOMENTUM: [(False,False)],
         C.L_EPOCHS:[500, 1000],
         C.L_SHUFFLE:True,
-        C.L_EPS: [0.7],
+        C.L_EPS: [0.3],
         C.L_DISTRIBUTION:[C.UNIFORM],
         C.L_BIAS:[0],
         C.L_SEED: [52],

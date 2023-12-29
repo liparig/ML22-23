@@ -11,13 +11,13 @@ def monk_KfoldCV_evaluation(TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, theta, d
     kfCV = KfoldCV(TR_x_monk, TR_y_monk, fold) 
     winner,meanmetrics = kfCV.validate(inTheta =  theta, FineGS = False, prefixFilename = dirName+prefixFilename)
     winnerTheta=winner.get_dictionary()
-    trerrors,classification=holdoutTest(winnerTheta, TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk,val_per=0,meanepochs=int(meanmetrics['mean_epochs']))
+    trerrors,classification=holdoutTest(winnerTheta, TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, val_per = 0, meanepochs = int(meanmetrics['mean_epochs']))
     savePlotFig(trerrors, dirName, prefixFilename, f"{dirName}{prefixFilename}", theta = winnerTheta)
     kfoldLog.Model_Assessment_log(dirName,prefixFilename,f"Model Hyperparameters:\n {str(winnerTheta)}\n",f"Model Selection Result obtained in {fold}# folds:\n{meanmetrics}\nClassification values in test:\n{classification}\n Errors in re-trainings:\n{trerrors['epochs']}\n")
 
 def monk_model_evaluation(TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, theta, dirName, prefixFilename):
     model=Candidate(theta)
-    trerrors,classification=holdoutTest(model.get_dictionary(), TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk,val_per=0,meanepochs=theta[C.L_EPOCHS])
+    trerrors,classification=holdoutTest(model.get_dictionary(), TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, val_per=0.25, meanepochs = theta[C.L_EPOCHS])
     savePlotFig(trerrors, dirName, prefixFilename, f"{dirName}{prefixFilename}", theta = model.get_dictionary())
     print("Classification", classification)
 
@@ -108,23 +108,36 @@ def main():
         C.L_PATIENCE:30,
         C.L_TRESHOLD_VARIANCE:1.e-8    
     }
+
+    theta_mini = single_model.copy()
+    theta_mini[C.L_ETA]= 0.09
+    theta_mini[C.L_TAU]= (100, 0.009)
+    theta_mini[C.L_DIMBATCH]= 25
+    theta_mini[C.L_MOMENTUM]= (C.CLASSIC, 0.8)
+
     dirName="TestMonk_1"
     TR_x_monk1, TR_y_monk1 = readMC.get_train_Monk_1(single_model[C.L_ACTIVATION][-1]==C.TANH)
     TS_x_monk1, TS_y_monk1 = readMC.get_test_Monk_1(single_model[C.L_ACTIVATION][-1]==C.TANH)
     monk_model_evaluation(TR_x_monk1, TR_y_monk1, TS_x_monk1, TS_y_monk1, single_model, dirName, prefixFilename = C.PREFIXBATCH)
+    monk_model_evaluation(TR_x_monk1, TR_y_monk1, TS_x_monk1, TS_y_monk1, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH)
     
     dirName="TestMonk_2"
+    theta_mini[C.L_ETA]= 0.02
+    theta_mini[C.L_TAU]= (100, 0.002)
+    theta_mini[C.L_MOMENTUM]= (C.NESTEROV, 0.8)
     TR_x_monk2, TR_y_monk2 = readMC.get_train_Monk_2(single_model[C.L_ACTIVATION][-1]==C.TANH)
     TS_x_monk2, TS_y_monk2 = readMC.get_test_Monk_2(single_model[C.L_ACTIVATION][-1]==C.TANH)
     monk_model_evaluation(TR_x_monk2, TR_y_monk2, TS_x_monk2, TS_y_monk2, single_model, dirName, prefixFilename = C.PREFIXBATCH)
+    monk_model_evaluation(TR_x_monk2, TR_y_monk2, TS_x_monk2, TS_y_monk2, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH)
     
     dirName="TestMonk_3"
+    theta_mini[C.L_MOMENTUM]= (C.CLASSIC, 0.8)
+    theta_mini[C.L_ETA]= 0.09
+    theta_mini[C.L_TAU]= (100, 0.009)
     TR_x_monk3, TR_y_monk3 = readMC.get_train_Monk_3()
     TS_x_monk3, TS_y_monk3 = readMC.get_test_Monk_3()
     monk_model_evaluation(TR_x_monk3, TR_y_monk3, TS_x_monk3, TS_y_monk3, single_model, dirName, prefixFilename = C.PREFIXBATCH)
-    theta_mini_NoES = theta_mini.copy()
-    theta_mini_NoES[C.L_EARLYSTOP]=False
-    theta_mini_NoES[C.L_EPOCHS]=[210,500]
+    monk_model_evaluation(TR_x_monk3, TR_y_monk3, TS_x_monk3, TS_y_monk3, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH)
     
     single_model[C.L_REG]=(C.LASSO,0.001)
     monk_model_evaluation(TR_x_monk3, TR_y_monk3, TS_x_monk3, TS_y_monk3, single_model, dirName, prefixFilename = C.PREFIXBATCH+"REG")

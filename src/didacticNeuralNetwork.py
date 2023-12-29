@@ -109,21 +109,21 @@ class DidacticNeuralNetwork:
         num_layers:int = len(l_dim)
         for l in range(1, num_layers):
             name_layer:str = str(l)
-            wlayer=np.zeros((l_dim[l],l_dim[l-1]))
+            wlayer = np.zeros((l_dim[l],l_dim[l-1]))
             if distribution == C.UNIFORM:
-                wlayer=self.gen.uniform(low = -eps, high = eps, size = (l_dim[l], l_dim[l-1]))
+                wlayer = self.gen.uniform(low = -eps, high = eps, size = (l_dim[l], l_dim[l-1]))
             elif distribution == C.BASIC:
-                wlayer=self.gen.uniform(low = -1/l_dim[l-1], high = 1/l_dim[l-1], size = (l_dim[l], l_dim[l-1]))
+                wlayer = self.gen.uniform(low = -1/l_dim[l-1], high = 1/l_dim[l-1], size = (l_dim[l], l_dim[l-1]))
             else:
                 #Initialization of random weitghs ruled by eps
                 wlayer = self.gen.uniform(size = (l_dim[l], l_dim[l-1])) * eps
-            wb[f'W{name_layer}']=wlayer
+            wb[f'W{name_layer}'] = wlayer
             #Initialization of bias of the layer
             wb[f'b{name_layer}'] = np.full((l_dim[l], 1),bias)
         return wb
         
-    def linear(self, w, X,b):
-        net =  np.add(X @ w.T , b.T)
+    def linear(self, w, X, b):
+        net =  np.add(X @ w.T, b.T)
         return net
     '''
     Compute the forward propagation on the network. Update the network dimension and nets and outputs of the layers
