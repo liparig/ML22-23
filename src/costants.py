@@ -37,6 +37,7 @@ BATCH_SHUFFLE=True
 UNIFORM:str = 'uniform'
 RANDOM:str = 'random'
 BASIC: str = 'basic'
+GLOROT: str = 'glorot'
 
 #Type Momentum
 CLASSIC:str = 'classic'

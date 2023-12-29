@@ -109,15 +109,24 @@ class DidacticNeuralNetwork:
         num_layers:int = len(l_dim)
         for l in range(1, num_layers):
             name_layer:str = str(l)
-            wlayer = np.zeros((l_dim[l],l_dim[l-1]))
-            if distribution == C.UNIFORM:
-                wlayer = self.gen.uniform(low = -eps, high = eps, size = (l_dim[l], l_dim[l-1]))
-            elif distribution == C.BASIC:
-                wlayer = self.gen.uniform(low = -1/l_dim[l-1], high = 1/l_dim[l-1], size = (l_dim[l], l_dim[l-1]))
-            else:
-                #Initialization of random weitghs ruled by eps
-                wlayer = self.gen.uniform(size = (l_dim[l], l_dim[l-1])) * eps
-            wb[f'W{name_layer}'] = wlayer
+            wlayer=np.zeros((l_dim[l],l_dim[l-1]))
+            match distribution:
+                case C.UNIFORM:
+                   wlayer=self.gen.uniform(low = -eps, high = eps, size = (l_dim[l], l_dim[l-1]))
+                case C.BASIC:
+                    wlayer=self.gen.uniform(low = -1/l_dim[l-1], high = 1/l_dim[l], size = (l_dim[l], l_dim[l-1]))
+                case C.RANDOM:
+                    wlayer = self.gen.uniform(size = (l_dim[l], l_dim[l-1])) * eps
+                case C.GLOROT:
+                     if self.a_functions[-1]==C.SIGMOID:
+                        r=4*np.sqrt(6/(l_dim[l-1]+l_dim[l]))
+                     else:
+                        r= np.sqrt(6/(l_dim[l-1]+l_dim[l]))
+                     wlayer = wlayer=self.gen.uniform(low = -r, high = r, size = (l_dim[l], l_dim[l-1]))
+                case _:
+                     #Initialization of random weitghs ruled by eps
+                    wlayer = self.gen.uniform(size = (l_dim[l], l_dim[l-1])) * eps
+            wb[f'W{name_layer}']=wlayer
             #Initialization of bias of the layer
             wb[f'b{name_layer}'] = np.full((l_dim[l], 1),bias)
         return wb
