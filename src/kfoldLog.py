@@ -2,7 +2,7 @@ from io import TextIOWrapper
 import costants as C
 import time
 import os
-
+import numpy as np
 def Model_Assessment_log(fileDir:str, fileName:str, hyperparameters:str, result:str):
         # Writing to file
         timestr:str = time.strftime(C.FORMATTIMESTAMP)
@@ -16,7 +16,13 @@ def Model_Assessment_log(fileDir:str, fileName:str, hyperparameters:str, result:
         
         mafile.close() 
         return mafile, timestr
-   
+
+def Model_Assessment_Outputs(results,fileDir:str,fileName,timestamp):# Nomi delle colonne
+    col_names = ['target_y', 'target_x', 'target_z', 'out_y', 'out_x', 'out_z']
+    # Aggiungi i nomi delle colonne come prima riga
+    result_with_header = np.vstack([col_names, results])
+    np.savetxt(f'{C.PATH_MODEL_ASSESSMENT_DIR}/{fileDir}/{fileName}_output_{timestamp}.csv', result_with_header, delimiter=',', fmt='%s', header='', comments='')  
+
 def start_log(fileName:str):
         # Writing to file
         timestr:str = time.strftime(C.FORMATTIMESTAMP)

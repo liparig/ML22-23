@@ -12,10 +12,11 @@ def cup_evaluation(TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, theta, dirName, prefi
     kfCV = KfoldCV(TR_x_cup, TR_y_cup, fold) 
     winner,meanmetrics = kfCV.validate(inTheta =  theta, FineGS = True, prefixFilename = prefixFilename)
     winnerTheta=winner.get_dictionary()
-    trerrors,euclidianAccuracy,result_with_header=holdoutTest(winnerTheta, TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup,val_per=0.25,meanepochs=int(meanmetrics['mean_epochs']))
+    trerrors,euclidianAccuracy,results=holdoutTest(winnerTheta, TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup,val_per=0.25,meanepochs=int(meanmetrics['mean_epochs']))
     savePlotFig(trerrors, dirName, prefixFilename, f"{dirName}{prefixFilename}", theta = winnerTheta)
-    kfoldLog.Model_Assessment_log(dirName,prefixFilename,f"Model Hyperparameters:\n {winnerTheta}\n",f"Model Selection Result obtained in {fold}# folds:\n{meanmetrics}\n Mean Euclidian Error:\n{euclidianAccuracy}\n")
-    np.savetxt(f'{C.PATH_MODEL_ASSESSMENT_DIR}/{dirName}/{prefixFilename}_output_{time.strftime(C.FORMATTIMESTAMP)}.csv', result_with_header, delimiter=',', fmt='%s', header='', comments='')
+    log,timestamp=kfoldLog.Model_Assessment_log(dirName,prefixFilename,f"Model Hyperparameters:\n {winnerTheta}\n",f"Model Selection Result obtained in {fold}# folds:\n{meanmetrics}\n Mean Euclidian Error:\n{euclidianAccuracy}\n")
+    kfoldLog.Model_Assessment_Outputs(results,DIRNAME,prefixFilename,timestamp)
+
 
 def holdoutTest(winner,TR_x_set,TR_y_set,TS_x_set,TS_y_set,val_per=0.25,meanepochs=0):
     # Hold-out Test 1
@@ -32,14 +33,10 @@ def holdoutTest(winner,TR_x_set,TR_y_set,TS_x_set,TS_y_set,val_per=0.25,meanepoc
     # Scrivo risultati su file
     # Unisco gli array lungo l'asse delle colonne
     result = np.concatenate((TS_y_set, out), axis=1)
-    # Nomi delle colonne
-    col_names = ['target_y', 'target_x', 'target_z', 'out_y', 'out_x', 'out_z']
-    # Aggiungi i nomi delle colonne come prima riga
-    result_with_header = np.vstack([col_names, result])
     
     print("Test euclidianError:", euclidianAccuracy)
     
-    return errors,euclidianAccuracy,result_with_header
+    return errors,euclidianAccuracy,result
 
 def savePlotFig(errors, dirName, fileName, title, theta):
     # Path
@@ -63,7 +60,7 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
         C.L_NET:[[9,20,3],[9,15,5,3]],
         C.L_ACTIVATION:[[C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.IDENTITY]],
         C.L_ETA:[0.003],
-        C.L_TAU: [(False,False)],
+        C.L_TAU: [(100,0.01)],
         C.L_REG:[(C.LASSO,0.001),(C.TIKHONOV,0.001)],
         C.L_DIMBATCH:[0],
         C.L_MOMENTUM: [(C.CLASSIC,0.6)],
@@ -76,7 +73,7 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
         C.L_CLASSIFICATION:False,
         C.L_EARLYSTOP:True,
         C.L_PATIENCE: [10],
-        C.L_TRESHOLD_VARIANCE:[1.e-3]    
+        C.L_TRESHOLD_VARIANCE:[1.e-2]    
     }
     
     cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, theta_batch, dirName, prefixFilename = C.PREFIXBATCH, fold = 5)
@@ -88,7 +85,7 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
         C.L_TAU: [(20,0.0003)],
         C.L_REG:[(C.LASSO,0.00001),(C.TIKHONOV,0.00001)],
         C.L_DIMBATCH:[1,50,100],
-        C.L_MOMENTUM: [(C.CLASSIC,0.6)],
+        C.L_MOMENTUM: [(C.CLASSIC,0.6),(C.NESTEROV,0.6)],
         C.L_EPOCHS:[500],
         C.L_SHUFFLE:True,
         C.L_EPS: [0.001],
@@ -98,7 +95,7 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
         C.L_CLASSIFICATION:False,
         C.L_EARLYSTOP:True,
         C.L_PATIENCE: [10],
-        C.L_TRESHOLD_VARIANCE:[1.e-3]    
+        C.L_TRESHOLD_VARIANCE:[1.e-1]    
     }
     
     cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH, fold = 2)
