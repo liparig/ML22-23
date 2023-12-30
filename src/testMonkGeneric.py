@@ -52,7 +52,7 @@ def savePlotFig(errors, dirName, fileName, title, theta):
         metric='metric_test'
     plot_curves(errors['error'], errors[labelError], errors['metric_tr'], errors[metric], error_tr = inError_tr,
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = labelError.capitalize(), path = f"{path_dir_models_coarse}/{fileName}", 
-                        ylim = (-0.5, 1.5), titleplot = title,
+                        ylim = (-0.5, 1.5), titlePlot = title,
                         theta = theta, labelsY = ['Loss',  C.ACCURACY])
      
 def main():

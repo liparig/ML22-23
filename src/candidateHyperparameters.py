@@ -2,7 +2,8 @@ import numpy as np
 
 import costants as C
 
-#classe che raggruppa gli hyperparametri in un oggetto Candidate
+# Candidate is the class for groupping the hyperparameters in an object
+# it's an utility class for manage the candidates 
 class Candidate:
     def __init__(self,candidate):    
         self.l_dim = candidate[C.L_NET]
@@ -23,22 +24,20 @@ class Candidate:
         self.patience = candidate[C.L_PATIENCE]
         self.treshold_variance = candidate[C.L_TRESHOLD_VARIANCE]
 
-    def get_fine_range(self,value):
-        """
-        :param param: a specific value for an hyperparameter
-        :return: a small range of this values
-        """
+    # computes a fine range near to a single value
+    # :param: a specific value for an hyperparameter
+    # :return: a small range of this values
+    def get_fine_range(self, value):
         higher = 1.25
         lower = 0.75
         return [np.round(value * lower, 7),
                 value,
                 np.round(value * higher, 7)]
 
-    def get_fine_batch_size(self,value):
-        """
-        :param param: a specific value for the hyperparameter "batch size"
-        :return: a small range of this value
-        """
+    # computes a fine range near to a single value for the batch size
+    # :param: a specific value for the hyperparameter "batch size"
+    # :return: a small range of this value
+    def get_fine_batch_size(self, value):
         higher = 1.10
         lower = 0.90
         if value == 0:
@@ -50,11 +49,10 @@ class Candidate:
                 int(np.round(value * higher))
             ]
         
-    def get_fine_int_range(self,value):
-        """
-        :param param: a specific value for an hyperparameter
-        :return: a small range of this values
-        """
+    # computes a fine range near to an integer single value
+    # :param: a specific value for an hyperparameter
+    # :return: a small range of this integer values
+    def get_fine_int_range(self, value):
         higher:float = 1.25
         lower:float = 0.75
         return [
@@ -63,7 +61,10 @@ class Candidate:
             int(value * higher)
         ]
 
-    def get_fine_tuple(self,value):
+    # computes a fine range near to a tuple single value
+    # :param: a specific value for an hyperparameter
+    # :return: a small range of this tuple values
+    def get_fine_tuple(self, value):
         if not isinstance(value[1], int) or not isinstance(value[1], float):
             return [value]
         higher = 1.25
@@ -72,6 +73,7 @@ class Candidate:
                 value,
                 (value[0],np.round(value * higher, 7))]
 
+    # :return: the string with all the hyperparameters of a configuration theta
     def to_string(self):
         return f" Hyperparameters: 'l_dim':{self.l_dim},\
             'a_functions':{self.a_functions},\
@@ -91,6 +93,7 @@ class Candidate:
             'patience': {self.patience}, \
             'treshold_variance':{self.treshold_variance}"
 
+    # :return: the dictionary object with all the hyperparameters of a configuration theta
     def get_dictionary(self):
         return {C.L_NET:self.l_dim,
             C.L_ACTIVATION:self.a_functions,
@@ -114,7 +117,6 @@ class Candidate:
 
 class CandidatesHyperparameters:
    
-    
     def __init__(self):
         self.l_dim = []
         self.a_functions = []
@@ -135,12 +137,28 @@ class CandidatesHyperparameters:
         self.treshold_variance = []
         self.count = 0
 
+    # :return: true if there are not candidates else returns false
     def empty(self):
-        if self.count==0:
-            return True
-        else:
-            return False
-        
+        return self.count == 0
+    
+    # add a candidatie to the list of candidates
+    # :param: l_dim is the number of the units of a layer of the network
+    # :param: a_functions is the list of the activation function 
+    # :param: eta is the grade of learning
+    # :param: tau is the couple of lambda decay (number of the epochs, tau value)
+    # :param: reg is the couple (type Regularitation, lambda value)
+    # :param: dim_batch is the dimension of the batch
+    # :param: epochs is the max number of the epochs
+    # :param: batch_shuffle is true if shuffle is enabled
+    # :param: momentum is the couple (type momentum, alpha value)
+    # :param: eps is the value for the initialitation of the weights
+    # :param: distribution is for the generation of the starting weights
+    # :param: bias is for initial weight w0 
+    # :param: seed is for the generator of the initialitation of the weights
+    # :param: early_stop is the flag of the early stop
+    # :param: classification is the flag if it is a classification problem
+    # :param: patience is the max number of epochs with small or null changes 
+    # :param: treshold_variance is the threshold for the patience and early stop
     def insert_candidate(self, l_dim, a_functions=C.AFUNCTION, eta=C.ETA, tau=C.TAU, reg=C.REG,\
         dim_batch=C.BATCH, epochs=C.EPOCHS,batch_shuffle=C.BATCH_SHUFFLE,momentum=C.MOMENTUM,eps=C.EPS,distribution=C.UNIFORM,\
         bias=C.BIAS,seed=C.R_SEEDS, early_stop=True, classification=False,patience=C.PATIENCE,treshold_variance=C.TRESHOLDVARIANCE):
@@ -163,7 +181,9 @@ class CandidatesHyperparameters:
         self.treshold_variance.append(treshold_variance)
         self.count+=1
 
-    def get_candidate_dict(self,index):
+    # :param: index of a single candidate object
+    # :return: the candidate object with specific index
+    def get_candidate_dict(self, index):
         return {C.L_NET:self.l_dim[index],
             C.L_ACTIVATION:self.a_functions[index],
             C.L_ETA:self.eta[index],
@@ -183,12 +203,15 @@ class CandidatesHyperparameters:
             C.L_TRESHOLD_VARIANCE:self.treshold_variance[index]
         }
     
+    # :return: all the candidates objects list
     def get_all_candidates_dict(self):
         candidates:list = []
         for index in range (self.count):
             candidates.append(self.get_candidate_dict(index))
         return candidates
     
+    # :param: default is the name of the config for initial demo
+    # :param: theta is the configuration object
     def set_project_hyperparameters(self, default:str = C.MONK, theta = None):
         """
         :param default: it's the default config that was used

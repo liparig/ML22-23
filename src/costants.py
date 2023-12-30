@@ -15,9 +15,10 @@ INPUT_VALIDATION:str = 'x_val'
 OUTPUT_VALIDATION:str = 'y_val'
 INPUT_TEST:str = 'x_test'
 OUTPUT_TEST:str = 'y_test'
+K_FOLD:str = 'k'
 
 FORMATTIMESTAMP:str = '%d%m%Y-%H%M'
-#HYPERPARAMETERS
+#INITIAL HYPERPARAMETERS
 R_SEEDS:int = 22
 EPS:float = 0.7 #interval for initialization of the weights
 BIAS:float = 0 #w0
@@ -34,31 +35,34 @@ EARLYSTOP:bool = True
 TRESHOLDVARIANCE:float = 1.e-10
 BATCH_SHUFFLE=True
 
+# DISTRIBUTION
 UNIFORM:str = 'uniform'
 RANDOM:str = 'random'
 BASIC: str = 'basic'
 GLOROT: str = 'glorot'
 
-#Type Momentum
+# TYPE MOMENTUM
 CLASSIC:str = 'classic'
 NESTEROV:str = 'nesterov'
 
+# STUFF OF THE PLOTS
 PATH_PLOT_DIR:str = "../plot/"
 PATH_KFOLDCV_DIR:str="../KFoldCV"
 PATH_MODEL_ASSESSMENT_DIR="../Model_Assessment"
 PREFIX_DIR_COARSE:str = "Coarse"
 PREFIX_DIR_FINE:str = "Fine"
-
 LABEL_PLOT_TRAINING:str = "Training"
 LABEL_PLOT_VALIDATION:str = "Validation"
 
+# TYPES OF REGULARITATIONS
 TIKHONOV:str = 'tikhonov'
 LASSO:str = 'lasso'
 
+# TYPES OF DEFAULT CONFIGS
 CUP:str = "cup"
 MONK:str = "monk"
 
-#Label HYPERPARAMETERS key dictionary
+# LABEL HYPERPARAMETERS KEY DICTIONARY
 L_NET:str = 'l_dim'
 L_ACTIVATION:str = 'a_functions'
 L_ETA:str = 'eta'
@@ -78,7 +82,7 @@ L_PATIENCE:str = 'patience'
 L_TRESHOLD_VARIANCE:str = 'treshold_variance'
 
 
-#Label metrics key dictionary
+# LABEL METRICS KEY DICTIONARY
 MISSCLASSIFIED:str = 'missclassified'
 CLASSIFIED:str = 'classified'
 ACCURACY:str = 'accuracy'
@@ -87,11 +91,11 @@ RECALL:str = 'recall'
 SPECIFICITY:str = 'specificity'
 BALANCED:str = 'balanced'
 
-# type of dataset
+# TYPE OF DATASET
 TRAINING:str = 'training'
 VALIDATION:str = 'validation'
 TEST:str = 'test'
 
-# prefix file name and directorys
+# PREFIX FILE NAME AND DIRECTORYS
 PREFIXBATCH:str = '_Batch_'
 PREFIXMINIBATCH:str = '_Mini_'

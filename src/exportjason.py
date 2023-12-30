@@ -1,6 +1,10 @@
 import json
 import costants as C
 
+# it's a nice to have but it's not completed
+
+
+
 theta_batch = {C.L_NET:[[17,4,1]],
             C.L_ACTIVATION:[[C.TANH]],
             C.L_ETA:[0.8 ,0.5],

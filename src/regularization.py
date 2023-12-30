@@ -1,36 +1,30 @@
 import numpy as np
 
 class tikhonov_regularization:
-    """
-        Computes Tikhonov regularization on the weitghs
-        :param w: weights of one layer
-        :param tlambda: regularization coefficient
-        """
+    
+    # Computes Tikhonov regularization on the weitghs
+    # :param: w is weights of one layer
+    # :param: tlambda is regularization coefficient
     def penalty(self, tlambda, w):
         return tlambda * np.square(np.linalg.norm(w))
 
-    """
-    Computes the derivative of Tikhonov regularization
-    :param w: weights of one layer
-    :param tlambda:  regularization coefficient
-    """
+    # Computes the derivative of Tikhonov regularization
+    # :param: w is weights of one layer
+    # :param: tlambda is regularization coefficient
     def derivative(self, tlambda, w):
         return 2 * tlambda * w       
 
 class lasso_regularization:
-    """
-        Computes Lasso regularization on the  weights
-        :param w: weights of one layer
-        :param llambda: regularization coefficient
-        """
+    
+    # Computes Lasso regularization on the  weights
+    # :param: w is weights of one layer
+    # :param: llambda is regularization coefficient
     def penalty(self, llambda, w):
         return llambda * np.sum(np.abs(w))
 
-    """
-    Computes the derivative of the Lasso regularization (L1)
-    :param w: weights of one layer
-    :param llambda:  regularization coefficient
-    """
+    # Computes the derivative of the Lasso regularization (L1)
+    # :param: w is weights of one layer
+    # :param: llambda is regularization coefficient
     def derivative(self, llambda, w):
         lasso=[]
         for j in w.flatten():

@@ -20,34 +20,37 @@ TESTMONK2 = BASE_DIR+"/MonkDatasets/monks-2.test"
 TESTMONK3 = BASE_DIR+"/MonkDatasets/monks-3.test"
 TESTCUP= BASE_DIR+"/CupDatasets/Cup23/ML-CUP23-TS.csv"
 
-def get_train_Monk_1(tanh=False):
-    return read_monk(TRAINMONK1,tanh)
+#region Settings for all the reading
+def get_train_Monk_1(tanh:bool = False):
+    return read_monk(TRAINMONK1, tanh)
 
-def get_test_Monk_1(tanh=False):
-    return read_monk(TESTMONK1,tanh)
+def get_test_Monk_1(tanh:bool = False):
+    return read_monk(TESTMONK1, tanh)
 
-def get_train_Monk_2(tanh=False):
-    return read_monk(TRAINMONK2,tanh)
+def get_train_Monk_2(tanh:bool = False):
+    return read_monk(TRAINMONK2, tanh)
 
-def get_test_Monk_2(tanh=False):
-    return read_monk(TESTMONK2,tanh)
+def get_test_Monk_2(tanh:bool = False):
+    return read_monk(TESTMONK2, tanh)
 
-def get_train_Monk_3(tanh=False):
-    return read_monk(TRAINMONK3,tanh)
+def get_train_Monk_3(tanh:bool = False):
+    return read_monk(TRAINMONK3, tanh)
 
-def get_test_Monk_3(tanh=False):
-    return read_monk(TESTMONK3,tanh)
-
-def get_train_CUP():
-    return read_cup(TRAINCUP)
+def get_test_Monk_3(tanh:bool = False):
+    return read_monk(TESTMONK3, tanh)
 
 def get_test_CUP():
     return read_cup(TESTCUP)
+#endregion
 
-def read_monk(name,tanh=True):
+# Read a generic monk dataset
+# :param: path+filename of the dataset file
+# :param: tanh is a flag for set if the last activation fuction is a tanh for change the target values
+# :return: monk dataset and target values
+def read_monk(path:str, tanh:bool = False):
     # read the dataset
     col_names = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'Id']
-    monk_dataset = pd.read_csv(name, sep=' ', names=col_names)
+    monk_dataset = pd.read_csv(path, sep=' ', names = col_names)
     monk_dataset.set_index('Id', inplace=True)
     
     # shuffle the DataFrame rows
@@ -64,6 +67,7 @@ def read_monk(name,tanh=True):
         monk_targets[monk_targets==0]=-1
     return monk_dataset, monk_targets
 
+# DEPRECATED
 def read_monk_Tr_Vl(name:str = TRAINMONK1, perc:float = 0.25):
     # read csv
     col_names = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'Id']
@@ -89,10 +93,14 @@ def read_monk_Tr_Vl(name:str = TRAINMONK1, perc:float = 0.25):
     targets = monk_targets[: -dim]
     val_inputs = monk_dataset[-dim:,:]
     val_targets = monk_targets[-dim:]
-    
     return inputs, targets, val_inputs, val_targets
 
-def split_Tr_Val(Tr_x:list,Tr_y:list,perc:float=0.25):
+# Split the training dataset into training and validation
+# :param: Tr_x is the training dataset
+# :param: Tr_y is the training target
+# :param: perc is the percent of the dataset that will become validation dataset
+# :return: monk dataset, target values, validation inputs and validation targets
+def split_Tr_Val(Tr_x:list, Tr_y:list, perc:float = 0.25):
     dim = math.ceil(len(Tr_x) * perc)
     
     # get targets aside
@@ -102,7 +110,6 @@ def split_Tr_Val(Tr_x:list,Tr_y:list,perc:float=0.25):
     val_targets = Tr_y[-dim:]
     
     return inputs, targets, val_inputs, val_targets
-
 
 def read_cup(name):
     # get directory
@@ -127,7 +134,10 @@ def read_cup(name):
     
     return inputs, targets
 
-def get_cup_house_test(perc=0.25):
+# Read cup dataset for test
+# :param: perc is the percent of the dataset that will become test dataset
+# :return: training dataset, training values, test inputs and test targets
+def get_cup_house_test(perc:float = 0.25):
     
     # get directory
     targets=[]

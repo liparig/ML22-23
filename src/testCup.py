@@ -6,37 +6,54 @@ import os
 import kfoldLog
 import readMonkAndCup as readMC
 import numpy as np
-import time 
 
+#it's a test for get the performance with test dataset
+
+# Evaluete the cup dataset
+# :param: TR_x_cup is training dataset
+# :param: TR_y_cup is training targets dataset
+# :param: TS_x_cup is test dataset
+# :param: TS_y_cup is test targets dataset
+# :param: theta is configuration object
+# :param: dirName is directory name
+# :param: prefixFilename is prefix of the file name
+# :param: fold is number of the folds
 def cup_evaluation(TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, theta, dirName, prefixFilename, fold = 2):
     kfCV = KfoldCV(TR_x_cup, TR_y_cup, fold) 
-    winner,meanmetrics = kfCV.validate(inTheta =  theta, FineGS = True, prefixFilename = prefixFilename)
-    winnerTheta=winner.get_dictionary()
-    trerrors,euclidianAccuracy,results=holdoutTest(winnerTheta, TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup,val_per=0.25,meanepochs=int(meanmetrics['mean_epochs']))
+    winner, meanmetrics = kfCV.validate(inTheta =  theta, FineGS = True, prefixFilename = prefixFilename)
+    winnerTheta = winner.get_dictionary()
+    trerrors, euclidianAccuracy, results = holdoutTest(winnerTheta, TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, val_per = 0.25, meanepochs = int(meanmetrics['mean_epochs']))
     savePlotFig(trerrors, dirName, prefixFilename, f"{dirName}{prefixFilename}", theta = winnerTheta)
-    log,timestamp=kfoldLog.Model_Assessment_log(dirName,prefixFilename,f"Model Hyperparameters:\n {winnerTheta}\n",f"Model Selection Result obtained in {fold}# folds:\n{meanmetrics}\n Mean Euclidian Error:\n{euclidianAccuracy}\n")
-    kfoldLog.Model_Assessment_Outputs(results,DIRNAME,prefixFilename,timestamp)
+    log, timestamp = kfoldLog.Model_Assessment_log(dirName, prefixFilename, f"Model Hyperparameters:\n {winnerTheta}\n", f"Model Selection Result obtained in {fold}# folds:\n{meanmetrics}\n Mean Euclidian Error:\n{euclidianAccuracy}\n")
+    kfoldLog.Model_Assessment_Outputs(results, DIRNAME, prefixFilename, timestamp)
 
-
-def holdoutTest(winner,TR_x_set,TR_y_set,TS_x_set,TS_y_set,val_per=0.25,meanepochs=0):
+# Execute the holdout test
+# :param: winner is the configuration object
+# :param: TR_x_cup is training dataset
+# :param: TR_y_cup is training targets dataset
+# :param: TS_x_cup is test dataset
+# :param: TS_y_cup is test targets dataset
+# :param: val_per is the percent of the data for testing
+# :param: meanepochs for early stop and fitting epoch
+# :return: errors object, the accuracy property and the result
+def holdoutTest(winner, TR_x_set, TR_y_set, TS_x_set, TS_y_set, val_per:float = 0.25, meanepochs:int = 0):
     # Hold-out Test 1
     model = dnn(**winner)
-    if val_per>0:
-        tr_x,tr_y,val_x,val_y=readMC.split_Tr_Val(TR_x_set,TR_y_set,perc=val_per)
-        errors=model.fit(tr_x,tr_y,val_x,val_y,TS_x_set,TS_y_set)
-        print("Size Dataset x", tr_x.shape,"y",tr_y.shape,"valx",val_x.shape,"valy",val_y.shape)
+    if val_per > 0:
+        tr_x, tr_y, val_x, val_y = readMC.split_Tr_Val(TR_x_set, TR_y_set, perc = val_per)
+        errors = model.fit(tr_x, tr_y, val_x, val_y, TS_x_set, TS_y_set)
+        print("Size Dataset x", tr_x.shape, "y", tr_y.shape, "valx", val_x.shape, "valy", val_y.shape)
     else:
-        model.epochs=meanepochs
-        errors=model.fit(TR_x_set,TR_y_set,[],[],TS_x_set,TS_y_set)
+        model.epochs = meanepochs
+        errors = model.fit(TR_x_set, TR_y_set, [], [], TS_x_set, TS_y_set)
     out = model.forward_propagation(TS_x_set)
     euclidianAccuracy = model.metrics.mean_euclidean_error(TS_y_set, out)
-    # Scrivo risultati su file
-    # Unisco gli array lungo l'asse delle colonne
+    
     result = np.concatenate((TS_y_set, out), axis=1)
     
     print("Test euclidianError:", euclidianAccuracy)
     
-    return errors,euclidianAccuracy,result
+    return errors, euclidianAccuracy, result
 
 def savePlotFig(errors, dirName, fileName, title, theta):
     # Path
@@ -45,25 +62,25 @@ def savePlotFig(errors, dirName, fileName, title, theta):
             os.makedirs(path_dir_models_coarse)
     # is false if the loss is zero else take the loss 
     inError_tr = False if errors['loss']==0 else errors['loss']
-    labelError='validation'
-    metric='metric_val'
+    labelError = 'validation'
+    metric = 'metric_val'
     if len(errors['test'])>0:
-        labelError='test'
-        metric='metric_test'
+        labelError = 'test'
+        metric = 'metric_test'
     plot_curves(errors['error'], errors[labelError], errors['metric_tr'], errors[metric], error_tr = inError_tr,
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = labelError.capitalize(), path = f"{path_dir_models_coarse}/{fileName}", 
-                        ylim = (-0.5, 10),yMSElim=(0,(errors['error'][-1])*3) ,titleplot = title,
+                        ylim = (-0.5, 10),yMSElim=(0,(errors['error'][-1])*1000) ,titlePlot = title,
                         theta = theta, labelsY = ['Loss',  "MEE"])
      
 def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
     theta_batch = {
-        C.L_NET:[[9,20,3],[9,15,5,3]],
-        C.L_ACTIVATION:[[C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.IDENTITY]],
-        C.L_ETA:[0.003],
-        C.L_TAU: [(100,0.01)],
-        C.L_REG:[(C.LASSO,0.001),(C.TIKHONOV,0.001)],
+        C.L_NET:[[9,20,3],[9,10,10,3],[9,15,5,3]],
+        C.L_ACTIVATION:[[C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.IDENTITY],[C.LEAKYRELU,C.IDENTITY],[C.LEAKYRELU,C.LEAKYRELU,C.IDENTITY],[C.SIGMOID,C.TANH,C.IDENTITY]],
+        C.L_ETA:[0.003, 0.1],
+        C.L_TAU: [(200,0.01), (False,False)],
+        C.L_REG:[(C.LASSO,0.001),(C.TIKHONOV,0.001), (False,False)],
         C.L_DIMBATCH:[0],
-        C.L_MOMENTUM: [(C.CLASSIC,0.6)],
+        C.L_MOMENTUM: [(C.CLASSIC,0.6), (False,False)],
         C.L_EPOCHS:[500],
         C.L_SHUFFLE:True,
         C.L_EPS: [0.001],

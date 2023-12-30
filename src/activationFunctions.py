@@ -4,9 +4,15 @@ import numpy as np
 
 import costants as C
 
+# there are 5 differents activation functions with their derivatives that they are: 
+# SIGMOID 
+# TANH
+# RELU
+# LEAKYRELU
+# IDENTITY
+
 def identity(x):
     return x
-
 
 def d_identity(x):
     return 1
@@ -62,7 +68,6 @@ def d_leaky_relu(net):
         rel.append(1 if x >= 0 else 0.01) 
     net=np.array(rel).reshape(net.shape)
     return net
-
 
 activations = {
     C.SIGMOID: sigmoid,

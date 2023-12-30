@@ -5,6 +5,8 @@ from activationFunctions  import activations
 from activationFunctions  import derivatives
 from lossFunctions import MSE
 
+# it's a test for try the backpropagation algorithm
+
 def init_wb(l_dim, distribution:str = C.UNIFORM, eps:float = C.EPS, bias = C.BIAS):
         wb = {}
         gen = Generator(PCG64(123))
