@@ -80,17 +80,18 @@ def savePlotFig(errors, dirName, fileName, title, theta):
      
 def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
     theta_batch = {
-        C.L_NET:[[10,20,3],[10,10,10,3],[10,15,5,3]],
+        C.L_NET:[[10,15,5,3]],
         C.L_ACTIVATION:[[C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.IDENTITY],[C.LEAKYRELU,C.IDENTITY],[C.LEAKYRELU,C.LEAKYRELU,C.IDENTITY],[C.SIGMOID,C.TANH,C.IDENTITY]],
-        C.L_ETA:[0.003, 0.1],
-        C.L_TAU: [(200,0.01), (False,False)],
-        C.L_REG:[(C.LASSO,0.001),(C.TIKHONOV,0.001), (False,False)],
+        C.L_ETA:[0.03, 0.1],
+        C.L_TAU: [(200,0.003), (False,False)],
+        C.L_REG:[(C.LASSO,0.01),(C.TIKHONOV,0.01), (False,False)],
         C.L_DIMBATCH:[0],
-        C.L_MOMENTUM: [(C.CLASSIC,0.6), (False,False)],
+        C.L_MOMENTUM: [(C.CLASSIC,0.9), (False,False)],
         C.L_EPOCHS:[500],
         C.L_SHUFFLE:True,
-        C.L_EPS: [0.001],
+        C.L_EPS: [0.01],
         C.L_DISTRIBUTION:[C.GLOROT],
+        C.L_G_CLIPPING:[(True,0.5)],
         C.L_BIAS:[0],
         C.L_SEED: [52],
         C.L_CLASSIFICATION:False,
@@ -121,7 +122,7 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
         C.L_TRESHOLD_VARIANCE:[1.e-1]    
     }
     
-    cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH, fold = 2)
+    #cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH, fold = 2)
     
 if __name__ == "__main__":
     

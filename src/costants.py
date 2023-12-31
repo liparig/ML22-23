@@ -34,6 +34,7 @@ MOMENTUM = ("",0)
 EARLYSTOP:bool = True
 TRESHOLDVARIANCE:float = 1.e-10
 BATCH_SHUFFLE=True
+G_CLIPPING = (False,False) # first element true or false second element is the value of the clipping treshold
 
 # DISTRIBUTION
 UNIFORM:str = 'uniform'
@@ -67,6 +68,7 @@ L_NET:str = 'l_dim'
 L_ACTIVATION:str = 'a_functions'
 L_ETA:str = 'eta'
 L_TAU:str = 'tau'
+L_G_CLIPPING:str = 'g_clipping'
 L_REG:str = 'reg'
 L_DIMBATCH:str = 'dim_batch'
 L_MOMENTUM:str = 'momentum'

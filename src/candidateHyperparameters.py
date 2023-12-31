@@ -10,6 +10,7 @@ class Candidate:
         self.a_functions = candidate[C.L_ACTIVATION]
         self.eta = candidate[C.L_ETA]
         self.tau = candidate[C.L_TAU]
+        self.g_clipping = candidate[C.L_G_CLIPPING]
         self.reg = candidate[C.L_REG]
         self.dim_batch = candidate[C.L_DIMBATCH]
         self.momentum = candidate[C.L_MOMENTUM]
@@ -122,6 +123,7 @@ class CandidatesHyperparameters:
         self.a_functions = []
         self.eta = []
         self.tau = []
+        self.g_clipping = []
         self.reg = []
         self.dim_batch = []
         self.momentum = []
@@ -159,13 +161,14 @@ class CandidatesHyperparameters:
     # :param: classification is the flag if it is a classification problem
     # :param: patience is the max number of epochs with small or null changes 
     # :param: treshold_variance is the threshold for the patience and early stop
-    def insert_candidate(self, l_dim, a_functions=C.AFUNCTION, eta=C.ETA, tau=C.TAU, reg=C.REG,\
+    def insert_candidate(self, l_dim, a_functions=C.AFUNCTION, eta=C.ETA, tau=C.TAU, g_clipping=C.G_CLIPPING, reg=C.REG,\
         dim_batch=C.BATCH, epochs=C.EPOCHS,batch_shuffle=C.BATCH_SHUFFLE,momentum=C.MOMENTUM,eps=C.EPS,distribution=C.UNIFORM,\
         bias=C.BIAS,seed=C.R_SEEDS, early_stop=True, classification=False,patience=C.PATIENCE,treshold_variance=C.TRESHOLDVARIANCE):
         self.l_dim.append(l_dim)
         self.a_functions.append(a_functions)
         self.eta.append(eta)
         self.tau.append(tau)
+        self.g_clipping.append(g_clipping)
         self.reg.append(reg)
         self.dim_batch.append(dim_batch)
         self.momentum.append(momentum)
@@ -188,6 +191,7 @@ class CandidatesHyperparameters:
             C.L_ACTIVATION:self.a_functions[index],
             C.L_ETA:self.eta[index],
             C.L_TAU: self.tau[index],
+            C.L_TAU: self.g_clipping[index],
             C.L_REG:self.reg[index],
             C.L_DIMBATCH:self.dim_batch[index],
             C.L_MOMENTUM: self.momentum[index],
@@ -225,6 +229,7 @@ class CandidatesHyperparameters:
             self.reg = theta[C.L_REG]
             self.dim_batch = theta[C.L_DIMBATCH]
             self.tau = theta[C.L_TAU]
+            self.g_clipping = theta[C.L_G_CLIPPING]
             self.patience = theta[C.L_PATIENCE]
             self.batch_shuffle=theta[C.L_SHUFFLE]
             self.early_stop = theta[C.L_EARLYSTOP]
@@ -278,13 +283,14 @@ class CandidatesHyperparameters:
             self.classification=[True]
             '''
         elif default == C.CUP:
-            self.l_dim = [[9,4,4,3]]#,[9,32,16,3],[9,64,32,16,3],[9,64,32,16,8,3]]
+            self.l_dim = [[10,4,4,3]]#,[10,32,16,3],[10,64,32,16,3],[10,64,32,16,8,3]]
             self.a_functions = [[C.TANH,C.TANH,C.IDENTITY]]#,[C.RELU,C.RELU,C.IDENTITY],[C.RELU,C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.RELU,C.RELU,C.IDENTITY]]
             self.eta=[0.2, 0.1]
             self.momentum=[(False,False) ]#, (C.NESTEROV,0.5) , (C.CLASSIC,0.5),(C.NESTEROV,0.9) , (C.CLASSIC,0.9) ]
             self.reg=[(False,False)]#, (C.TIKHONOV,0.01),  (C.LASSO,0.01) ]
             self.dim_batch=[0, 200]
-            self.tau=[(1000,0.05)]#, (1000,0.01)]
+            self.tau=[(1000,0.05)]
+            self.g_clipping=[(True,0.5)]#, (1000,0.01)]
             self.patience=[200]
             self.eps=[0.2, 0.7]
             self.early_stop = True

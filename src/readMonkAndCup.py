@@ -165,17 +165,11 @@ def read_blind_test_cup(name):
     # get directory
     # targets = []
     # read csv
-    col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'target_x', 'target_y','target_z']
+    col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9','a10']
 
     cup_dataset = pd.read_csv(name, sep=',', skiprows=range(7), names=col_names)
 
     cup_dataset.set_index('Id', inplace=True)
-    # get targets aside
-    # target_y = cup_dataset.pop('target_y').to_numpy(dtype=np.float64)
-    # target_z = cup_dataset.pop('target_z').to_numpy(dtype=np.float64)
-    cup_dataset.pop('target_y').to_numpy(dtype=np.float64)
-    cup_dataset.pop('target_z').to_numpy(dtype=np.float64)
-    # targets = np.vstack((target_y,target_z)).T   
     
     inputs = cup_dataset.to_numpy(dtype=np.float64)
     # transform labels from pandas dataframe to numpy ndarray

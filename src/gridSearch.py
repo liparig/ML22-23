@@ -10,7 +10,7 @@ def init_grid_search(candidates:CandidatesHyperparameters|Candidate, coarse:bool
     
     global possibles_eta, possibles_momentum, possibles_reg, possibles_dim_batch, possibles_l_dim, possibles_a_functions,\
     possibles_tau, possibles_eps, possibles_distribution, possibles_bias, possibles_patience, classification, early_stop,\
-    possibles_epochs, possibles_threshold_variance,seed
+    possibles_epochs, possibles_threshold_variance,seed,possibles_g_clipping
 
     possibles_l_dim              = candidates.l_dim
     possibles_a_functions        = candidates.a_functions
@@ -21,6 +21,7 @@ def init_grid_search(candidates:CandidatesHyperparameters|Candidate, coarse:bool
     early_stop                   = candidates.early_stop
     possibles_threshold_variance = candidates.treshold_variance
     seed                         = candidates.seed
+    possibles_g_clipping         = candidates.g_clipping
     
     # Default values for Coarse Grid Search (values differ in order of magnitude)
     if coarse:
@@ -57,7 +58,7 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
          * len(possibles_momentum) * len(possibles_reg) * len(possibles_dim_batch)\
          * len(possibles_tau) * len(possibles_patience) * len(possibles_eps)\
          * len(possibles_distribution) *  len(possibles_bias)\
-         * len(possibles_epochs) * len(possibles_threshold_variance) 
+         * len(possibles_epochs) * len(possibles_threshold_variance) *len(possibles_g_clipping)
         
         """ cycle over all the permutation values of hyperparameters """
         for eta in possibles_eta:
@@ -75,13 +76,14 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
                                             for patience in possibles_patience:
                                                 for bias in possibles_bias:
                                                     for reg in possibles_reg:
-                                                        for epochs in possibles_epochs:
-                                                            if count == 0 or count%100 == 0 or count == permutation-1:
-                                                                print("Create the candidate:", count+1, "/", permutation)
-                                                            count += 1
-                                                            candidates.insert_candidate(l_dim=l_dim, a_functions=a_functions, eta=eta, tau=tau, reg=reg,\
-                                                                    dim_batch=dim_batch, momentum=momentum,eps=eps,distribution=distribution,\
-                                                                    bias=bias, classification=classification,patience=patience,early_stop=early_stop,epochs=epochs,seed=seed)
+                                                        for g_clipping in possibles_g_clipping:
+                                                            for epochs in possibles_epochs:
+                                                                if count == 0 or count%100 == 0 or count == permutation-1:
+                                                                    print("Create the candidate:", count+1, "/", permutation)
+                                                                count += 1
+                                                                candidates.insert_candidate(l_dim=l_dim, a_functions=a_functions, eta=eta, tau=tau,g_clipping=g_clipping, reg=reg,\
+                                                                        dim_batch=dim_batch, momentum=momentum,eps=eps,distribution=distribution,\
+                                                                        bias=bias, classification=classification,patience=patience,early_stop=early_stop,epochs=epochs,seed=seed)
 
     else:
         """ cycle over all the permutation values of hyperparameters """

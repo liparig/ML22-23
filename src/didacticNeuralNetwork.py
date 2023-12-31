@@ -41,7 +41,7 @@ class DidacticNeuralNetwork:
     
     def __init__(self, l_dim:list[int] = None, a_functions:list[str] = None, l_function:str = C.MSE, eta:float = C.ETA, 
                  tau = C.TAU, epochs:int = C.EPOCHS, batch_shuffle:bool = C.BATCH_SHUFFLE, reg = C.REG, momentum = C.MOMENTUM, 
-                 classification:bool = False, early_stop:bool = True, patience:int = C.PATIENCE, treshold_variance:float = C.TRESHOLDVARIANCE, 
+                 classification:bool = False, g_clipping=C.G_CLIPPING, early_stop:bool = True, patience:int = C.PATIENCE, treshold_variance:float = C.TRESHOLDVARIANCE, 
                  dim_batch:int = C.BATCH, plot = None, seed:int = C.R_SEEDS, **kwargs):
         self.gen = Generator(PCG64(seed))
         if(a_functions == None):
@@ -88,6 +88,12 @@ class DidacticNeuralNetwork:
         self.treshold_variance = treshold_variance
         self.dim_batch = dim_batch
         self.plot = plot
+        
+        if g_clipping[0]:
+            self.g_clipping=True
+            self.g_clipping_treshold=self.gradient_clipping[1]
+        else:
+            self.g_clipping = False
         
     # Check the network initialization params
     # :param: l_dim is the list layer dimension
@@ -220,12 +226,16 @@ class DidacticNeuralNetwork:
     # :param: delta is array contains the delta matrix computed in the backpropagation
     # :param: gradients is the list of the gradients that are computed in the backpropagation
     # :param: pattern is number of pattern predicted  
-    def update_wb(self, delta, gradients, pattern):
+    def update_wb(self, gradientsW,gradientsB, pattern):
         for l in range(len(self.l_dim) - 1, 0, -1):
             name_layer:str = str(l)
             
-            gradw = np.divide(gradients[l-1] , pattern)
-            gradb = np.divide(np.sum(delta[l-1], axis=0, keepdims=True) ,pattern)
+            gradw = np.divide(gradientsW[l-1] , pattern)
+            gradb = np.divide(gradientsB[l-1] , pattern)
+            if self.g_clipping:
+                gradw=self.gradient_clipping_norm(gradw,self.g_clipping_treshold)
+                gradb=self.gradient_clipping_norm(gradb,self.g_clipping_treshold)
+            #gradb = np.divide(np.sum(delta[l-1], axis=0, keepdims=True) ,pattern)
             #save the old gradient for the Nesterov momentum if needed
             if self.momentum == C.NESTEROV:
                 self.deltaOld[f'wold{name_layer}'] = gradw
@@ -253,10 +263,11 @@ class DidacticNeuralNetwork:
 
     # Compute the back propagation algorithm
     # :param: y is target set
-    # :return: array delta with the gradients matrix of each layer. Last element is the last elements gradiend matrix
+    # :return:  the lists gradients of w and b matrix of each layer. Last element is the last elements gradient matrix
     def back_propagation(self, y):
         delta_t = []
-        gradients=[]
+        gradientsW=[]
+        gradientsB=[]
         num_layers:int = len(self.l_dim) - 1
         interim:str = ""
         if self.momentum == C.NESTEROV and "wold1" in self.deltaOld:
@@ -274,11 +285,12 @@ class DidacticNeuralNetwork:
                 dt = self.compute_delta_k(y, self.out[f'out{interim}{name_layer}'], self.net[f'net{interim}{name_layer}'], derivatives[af])
             #append the gradient matrix
             gradW = dt.T @ self.out[f"out{interim}{l-1}"]
-
+            gradB = np.sum(dt, axis=0, keepdims=True)
+            gradientsW.append(gradW)
+            gradientsB.append(gradB)
             delta_t.append(dt)
-            gradients.append(gradW)
 
-        return delta_t[::-1], gradients[::-1]
+        return gradientsW[::-1],gradientsB[::-1]
 
     # Training the model with evaluation of the metrics
     # :param: validation is the flag for validation
@@ -359,9 +371,9 @@ class DidacticNeuralNetwork:
                     if self.momentum == C.NESTEROV  and f"wold{l}" in self.deltaOld:
                         self.forward_propagation(batch_x.copy(), update=True, nesterov=True)              
                 #compute delta using back propagation on target batch
-                delta,gradients= self.back_propagation(batch_y)
+                gradientsW,gradientsB= self.back_propagation(batch_y)
                 # call update weights function
-                self.update_wb(delta,gradients,batch_x.shape[0])
+                self.update_wb(gradientsW,gradientsB,batch_x.shape[0])
                 # update bacth error
                 out_t = self.forward_propagation(batch_x, update=False)
 
@@ -498,7 +510,19 @@ class DidacticNeuralNetwork:
         x = x[newindex]
         y = y[newindex]
         return x, y
-
+    
+    # Clippd the gradient by norm
+    # :param: grad the gradients to clip
+    # :param: threshold is the max value of norm
+    # :return: clipped_grad clipped gradient if clipped or the original gradient if less then the treshold
+    def gradient_clipping_norm(grad, threshold):
+        grad_norm = np.linalg.norm(grad)
+        if grad_norm > threshold:
+            clipped_grad = threshold * (grad / grad_norm) 
+        else:
+            clipped_grad = grad
+        return clipped_grad
+    
     # Compute the eta decay with the formula
     # :param: eta_0 is the first eta 
     # :param: epoch is the number of epochs
