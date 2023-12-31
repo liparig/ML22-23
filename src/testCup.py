@@ -23,9 +23,13 @@ def cup_evaluation(TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, theta, dirName, prefi
     winner, meanmetrics = kfCV.validate(inTheta =  theta, FineGS = True, prefixFilename = prefixFilename)
     winnerTheta = winner.get_dictionary()
     trerrors, euclidianAccuracy, results = holdoutTest(winnerTheta, TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, val_per = 0.25, meanepochs = int(meanmetrics['mean_epochs']))
+    _, _,  TR_x_CUP_All, TR_y_CUP_All = readMC.get_cup_house_test(perc = 0)
+    TS_x_CUP_blind = readMC.get_test_CUP()
+    trerrorsBlind, euclidianAccuracyBlind, resultsBlind = holdoutTest(winnerTheta,  TR_x_CUP_All, TR_y_CUP_All, TS_x_CUP_blind, [], val_per = 0, meanepochs = int(meanmetrics['mean_epochs']))
     savePlotFig(trerrors, dirName, prefixFilename, f"{dirName}{prefixFilename}", theta = winnerTheta)
     log, timestamp = kfoldLog.Model_Assessment_log(dirName, prefixFilename, f"Model Hyperparameters:\n {winnerTheta}\n", f"Model Selection Result obtained in {fold}# folds:\n{meanmetrics}\n Mean Euclidian Error:\n{euclidianAccuracy}\n")
     kfoldLog.Model_Assessment_Outputs(results, DIRNAME, prefixFilename, timestamp)
+    kfoldLog.ML_Cup_Template(resultsBlind, DIRNAME, prefixFilename+'_blind', timestamp)
 
 # Execute the holdout test
 # :param: winner is the configuration object
@@ -47,11 +51,13 @@ def holdoutTest(winner, TR_x_set, TR_y_set, TS_x_set, TS_y_set, val_per:float = 
         model.epochs = meanepochs
         errors = model.fit(TR_x_set, TR_y_set, [], [], TS_x_set, TS_y_set)
     out = model.forward_propagation(TS_x_set)
-    euclidianAccuracy = model.metrics.mean_euclidean_error(TS_y_set, out)
-    
-    result = np.concatenate((TS_y_set, out), axis=1)
-    
-    print("Test euclidianError:", euclidianAccuracy)
+    if(not isinstance(TS_y_set, list)):
+        euclidianAccuracy = model.metrics.mean_euclidean_error(TS_y_set, out)
+        result = np.concatenate((TS_y_set, out), axis=1)
+        print("Test euclidianError:", euclidianAccuracy)
+    else:
+        result = out
+        euclidianAccuracy = None
     
     return errors, euclidianAccuracy, result
 
@@ -64,7 +70,7 @@ def savePlotFig(errors, dirName, fileName, title, theta):
     inError_tr = False if errors['loss']==0 else errors['loss']
     labelError = 'validation'
     metric = 'metric_val'
-    if len(errors['test'])>0:
+    if len(errors['test']) > 0:
         labelError = 'test'
         metric = 'metric_test'
     plot_curves(errors['error'], errors[labelError], errors['metric_tr'], errors[metric], error_tr = inError_tr,
@@ -74,7 +80,7 @@ def savePlotFig(errors, dirName, fileName, title, theta):
      
 def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
     theta_batch = {
-        C.L_NET:[[9,20,3],[9,10,10,3],[9,15,5,3]],
+        C.L_NET:[[10,20,3],[10,10,10,3],[10,15,5,3]],
         C.L_ACTIVATION:[[C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.IDENTITY],[C.LEAKYRELU,C.IDENTITY],[C.LEAKYRELU,C.LEAKYRELU,C.IDENTITY],[C.SIGMOID,C.TANH,C.IDENTITY]],
         C.L_ETA:[0.003, 0.1],
         C.L_TAU: [(200,0.01), (False,False)],
@@ -96,7 +102,7 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
     cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, theta_batch, dirName, prefixFilename = C.PREFIXBATCH, fold = 5)
     
     theta_mini = {
-        C.L_NET:[[9,20,3],[9,15,5,3]],
+        C.L_NET:[[10,20,3],[10,15,5,3]],
         C.L_ACTIVATION:[[C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.IDENTITY]],
         C.L_ETA:[0.00003],
         C.L_TAU: [(20,0.0003)],
@@ -121,5 +127,7 @@ if __name__ == "__main__":
     
     TR_x_CUP, TR_y_CUP,  TS_x_CUP, TS_y_CUP = readMC.get_cup_house_test()
     DIRNAME:str = "TestCUP_1"
-        
+    # print(TR_x_CUP.shape, TR_y_CUP.shape,  TS_x_CUP.shape, TS_y_CUP.shape)
+    # print(TR_x_CUP[0], TR_y_CUP[0],  TS_x_CUP[0], TS_y_CUP[0])
+    # input('premi')
     main(TR_x_CUP, TR_y_CUP, TS_x_CUP, TS_y_CUP, DIRNAME)

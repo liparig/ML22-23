@@ -43,15 +43,21 @@ def Model_Assessment_Outputs(results, fileDir:str, fileName:str, timestamp):
 # :param: timestamp 
 def ML_Cup_Template(results, fileDir:str, fileName:str, timestamp):
    # name of the column
-    col_names = ['target_y', 'target_x', 'target_z', 'out_y', 'out_x', 'out_z']
+    # Name1 Surname2, Name2 Surname2, Name3 Surname3 
+    # Team Name
+    # ML-CUP23
+    header = np.array(['# Giuseppe Lipari', ' Carmine Vitiello','',''])
+    header2 = np.array(['# Team Name ','','',''])
+    header3 = np.array(['# ML-CUP23 ','','',''])
+    col_names = np.array(['# id', ' out_y', ' out_x', ' out_z'])
     # add the name of the column in the first row
     listId:list[int] = []
     for i in range(1, results.shape[0]+1):
-        listId.append(i)
-    print(results.shape)
-    results = np.concatenate((np.array(listId).reshape((results.shape[0],1)), results), axis=1)
-    result_with_header = np.vstack([col_names, results])
-    np.savetxt(f'{fileDir}/{fileName}_output_{timestamp}.csv', result_with_header, delimiter=',', fmt='%s', header='', comments='')  
+        listId.append(int(i))
+    results = np.concatenate((np.array(listId).astype(int).reshape((results.shape[0],1)), results), axis=1)
+    # print(header.shape, col_names.shape, results.shape)
+    result_with_header = np.vstack([header, header2, header3, col_names, results])
+    np.savetxt(f'{C.PATH_MODEL_ASSESSMENT_DIR}/{fileDir}/{fileName}_output_{timestamp}.csv', result_with_header, delimiter=',', fmt='%s', header='', comments='')  
 
 # Initialitation of the logger
 # :param: fileName is the name of the file

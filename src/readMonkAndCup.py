@@ -40,7 +40,7 @@ def get_test_Monk_3(tanh:bool = False):
     return read_monk(TESTMONK3, tanh)
 
 def get_test_CUP():
-    return read_cup(TESTCUP)
+    return read_blind_test_cup(TESTCUP)
 #endregion
 
 # Read a generic monk dataset
@@ -142,7 +142,7 @@ def get_cup_house_test(perc:float = 0.25):
     # get directory
     targets=[]
     # read csv
-    col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'target_x', 'target_y','target_z']
+    col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10', 'target_x', 'target_y','target_z']
     cup_dataset = pd.read_csv(TRAINCUP, sep=',', skiprows = range(7), names = col_names)
     
     cup_dataset.set_index('Id', inplace=True)
@@ -160,3 +160,24 @@ def get_cup_house_test(perc:float = 0.25):
     # transform labels from pandas dataframe to numpy ndarray
     
     return inputs, targets, test_inputs, test_targets
+
+def read_blind_test_cup(name):
+    # get directory
+    # targets = []
+    # read csv
+    col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'target_x', 'target_y','target_z']
+
+    cup_dataset = pd.read_csv(name, sep=',', skiprows=range(7), names=col_names)
+
+    cup_dataset.set_index('Id', inplace=True)
+    # get targets aside
+    # target_y = cup_dataset.pop('target_y').to_numpy(dtype=np.float64)
+    # target_z = cup_dataset.pop('target_z').to_numpy(dtype=np.float64)
+    cup_dataset.pop('target_y').to_numpy(dtype=np.float64)
+    cup_dataset.pop('target_z').to_numpy(dtype=np.float64)
+    # targets = np.vstack((target_y,target_z)).T   
+    
+    inputs = cup_dataset.to_numpy(dtype=np.float64)
+    # transform labels from pandas dataframe to numpy ndarray
+    
+    return inputs
