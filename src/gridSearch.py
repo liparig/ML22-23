@@ -97,7 +97,7 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
                                 if count == 0 or count%10000 == 0 or count == permutation-1:
                                     print("Create the candidate:",count+1,"/", permutation)
                                 count += 1
-                                candidates.insert_candidate(l_dim=hyperparameters.l_dim, a_functions=hyperparameters.a_functions, eta=eta, tau=tau, reg=reg,\
+                                candidates.insert_candidate(l_dim=hyperparameters.l_dim, a_functions=hyperparameters.a_functions, eta=eta, tau=tau,g_clipping=g_clipping, reg=reg,\
             dim_batch = dim_batch, momentum=momentum,eps=eps,distribution=hyperparameters.distribution,\
             bias = hyperparameters.bias, classification=hyperparameters.classification,patience=hyperparameters.patience,\
                 epochs=hyperparameters.epochs ,early_stop=hyperparameters.early_stop,seed=hyperparameters.seed)

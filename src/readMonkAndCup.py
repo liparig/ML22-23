@@ -39,7 +39,7 @@ def get_train_Monk_3(tanh:bool = False):
 def get_test_Monk_3(tanh:bool = False):
     return read_monk(TESTMONK3, tanh)
 
-def get_test_CUP():
+def get_blind_test_CUP():
     return read_blind_test_cup(TESTCUP)
 #endregion
 
@@ -138,9 +138,9 @@ def read_cup(name):
 # :param: perc is the percent of the dataset that will become test dataset
 # :return: training dataset, training values, test inputs and test targets
 def get_cup_house_test(perc:float = 0.25):
-    
+    test_inputs,test_targets=[],[]
     # get directory
-    targets=[]
+    
     # read csv
     col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10', 'target_x', 'target_y','target_z']
     cup_dataset = pd.read_csv(TRAINCUP, sep=',', skiprows = range(7), names = col_names)
@@ -149,13 +149,17 @@ def get_cup_house_test(perc:float = 0.25):
     # shuffle the DataFrame rows
     
     cup_dataset = cup_dataset.sample(frac = 1)
-    dim = math.ceil(len(cup_dataset) * perc)
-    inputs = cup_dataset.to_numpy(dtype=np.float64)[: -dim,:]
-    test_inputs = cup_dataset.to_numpy(dtype=np.float64)[-dim:,:]
+    if perc!=0:
+        dim = math.ceil(len(cup_dataset) * perc)
+        inputs = cup_dataset.to_numpy(dtype=np.float64)[: -dim,:]
+        inputs, targets = inputs[:, :-3], inputs[:, -3:]
+        test_inputs = cup_dataset.to_numpy(dtype=np.float64)[-dim:,:]
+        # get targets aside
+        test_inputs, test_targets=test_inputs[:, :-3], test_inputs[:, -3:]
+    else:
+        inputs = cup_dataset.to_numpy(dtype=np.float64)
+        inputs, targets = inputs[:, :-3], inputs[:, -3:]
     
-    # get targets aside
-    inputs, targets = inputs[:, :-3], inputs[:, -3:]
-    test_inputs, test_targets=test_inputs[:, :-3], test_inputs[:, -3:]
     
     # transform labels from pandas dataframe to numpy ndarray
     

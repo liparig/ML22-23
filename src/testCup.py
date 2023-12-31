@@ -61,6 +61,18 @@ def holdoutTest(winner, TR_x_set, TR_y_set, TS_x_set, TS_y_set, val_per:float = 
     
     return errors, euclidianAccuracy, result
 
+def blind_Cup(models,dirname, filename,timestamp):
+    tr_x, tr_y, val_x, val_y=readMC.get_cup_house_test(perc=25)
+    TS_blind=readMC.get_blind_test_CUP()
+    outs = []
+    errors = []
+    for model in models:
+        errors.append(model.fit(tr_x, tr_y, val_x, val_y))
+        outs.append(model.forward_propagation(TS_blind))
+    mean_outs = np.mean(outs, axis=0)
+    readMC.ML_Cup_Template(mean_outs, dirname, filename, timestamp)
+   
+
 def savePlotFig(errors, dirName, fileName, title, theta):
     # Path
     path_dir_models_coarse = os.path.join(C.PATH_PLOT_DIR, dirName)
@@ -91,7 +103,7 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
         C.L_SHUFFLE:True,
         C.L_EPS: [0.01],
         C.L_DISTRIBUTION:[C.GLOROT],
-        C.L_G_CLIPPING:[(True,0.5)],
+        C.L_G_CLIPPING:[(True,5)],
         C.L_BIAS:[0],
         C.L_SEED: [52],
         C.L_CLASSIFICATION:False,

@@ -191,7 +191,7 @@ class CandidatesHyperparameters:
             C.L_ACTIVATION:self.a_functions[index],
             C.L_ETA:self.eta[index],
             C.L_TAU: self.tau[index],
-            C.L_TAU: self.g_clipping[index],
+            C.L_G_CLIPPING: self.g_clipping[index],
             C.L_REG:self.reg[index],
             C.L_DIMBATCH:self.dim_batch[index],
             C.L_MOMENTUM: self.momentum[index],

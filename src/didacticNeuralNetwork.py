@@ -90,8 +90,8 @@ class DidacticNeuralNetwork:
         self.plot = plot
         
         if g_clipping[0]:
+            self.g_clipping_treshold=g_clipping[1]
             self.g_clipping=True
-            self.g_clipping_treshold=self.gradient_clipping[1]
         else:
             self.g_clipping = False
         
@@ -235,6 +235,8 @@ class DidacticNeuralNetwork:
             if self.g_clipping:
                 gradw=self.gradient_clipping_norm(gradw,self.g_clipping_treshold)
                 gradb=self.gradient_clipping_norm(gradb,self.g_clipping_treshold)
+
+
             #gradb = np.divide(np.sum(delta[l-1], axis=0, keepdims=True) ,pattern)
             #save the old gradient for the Nesterov momentum if needed
             if self.momentum == C.NESTEROV:
@@ -515,7 +517,7 @@ class DidacticNeuralNetwork:
     # :param: grad the gradients to clip
     # :param: threshold is the max value of norm
     # :return: clipped_grad clipped gradient if clipped or the original gradient if less then the treshold
-    def gradient_clipping_norm(grad, threshold):
+    def gradient_clipping_norm(self,grad, threshold):
         grad_norm = np.linalg.norm(grad)
         if grad_norm > threshold:
             clipped_grad = threshold * (grad / grad_norm) 
