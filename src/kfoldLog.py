@@ -29,7 +29,9 @@ def Model_Assessment_log(fileDir:str, fileName:str, hyperparameters:str, result:
 # :param: fileDir is the directory of the file
 # :param: fileName is the name of the file
 # :param: timestamp 
-def Model_Assessment_Outputs(results, fileDir:str, fileName:str, timestamp):
+def Model_Assessment_Outputs(results, fileDir:str, fileName:str, timestamp=False):
+    if not timestamp:
+        timestamp:str = time.strftime(C.FORMATTIMESTAMP)
     # name of the column
     col_names = ['target_y', 'target_x', 'target_z', 'out_y', 'out_x', 'out_z']
     # add the name of the column in the first row
