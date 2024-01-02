@@ -136,7 +136,7 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
         C.L_TRESHOLD_VARIANCE:[1.e-2]    
     }"""
     theta_batch = {
-        C.L_NET:[[10,15,10,3],[10,10,5]],
+        C.L_NET:[[10,15,10,3],[10,10,3]],
         C.L_ACTIVATION:[[C.TANH,C.IDENTITY],[C.LEAKYRELU,C.IDENTITY],[C.LEAKYRELU,C.LEAKYRELU,C.IDENTITY],[C.TANH,C.TANH,C.IDENTITY]],
         C.L_ETA:[0.004,0.08],
         C.L_TAU: [(False,False),(500,0.0008)],
