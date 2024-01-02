@@ -14,35 +14,41 @@ def __theta_toCaption(theta:dict):
     caption=""
     for param, value in theta.items():
         match param:
-            case 'l_dim':
+            case C.L_NET:
                 caption +=r"$Units:\,"+str(value)+"$, "
-            case 'a_functions':
+            case C.L_ACTIVATION:
                 caption +=r"$Activation Layer:[ \,"+','.join([str(elem).title() for elem in value])+"\,]$, "
-            case 'eta':
+            case C.L_ETA:
                 caption +=r"$\eta:"+str(value)+"$, "
-            case 'tau':
+            case C.L_TAU:
                 if value[0] !=False:
                     caption+= r"$\tau:\,"+str(value[0])+r"\,\eta_\tau:\,"+str(value[1])+"$, "
-            case 'reg':
+            case C.L_G_CLIPPING:
+                if value[0] !=False:
+                    caption+= r"$Clipping:\,"+str(value[1])+"$, "
+            case C.L_DROPOUT:
+                if value[0] !=False:
+                    caption+= r"$Dropout p:\,"+str(value[1])+"$, "
+            case C.L_REG:
                 if value[0] !=False:
                     caption+= "$Reg \,"+str(value[0].title())+r"\,\lambda=\,"+str(value[1])+"$, "
-            case "dim_batch":
+            case C.L_DIMBATCH:
                 caption+= r"$Batch size:\,"+str(value)+"$ "
-            case'momentum':
+            case C.L_MOMENTUM:
                 if value[0] !=False:
                     caption+= "$Momentum:\, "+ value[0].title() +r"\,\alpha: "+str(value[1])+"$, "
-            case "epochs":
+            case C.L_EPOCHS:
                 caption+= r"$MaxEpochs:\,"+str(value)  +"$, "
-            case "eps":
+            case C.L_EPS:
                 caption+= r"$\epsilon:\,"+str(value)  +"$, "
-            case "distribution":
+            case C.L_DISTRIBUTION:
                 caption+=r"$"+str(value)+"$, "
-            case "bias":
+            case C.L_BIAS:
                 caption+=r"$Bias:\,"+str(value)+"$, "
-            case "early_stop":
+            case C.L_EARLYSTOP:
                 if value:
                     caption+=r"$EarlyStop:\,"+str(theta["treshold_variance"])+"$, "
-            case "patience":
+            case C.L_PATIENCE:
                 caption+=r"$Patience:\,"+str(value)+"$ "
         
     caption = r"\begin{center} \textit{\small{" + caption + r"}} \end{center}"
@@ -107,7 +113,7 @@ def draw(loss_tr, loss_vs, metr_tr, val_metr, error_tr = False, path = None, yli
    
     ax[0].plot(range(len(loss_tr)), loss_tr, color='b', linestyle = 'dashed', label = lbl_tr)
     ax[0].plot(range(len(loss_vs)), loss_vs, color='r', label = lbl_vs)
-    if error_tr:
+    if error_tr and C.PLOT_LOSS:
         ax[0].plot(range(len(error_tr)), error_tr, color='y', label="Loss TR")
 
     ax[0].legend(loc='best', prop={'size': 9})

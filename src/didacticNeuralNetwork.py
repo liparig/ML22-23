@@ -41,7 +41,7 @@ class DidacticNeuralNetwork:
     
     def __init__(self, l_dim:list[int] = None, a_functions:list[str] = None, l_function:str = C.MSE, eta:float = C.ETA, 
                  tau = C.TAU, epochs:int = C.EPOCHS, batch_shuffle:bool = C.BATCH_SHUFFLE, reg = C.REG, momentum = C.MOMENTUM, 
-                 classification:bool = False, g_clipping=C.G_CLIPPING, early_stop:bool = True, patience:int = C.PATIENCE, treshold_variance:float = C.TRESHOLDVARIANCE, 
+                 classification:bool = False, g_clipping=C.G_CLIPPING,dropout=C.DROPOUT, early_stop:bool = True, patience:int = C.PATIENCE, treshold_variance:float = C.TRESHOLDVARIANCE, 
                  dim_batch:int = C.BATCH, plot = None, seed:int = C.R_SEEDS, **kwargs):
         self.gen = Generator(PCG64(seed))
         if(a_functions == None):
@@ -94,6 +94,12 @@ class DidacticNeuralNetwork:
             self.g_clipping=True
         else:
             self.g_clipping = False
+        
+        if dropout[0]:
+            self.dropout_p=dropout[1]
+            self.dropout=True
+        else:
+            self.dropout = False
         
     # Check the network initialization params
     # :param: l_dim is the list layer dimension
@@ -176,7 +182,17 @@ class DidacticNeuralNetwork:
             name_layer:str = str(l)
             w = self.wb[f'W{interim}{name_layer}'] # on the row there are the weights for units
             b = self.wb[f'b{interim}{name_layer}']
-            
+            #Check if mini-batch training and if dropout it's true
+            if self.dim_batch != self.dataset[C.NUM_PATTERN_X] and self.dropout:
+                #If update true we are in a training phaso so we switch of input unit with probability p
+                if update:
+                    mask = self.dropoutMask(in_out.shape)
+                    in_out= mask * in_out
+                #if we are not in training  the unit is always present andthe weights are multiplied by p. The output at test time is same as the expected output at training time.
+                # Prova Normalizzato nel dropout
+                #else:
+                    #w = w * self.dropout_p
+
 
             #apply linear function
             net = self.linear(w, in_out, b)
@@ -232,6 +248,7 @@ class DidacticNeuralNetwork:
             
             gradw = np.divide(gradientsW[l-1] , pattern)
             gradb = np.divide(gradientsB[l-1] , pattern)
+
             if self.g_clipping:
                 gradw=self.gradient_clipping_norm(gradw,self.g_clipping_treshold)
                 gradb=self.gradient_clipping_norm(gradb,self.g_clipping_treshold)
@@ -379,7 +396,7 @@ class DidacticNeuralNetwork:
                 # update bacth error
                 out_t = self.forward_propagation(batch_x, update=False)
 
-                terror = self.l_function.loss(self, batch_y, out_t)
+                """terror = self.l_function.loss(self, batch_y, out_t)
                 terror = np.sum(terror)/out_t.shape[0]
                 batch_terror += terror 
                 if self.regular:
@@ -388,9 +405,15 @@ class DidacticNeuralNetwork:
             #append the error and the loss (mean if min-bacth or stochastic)
             history_terror.append(batch_terror/(b+1))
             if self.regular:
-                history_tloss.append((batch_tloss)/(b+1))
+                history_tloss.append((batch_tloss)/(b+1))"""
            
             out_t = self.training_metrics(metric_tr, c_metric, out_t, batch_number > 1)
+            terror = self.l_function.loss(self,  self.dataset[C.OUTPUT_TRAINING], out_t)
+            terror = np.sum(terror)/out_t.shape[0]
+            batch_tloss += terror + p_term
+            history_terror.append(terror)
+            if self.regular:
+                history_tloss.append(batch_tloss)
 
             #if there'is validation or test compute validation and test metric for regression and classification
             if validation:
@@ -524,6 +547,16 @@ class DidacticNeuralNetwork:
         else:
             clipped_grad = grad
         return clipped_grad
+    
+    # Create the dropout mas
+    # :param: input shape
+    # :return: matrix dropout mask with probability p
+    def dropoutMask(self,input_shape):
+        mask = (np.random.rand(*input_shape) < (1 - self.dropout_p)).astype(float)
+
+        #Normalizzazione output
+        mask=mask / (1 - self.dropout_p)
+        return mask
     
     # Compute the eta decay with the formula
     # :param: eta_0 is the first eta 

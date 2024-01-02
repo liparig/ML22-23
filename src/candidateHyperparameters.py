@@ -11,6 +11,7 @@ class Candidate:
         self.eta = candidate[C.L_ETA]
         self.tau = candidate[C.L_TAU]
         self.g_clipping = candidate[C.L_G_CLIPPING]
+        self.dropout = candidate[C.L_DROPOUT]
         self.reg = candidate[C.L_REG]
         self.dim_batch = candidate[C.L_DIMBATCH]
         self.momentum = candidate[C.L_MOMENTUM]
@@ -76,23 +77,25 @@ class Candidate:
 
     # :return: the string with all the hyperparameters of a configuration theta
     def to_string(self):
-        return f" Hyperparameters: 'l_dim':{self.l_dim},\
-            'a_functions':{self.a_functions},\
-            'eta':{self.eta},\
-            'tau': {self.tau},\
-            'reg':{self.reg},\
-            'dim_batch':{self.dim_batch},\
-            'momentum': {self.momentum},\
-            'epochs':{self.epochs},\
-            'batch_shuffle':{self.batch_shuffle},\
-            'eps': {self.eps},\
-            'distribution':{self.distribution},\
-            'bias':{self.bias},\
-            'seed': {self.seed},\
-            'classification':{self.classification},\
-            'early_stop':{self.early_stop},\
-            'patience': {self.patience}, \
-            'treshold_variance':{self.treshold_variance}"
+        return f" Hyperparameters: {C.L_NET}:{self.l_dim},\
+            {C.L_ACTIVATION}:{self.a_functions},\
+           {C.L_ETA}:{self.eta},\
+           {C.L_TAU}: {self.tau},\
+            {C.L_G_CLIPPING} :{self.g_clipping}\
+            {C.L_DROPOUT} : {self.dropout}\
+            {C.L_REG}:{self.reg},\
+            {C.L_DIMBATCH}:{self.dim_batch},\
+            {C.L_MOMENTUM}: {self.momentum},\
+            {C.L_EPOCHS}:{self.epochs},\
+            {C.L_SHUFFLE}:{self.batch_shuffle},\
+            {C.L_EPS}: {self.eps},\
+            {C.L_DISTRIBUTION}:{self.distribution},\
+            {C.L_BIAS}:{self.bias},\
+            {C.L_SEED}: {self.seed},\
+            {C.L_CLASSIFICATION}:{self.classification},\
+            {C.L_EARLYSTOP}:{self.early_stop},\
+            {C.L_PATIENCE}: {self.patience}, \
+            {C.L_TRESHOLD_VARIANCE}:{self.treshold_variance}"
 
     # :return: the dictionary object with all the hyperparameters of a configuration theta
     def get_dictionary(self):
@@ -100,6 +103,8 @@ class Candidate:
             C.L_ACTIVATION:self.a_functions,
             C.L_ETA:self.eta,
             C.L_TAU: self.tau,
+            C.L_G_CLIPPING:self.g_clipping,
+            C.L_DROPOUT:self.dropout,
             C.L_REG:self.reg,
             C.L_DIMBATCH:self.dim_batch,
             C.L_MOMENTUM: self.momentum,
@@ -124,6 +129,7 @@ class CandidatesHyperparameters:
         self.eta = []
         self.tau = []
         self.g_clipping = []
+        self.dropout = []
         self.reg = []
         self.dim_batch = []
         self.momentum = []
@@ -161,7 +167,7 @@ class CandidatesHyperparameters:
     # :param: classification is the flag if it is a classification problem
     # :param: patience is the max number of epochs with small or null changes 
     # :param: treshold_variance is the threshold for the patience and early stop
-    def insert_candidate(self, l_dim, a_functions=C.AFUNCTION, eta=C.ETA, tau=C.TAU, g_clipping=C.G_CLIPPING, reg=C.REG,\
+    def insert_candidate(self, l_dim, a_functions=C.AFUNCTION, eta=C.ETA, tau=C.TAU, g_clipping=C.G_CLIPPING,  dropout=C.DROPOUT, reg=C.REG,\
         dim_batch=C.BATCH, epochs=C.EPOCHS,batch_shuffle=C.BATCH_SHUFFLE,momentum=C.MOMENTUM,eps=C.EPS,distribution=C.UNIFORM,\
         bias=C.BIAS,seed=C.R_SEEDS, early_stop=True, classification=False,patience=C.PATIENCE,treshold_variance=C.TRESHOLDVARIANCE):
         self.l_dim.append(l_dim)
@@ -169,6 +175,7 @@ class CandidatesHyperparameters:
         self.eta.append(eta)
         self.tau.append(tau)
         self.g_clipping.append(g_clipping)
+        self.dropout.append(dropout)
         self.reg.append(reg)
         self.dim_batch.append(dim_batch)
         self.momentum.append(momentum)
@@ -192,6 +199,7 @@ class CandidatesHyperparameters:
             C.L_ETA:self.eta[index],
             C.L_TAU: self.tau[index],
             C.L_G_CLIPPING: self.g_clipping[index],
+            C.L_DROPOUT: self.dropout[index],
             C.L_REG:self.reg[index],
             C.L_DIMBATCH:self.dim_batch[index],
             C.L_MOMENTUM: self.momentum[index],
@@ -230,6 +238,7 @@ class CandidatesHyperparameters:
             self.dim_batch = theta[C.L_DIMBATCH]
             self.tau = theta[C.L_TAU]
             self.g_clipping = theta[C.L_G_CLIPPING]
+            self.dropout = theta[C.L_DROPOUT]
             self.patience = theta[C.L_PATIENCE]
             self.batch_shuffle=theta[C.L_SHUFFLE]
             self.early_stop = theta[C.L_EARLYSTOP]
@@ -240,6 +249,7 @@ class CandidatesHyperparameters:
             self.classification= theta[C.L_CLASSIFICATION]
             self.treshold_variance = theta[C.L_TRESHOLD_VARIANCE]
             self.seed=theta[C.L_SEED]
+
         elif default == C.MONK:
             self.l_dim = [[17,2,1],[17,4,1]]
             self.a_functions = [[C.RELU,C.TANH],[C.TANH,C.TANH]]#,[C.RELU, C.SIGMOID]

@@ -35,6 +35,7 @@ EARLYSTOP:bool = True
 TRESHOLDVARIANCE:float = 1.e-10
 BATCH_SHUFFLE=True
 G_CLIPPING = (False,False) # first element true or false second element is the value of the clipping treshold
+DROPOUT = (False,False) # first element true or false second element is the dropout unit probability between (0,1)
 
 # DISTRIBUTION
 UNIFORM:str = 'uniform'
@@ -54,6 +55,7 @@ PREFIX_DIR_COARSE:str = "Coarse"
 PREFIX_DIR_FINE:str = "Fine"
 LABEL_PLOT_TRAINING:str = "Training"
 LABEL_PLOT_VALIDATION:str = "Validation"
+PLOT_LOSS=False
 
 # TYPES OF REGULARITATIONS
 TIKHONOV:str = 'tikhonov'
@@ -69,6 +71,7 @@ L_ACTIVATION:str = 'a_functions'
 L_ETA:str = 'eta'
 L_TAU:str = 'tau'
 L_G_CLIPPING:str = 'g_clipping'
+L_DROPOUT:str = 'dropout'
 L_REG:str = 'reg'
 L_DIMBATCH:str = 'dim_batch'
 L_MOMENTUM:str = 'momentum'

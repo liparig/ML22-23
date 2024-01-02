@@ -19,17 +19,23 @@ import numpy as np
 # :param: prefixFilename is prefix of the file name
 # :param: fold is number of the folds
 def cup_evaluation(TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, theta, dirName, prefixFilename, fold = 2):
+    #MODEL SELECTION KFCV
     kfCV = KfoldCV(TR_x_cup, TR_y_cup, fold) 
     winner, meanmetrics = kfCV.validate(inTheta =  theta, FineGS = True, prefixFilename = prefixFilename)
     winnerTheta = winner.get_dictionary()
+    
+    #MODEL ASSESSMENT HOLDOUT
     trerrors, euclidianAccuracy, results = holdoutTest(winnerTheta, TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, val_per = 0.25, meanepochs = int(meanmetrics['mean_epochs']))
-    _, _,  TR_x_CUP_All, TR_y_CUP_All = readMC.get_cup_house_test(perc = 0)
-    TS_x_CUP_blind = readMC.get_test_CUP()
-    trerrorsBlind, euclidianAccuracyBlind, resultsBlind = holdoutTest(winnerTheta,  TR_x_CUP_All, TR_y_CUP_All, TS_x_CUP_blind, [], val_per = 0, meanepochs = int(meanmetrics['mean_epochs']))
+    _, timestamp = kfoldLog.Model_Assessment_log(dirName, prefixFilename, f"Model Hyperparameters:\n {winnerTheta}\n", f"Model Selection Result obtained in {fold}# folds:\n{meanmetrics}\n Mean Euclidian Error:\n{euclidianAccuracy}\n")
+    kfoldLog.Model_Assessment_Outputs(results, dirName, prefixFilename+'_HouseTest', timestamp)
     savePlotFig(trerrors, dirName, prefixFilename, f"{dirName}{prefixFilename}", theta = winnerTheta)
-    log, timestamp = kfoldLog.Model_Assessment_log(dirName, prefixFilename, f"Model Hyperparameters:\n {winnerTheta}\n", f"Model Selection Result obtained in {fold}# folds:\n{meanmetrics}\n Mean Euclidian Error:\n{euclidianAccuracy}\n")
-    kfoldLog.Model_Assessment_Outputs(results, DIRNAME, prefixFilename, timestamp)
-    kfoldLog.ML_Cup_Template(resultsBlind, DIRNAME, prefixFilename+'_blind', timestamp)
+
+    #BLIND TEST
+    TS_x_CUP_blind = readMC.get_blind_test_CUP()
+    TR_x_CUP_All, TR_y_CUP_All,_,_ = readMC.get_cup_house_test(perc = 0)
+    _, _, resultsBlind = holdoutTest(winnerTheta,  TR_x_CUP_All, TR_y_CUP_All, TS_x_CUP_blind, [], val_per =  0.25, meanepochs = int(meanmetrics['mean_epochs']))
+    kfoldLog.ML_Cup_Template(resultsBlind, dirName, prefixFilename+'_blind', timestamp)
+    return winnerTheta
 
 # Execute the holdout test
 # :param: winner is the configuration object
@@ -43,6 +49,7 @@ def cup_evaluation(TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, theta, dirName, prefi
 def holdoutTest(winner, TR_x_set, TR_y_set, TS_x_set, TS_y_set, val_per:float = 0.25, meanepochs:int = 0):
     # Hold-out Test 1
     model = dnn(**winner)
+    #Training model with or witout validation
     if val_per > 0:
         tr_x, tr_y, val_x, val_y = readMC.split_Tr_Val(TR_x_set, TR_y_set, perc = val_per)
         errors = model.fit(tr_x, tr_y, val_x, val_y, TS_x_set, TS_y_set)
@@ -50,7 +57,11 @@ def holdoutTest(winner, TR_x_set, TR_y_set, TS_x_set, TS_y_set, val_per:float = 
     else:
         model.epochs = meanepochs
         errors = model.fit(TR_x_set, TR_y_set, [], [], TS_x_set, TS_y_set)
+
+    #MAKES PREDICTION
     out = model.forward_propagation(TS_x_set)
+
+    #CHECK IF BLIND
     if(not isinstance(TS_y_set, list)):
         euclidianAccuracy = model.metrics.mean_euclidean_error(TS_y_set, out)
         result = np.concatenate((TS_y_set, out), axis=1)
@@ -61,16 +72,28 @@ def holdoutTest(winner, TR_x_set, TR_y_set, TS_x_set, TS_y_set, val_per:float = 
     
     return errors, euclidianAccuracy, result
 
-def blind_Cup(models,dirname, filename,timestamp):
-    tr_x, tr_y, val_x, val_y=readMC.get_cup_house_test(perc=25)
-    TS_blind=readMC.get_blind_test_CUP()
+def ensemble_Cup(models,tr_x, tr_y,Ts_x,Ts_y, dirname, filename):
+    if(isinstance(Ts_x, list)):
+        inputs=readMC.get_blind_test_CUP()
+    else:
+        inputs=Ts_x
     outs = []
     errors = []
     for model in models:
-        errors.append(model.fit(tr_x, tr_y, val_x, val_y))
-        outs.append(model.forward_propagation(TS_blind))
+        model= dnn(**model)
+        errors.append(model.fit(tr_x, tr_y))
+        outs.append(model.forward_propagation(inputs))
     mean_outs = np.mean(outs, axis=0)
-    readMC.ML_Cup_Template(mean_outs, dirname, filename, timestamp)
+    #CHECK IF BLIND
+    if(not isinstance(Ts_y, list)):
+        euclidianAccuracy = model.metrics.mean_euclidean_error(Ts_y, mean_outs)
+        result = np.concatenate((Ts_y, mean_outs), axis=1)
+        print("Ensembe EuclidianError:", euclidianAccuracy)
+        kfoldLog.Model_Assessment_Outputs(result, dirname, filename)
+    else:
+        result = mean_outs
+        euclidianAccuracy = None
+        kfoldLog.ML_Cup_Template(result, dirname, filename+'_Blind')
    
 
 def savePlotFig(errors, dirName, fileName, title, theta):
@@ -91,7 +114,8 @@ def savePlotFig(errors, dirName, fileName, title, theta):
                         theta = theta, labelsY = ['Loss',  "MEE"])
      
 def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
-    theta_batch = {
+    models=[]
+    """theta_batch = {
         C.L_NET:[[10,15,5,3]],
         C.L_ACTIVATION:[[C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.IDENTITY],[C.LEAKYRELU,C.IDENTITY],[C.LEAKYRELU,C.LEAKYRELU,C.IDENTITY],[C.SIGMOID,C.TANH,C.IDENTITY]],
         C.L_ETA:[0.03, 0.1],
@@ -110,11 +134,32 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
         C.L_EARLYSTOP:True,
         C.L_PATIENCE: [10],
         C.L_TRESHOLD_VARIANCE:[1.e-2]    
+    }"""
+    theta_batch = {
+        C.L_NET:[[10,15,10,3],[10,10,5]],
+        C.L_ACTIVATION:[[C.TANH,C.IDENTITY],[C.LEAKYRELU,C.IDENTITY],[C.LEAKYRELU,C.LEAKYRELU,C.IDENTITY],[C.TANH,C.TANH,C.IDENTITY]],
+        C.L_ETA:[0.004,0.08],
+        C.L_TAU: [(False,False),(500,0.0008)],
+        C.L_REG:[(C.TIKHONOV,0.002),(C.LASSO,0.002),(False,False)],
+        C.L_DIMBATCH:[0],
+        C.L_MOMENTUM: [(C.CLASSIC, 0.7),(C.NESTEROV, 0.7)],
+        C.L_EPOCHS:[1500],
+        C.L_SHUFFLE:True,
+        C.L_EPS: [0.01],
+        C.L_DISTRIBUTION:[C.GLOROT],
+        C.L_G_CLIPPING:[(True,8),C.G_CLIPPING],
+        C.L_DROPOUT:[C.DROPOUT],
+        C.L_BIAS:[0],
+        C.L_SEED: [52],
+        C.L_CLASSIFICATION:False,
+        C.L_EARLYSTOP:True,
+        C.L_PATIENCE: [10,20],
+        C.L_TRESHOLD_VARIANCE:[1.e-8]    
     }
     
-    cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, theta_batch, dirName, prefixFilename = C.PREFIXBATCH, fold = 5)
-    
-    theta_mini = {
+    batchWinner=cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, theta_batch, dirName, prefixFilename = C.PREFIXBATCH, fold = 5)
+    models.append(batchWinner)
+    """theta_mini = {
         C.L_NET:[[10,20,3],[10,15,5,3]],
         C.L_ACTIVATION:[[C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.IDENTITY]],
         C.L_ETA:[0.00003],
@@ -132,9 +177,32 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
         C.L_EARLYSTOP:True,
         C.L_PATIENCE: [10],
         C.L_TRESHOLD_VARIANCE:[1.e-1]    
+    }"""
+    theta_mini = {
+        C.L_NET:[[10,20,15,3]],
+        C.L_ACTIVATION:[[C.LEAKYRELU,C.LEAKYRELU,C.IDENTITY]],
+        C.L_ETA:[0.0001],
+        C.L_TAU: [(100,0.00005)],
+        C.L_REG:[(C.TIKHONOV,0.0001)],
+        C.L_DIMBATCH:[100],
+        C.L_MOMENTUM: [(C.CLASSIC,0.8)],
+        C.L_EPOCHS:[1000],
+        C.L_SHUFFLE:True,
+        C.L_EPS: [0.001],
+        C.L_DISTRIBUTION:[C.GLOROT],
+        C.L_G_CLIPPING:[(True,5)],
+        C.L_DROPOUT:[(True,0.5)],
+        C.L_BIAS:[0],
+        C.L_SEED: [52],
+        C.L_CLASSIFICATION:False,
+        C.L_EARLYSTOP:False,
+        C.L_PATIENCE: [10],
+        C.L_TRESHOLD_VARIANCE:[1.e-8]    
     }
     
-    #cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH, fold = 2)
+    minibatchWinner=cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH, fold = 5)
+    models.append(minibatchWinner)
+    ensemble_Cup(models,inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup,dirName,filename="Ensemle_")
     
 if __name__ == "__main__":
     

@@ -17,7 +17,7 @@ def monk_KfoldCV_evaluation(TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, theta, d
 
 def monk_model_evaluation(TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, theta, dirName, prefixFilename):
     model=Candidate(theta)
-    trerrors,classification=holdoutTest(model.get_dictionary(), TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, val_per=0.25, meanepochs = theta[C.L_EPOCHS])
+    trerrors,classification=holdoutTest(model.get_dictionary(), TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, val_per=0, meanepochs = theta[C.L_EPOCHS])
     savePlotFig(trerrors, dirName, prefixFilename, f"{dirName}{prefixFilename}", theta = model.get_dictionary())
     print("Classification", classification)
 
@@ -33,7 +33,13 @@ def holdoutTest(winner,TR_x_set,TR_y_set,TS_x_set,TS_y_set,val_per=0.25,meanepoc
         errors=model.fit(TR_x_set,TR_y_set,[],[],TS_x_set,TS_y_set)
 
     out = model.forward_propagation(TS_x_set)
-    classificationAccuracy = model.metrics.metrics_binary_classification(TS_y_set, out)
+    if model.a_functions[-1]==C.TANH:
+            classi=(-1,1)
+            threshold_accuracy=0.3
+    else:
+        classi=(0,1)
+        threshold_accuracy=0.5
+    classificationAccuracy = model.metrics.metrics_binary_classification(TS_y_set, out, treshold= threshold_accuracy,classi = classi)
     print("Test Accuracy:", classificationAccuracy[C.ACCURACY], "\nClassified:", classificationAccuracy[C.CLASSIFIED], "Missclassified:", classificationAccuracy[C.MISSCLASSIFIED],"Precision",classificationAccuracy[C.PRECISION])
     
     return errors,classificationAccuracy
@@ -56,6 +62,121 @@ def savePlotFig(errors, dirName, fileName, title, theta):
                         theta = theta, labelsY = ['Loss',  C.ACCURACY])
      
 def main():
+    theta_batch = {
+        C.L_NET:[[17,2,1]], #unit for layer between 2 and 4. it's written in the slide
+        C.L_ACTIVATION:[[C.TANH]],
+        C.L_ETA:[0.8],
+        C.L_TAU: [(False,False)],
+        C.L_REG:[(False,False)],
+        C.L_G_CLIPPING:[C.G_CLIPPING],
+        C.L_DROPOUT:[C.DROPOUT],
+        C.L_DIMBATCH:[0],
+        C.L_MOMENTUM: [(C.CLASSIC,0.8)],
+        C.L_EPOCHS:[500],
+        C.L_SHUFFLE:True,
+        C.L_EPS: [0.7],
+        C.L_DISTRIBUTION:[C.UNIFORM],
+        C.L_BIAS:[0],
+        C.L_SEED: 25,
+        C.L_CLASSIFICATION:True,
+        C.L_EARLYSTOP:True,
+        C.L_PATIENCE: [20],
+        C.L_TRESHOLD_VARIANCE:[1.e-10]    
+    }
+    
+    #monk_evaluation(inTR_x_monk, inTR_y_monk, inTS_x_monk, inTS_y_monk, theta_batch, dirName, prefixFilename = C.PREFIXBATCH, fold = 2)
+    
+    theta_mini = theta_batch.copy()
+    theta_mini[C.L_ETA]=[0.009, 0.03]
+    theta_mini[C.L_TAU]=[(100, 0.0003)]
+    theta_mini[C.L_DIMBATCH]=[25]
+    
+    #monk_evaluation(inTR_x_monk, inTR_y_monk, inTS_x_monk, inTS_y_monk, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH, fold = 5)
+    
+    theta_batch_NOES = theta_batch.copy()
+    theta_batch_NOES[C.L_EARLYSTOP]= False
+    theta_batch_NOES[C.L_EPOCHS]=[500]
+    
+    single_model = {
+        C.L_NET:[17,3,1], #unit for layer between 2 and 4. it's written in the slide
+        C.L_ACTIVATION:[C.TANH,C.SIGMOID],
+        C.L_ETA:[0.8],
+        C.L_TAU: (False,False),
+        C.L_REG:(False,False),
+        C.L_G_CLIPPING:C.G_CLIPPING,
+        C.L_DROPOUT:C.DROPOUT,
+        C.L_DIMBATCH:0,
+        C.L_MOMENTUM: (C.CLASSIC,0.8),
+        C.L_EPOCHS:500,
+        C.L_SHUFFLE:True,
+        C.L_EPS: 0.1,
+        C.L_DISTRIBUTION:C.UNIFORM,
+        C.L_BIAS:0,
+        C.L_SEED: 30,
+        C.L_CLASSIFICATION:True,
+        C.L_EARLYSTOP:False,
+        C.L_PATIENCE:10,
+        C.L_TRESHOLD_VARIANCE:1.e-8  
+    }
+    print("Inizio TestMonk 1:")
+    dirName="TestMonk_1"
+    theta_mini = single_model.copy()
+    theta_mini[C.L_ETA]= 0.08
+    theta_mini[C.L_TAU]= C.TAU
+    theta_mini[C.L_DIMBATCH]= 15
+    theta_mini[C.L_MOMENTUM]= (C.CLASSIC, 0.8)
+
+
+    TR_x_monk1, TR_y_monk1 = readMC.get_train_Monk_1(single_model[C.L_ACTIVATION][-1]==C.TANH)
+    TS_x_monk1, TS_y_monk1 = readMC.get_test_Monk_1(single_model[C.L_ACTIVATION][-1]==C.TANH)
+    monk_model_evaluation(TR_x_monk1, TR_y_monk1, TS_x_monk1, TS_y_monk1, single_model, dirName, prefixFilename = C.PREFIXBATCH)
+    print("MiniBatch")
+    monk_model_evaluation(TR_x_monk1, TR_y_monk1, TS_x_monk1, TS_y_monk1, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH)
+    print("Fine TestMonk 1:\n")
+
+    print("Inizio TestMonk 2:")
+    dirName="TestMonk_2"
+    theta_mini[C.L_ETA]= 0.8
+    theta_mini[C.L_TAU]= C.TAU
+    theta_mini[C.L_MOMENTUM]= (C.NESTEROV, 0.7)
+    TR_x_monk2, TR_y_monk2 = readMC.get_train_Monk_2(single_model[C.L_ACTIVATION][-1]==C.TANH)
+    TS_x_monk2, TS_y_monk2 = readMC.get_test_Monk_2(single_model[C.L_ACTIVATION][-1]==C.TANH)
+    monk_model_evaluation(TR_x_monk2, TR_y_monk2, TS_x_monk2, TS_y_monk2, single_model, dirName, prefixFilename = C.PREFIXBATCH)
+    print("MiniBatch")
+    monk_model_evaluation(TR_x_monk2, TR_y_monk2, TS_x_monk2, TS_y_monk2, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH)
+
+    print("Fine TestMonk 2:\n")
+
+    print("Inizio TestMonk 3:\n")
+    dirName="TestMonk_3"
+    theta_mini[C.L_MOMENTUM]= (C.CLASSIC, 0.8)
+    theta_mini[C.L_ETA]= 0.08
+    theta_mini[C.L_TAU]= (100,0.008)
+    TR_x_monk3, TR_y_monk3 = readMC.get_train_Monk_3()
+    TS_x_monk3, TS_y_monk3 = readMC.get_test_Monk_3()
+    monk_model_evaluation(TR_x_monk3, TR_y_monk3, TS_x_monk3, TS_y_monk3, single_model, dirName, prefixFilename = C.PREFIXBATCH)
+   
+    print("MiniBatch")
+    monk_model_evaluation(TR_x_monk3, TR_y_monk3, TS_x_monk3, TS_y_monk3, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH)
+    
+    print("Inizio TestMonk 3 LASSO:")
+    single_model[C.L_REG]=(C.LASSO,0.0008)
+    monk_model_evaluation(TR_x_monk3, TR_y_monk3, TS_x_monk3, TS_y_monk3, single_model, dirName, prefixFilename = C.PREFIXBATCH+"REGLASSO")
+
+    print("Inizio TestMonk 3 TIKHONOV:")
+    single_model[C.L_REG]=(C.TIKHONOV,0.0008)
+    monk_model_evaluation(TR_x_monk3, TR_y_monk3, TS_x_monk3, TS_y_monk3, single_model, dirName, prefixFilename = C.PREFIXBATCH+"REGTIKHONOV")
+
+    print("Inizio TestMonk 3 DropOUT:")
+    theta_mini[C.L_NET]=[17,20,1]
+    theta_mini[C.L_DIMBATCH]= 15
+    theta_mini[C.DROPOUT]=(C.DROPOUT,0.7)
+    monk_model_evaluation(TR_x_monk3, TR_y_monk3, TS_x_monk3, TS_y_monk3, theta_mini, dirName, prefixFilename = C.PREFIXBATCH+"REGDROP")
+    
+    print("Fine TestMonk 3:\n")
+
+    
+"""def main():
     theta_batch = {
         C.L_NET:[[17,2,1]], #unit for layer between 2 and 4. it's written in the slide
         C.L_ACTIVATION:[[C.TANH]],
@@ -140,12 +261,8 @@ def main():
     monk_model_evaluation(TR_x_monk3, TR_y_monk3, TS_x_monk3, TS_y_monk3, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH)
     
     single_model[C.L_REG]=(C.LASSO,0.001)
-    monk_model_evaluation(TR_x_monk3, TR_y_monk3, TS_x_monk3, TS_y_monk3, single_model, dirName, prefixFilename = C.PREFIXBATCH+"REG")
-    
-    
-    #monk_evaluation(inTR_x_monk, inTR_y_monk, inTS_x_monk, inTS_y_monk, theta_mini_NoES, dirName, prefixFilename = C.PREFIXMINIBATCH+"NO_ES", fold = 5)
-    
-    
+    monk_model_evaluation(TR_x_monk3, TR_y_monk3, TS_x_monk3, TS_y_monk3, single_model, dirName, prefixFilename = C.PREFIXBATCH+"REG")    
+"""
 if __name__ == "__main__":
     
    

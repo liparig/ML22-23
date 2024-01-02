@@ -41,11 +41,13 @@ def Model_Assessment_Outputs(results, fileDir:str, fileName:str, timestamp):
 # :param: fileDir is the directory of the file
 # :param: fileName is the name of the file
 # :param: timestamp 
-def ML_Cup_Template(results, fileDir:str, fileName:str, timestamp):
+def ML_Cup_Template(results, fileDir:str, fileName:str, timestamp=False):
    # name of the column
     # Name1 Surname2, Name2 Surname2, Name3 Surname3 
     # Team Name
     # ML-CUP23
+    if not timestamp:
+        timestamp:str = time.strftime(C.FORMATTIMESTAMP)
     header = np.array(['# Giuseppe Lipari', ' Carmine Vitiello','',''])
     header2 = np.array(['# Team Name ','','',''])
     header3 = np.array(['# ML-CUP23 ','','',''])
