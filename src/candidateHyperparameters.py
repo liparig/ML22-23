@@ -40,16 +40,15 @@ class Candidate:
     # :param: a specific value for the hyperparameter "batch size"
     # :return: a small range of this value
     def get_fine_batch_size(self, value):
-        higher = 1.10
-        lower = 0.90
         if value == 0:
             return [0]
-        else:
-            return [
-                max(1, int(np.round(value * lower))),
-                value,
-                int(np.round(value * higher))
-            ]
+        higher = 1.10
+        lower = 0.90
+        return [
+            max(1, int(np.round(value * lower))),
+            value,
+            int(np.round(value * higher))
+        ]
         
     # computes a fine range near to an integer single value
     # :param: a specific value for an hyperparameter
@@ -217,9 +216,9 @@ class CandidatesHyperparameters:
     
     # :return: all the candidates objects list
     def get_all_candidates_dict(self):
-        candidates:list = []
-        for index in range (self.count):
-            candidates.append(self.get_candidate_dict(index))
+        candidates: list = [
+            self.get_candidate_dict(index) for index in range(self.count)
+        ]
         return candidates
     
     # :param: default is the name of the config for initial demo

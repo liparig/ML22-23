@@ -108,6 +108,7 @@ def compute_delta_k(y, out, net):
     :return: Delta_j matrix contain layer hidden units delta. with row is p-th patterns and column is j-th hidden unit
     '''    
 def compute_delta_j(delta_in, w_layer, net):
+        # sourcery skip: inline-immediately-returned-variable
         # matrix multiplication for delta_t
         dt = delta_in @ w_layer
         # Transpose and puntual multiplication of apply the derivative
@@ -169,16 +170,15 @@ def metrics_binary_classification( y, y_hat, treshold = 0.5):
 
         tp,tn,fp,fn=0,0,0,0
         for predicted, target in zip(y_hat.flatten(),y.flatten()):
-            if predicted < treshold:
-                if target == 0:
-                    tn+=1
+                if predicted < treshold:
+                        if target == 0:
+                            tn+=1
+                        else:
+                            fn+=1
+                elif target == 1:
+                        tp+=1
                 else:
-                    fn+=1
-            else:
-                if target == 1:
-                    tp+=1
-                else:
-                    fp+=1
+                        fp+=1
 
         accuracy=(tp+tn)/(tp+tn+fp+fn) if tp+tn+fp+fn >0 else 0
         recall= tp/(tp+fn) if tp+fn >0 else 0
@@ -198,38 +198,38 @@ def metrics_binary_classification( y, y_hat, treshold = 0.5):
 import readMonkAndCup as readMC
 
 def main():
-    init_global()
-    TR_x_monk1,TR_y_monk1 = readMC.get_train_Monk_1()
-    TS_x_monk1,TS_y_monk1 = readMC.get_test_Monk_1()
+        init_global()
+        TR_x_monk1,TR_y_monk1 = readMC.get_train_Monk_1()
+        TS_x_monk1,TS_y_monk1 = readMC.get_test_Monk_1()
 
-    print("Inizializzo i pesi per una rete 2 - 2 - 1 - 1 ")
-    l_dim=[17,2,1]
-    inputx=TR_x_monk1
-    targety=TR_y_monk1
-    #inputx=np.array([[0,0],[0,0],[1,1],[1,1]])
-    #targety=[0,0,1,1]
-    # pattern=inputx.shape[0]
-    print("Pattern")
-    wb=init_wb(l_dim)
-    num_layers:int = len(l_dim)
-    for i in range(1000):
-        for l in range(1, num_layers):
-            name_layer:str = str(l)
-            print("Layer",name_layer)
-            print("W"+name_layer, wb[f'W{name_layer}'], wb[f'W{name_layer}'].shape)
-            print("B"+name_layer, wb[f'b{name_layer}'],wb[f'b{name_layer}'].shape)
-        
-        in_out=forward_propagation(l_dim,wb,inputx,True)
-        delta=back_propagation(l_dim,wb,targety)
-        wb=update_wb(5,l_dim,delta,wb,1)
-        if i % 500 == 0:
-            print("Result:",metrics_binary_classification(targety,in_out))
-            input(f"{i}: premi")
-    in_out=forward_propagation(l_dim,wb,inputx,False)
-    print("Result:",metrics_binary_classification(targety,in_out))
-    input("Premi")
-    in_out=forward_propagation(l_dim,wb,TS_x_monk1,False)
-    print("Test Result:",metrics_binary_classification(TS_y_monk1,in_out))
+        print("Inizializzo i pesi per una rete 2 - 2 - 1 - 1 ")
+        l_dim=[17,2,1]
+        inputx=TR_x_monk1
+        targety=TR_y_monk1
+        #inputx=np.array([[0,0],[0,0],[1,1],[1,1]])
+        #targety=[0,0,1,1]
+        # pattern=inputx.shape[0]
+        print("Pattern")
+        wb=init_wb(l_dim)
+        num_layers:int = len(l_dim)
+        for i in range(1000):
+                for l in range(1, num_layers):
+                        name_layer:str = str(l)
+                        print("Layer",name_layer)
+                        print(f"W{name_layer}", wb[f'W{name_layer}'], wb[f'W{name_layer}'].shape)
+                        print(f"B{name_layer}", wb[f'b{name_layer}'], wb[f'b{name_layer}'].shape)
+
+                in_out=forward_propagation(l_dim,wb,inputx,True)
+                delta=back_propagation(l_dim,wb,targety)
+                wb=update_wb(5,l_dim,delta,wb,1)
+                if i % 500 == 0:
+                    print("Result:",metrics_binary_classification(targety,in_out))
+                    input(f"{i}: premi")
+        in_out=forward_propagation(l_dim,wb,inputx,False)
+        print("Result:",metrics_binary_classification(targety,in_out))
+        input("Premi")
+        in_out=forward_propagation(l_dim,wb,TS_x_monk1,False)
+        print("Test Result:",metrics_binary_classification(TS_y_monk1,in_out))
 
 if __name__ == "__main__":
     main()

@@ -17,11 +17,10 @@ def Model_Assessment_log(fileDir:str, fileName:str, hyperparameters:str, result:
             os.makedirs(C.PATH_MODEL_ASSESSMENT_DIR)
         if(not(os.path.isdir(f"{C.PATH_MODEL_ASSESSMENT_DIR}/{fileDir}"))):
             os.makedirs(f"{C.PATH_MODEL_ASSESSMENT_DIR}/{fileDir}")
-        mafile = open(f"{C.PATH_MODEL_ASSESSMENT_DIR}/{fileDir}/{fileName}_{timestr}.txt", "a")
-        mafile.write(f"{hyperparameters}\n")
-        mafile.write(f"{result}\n") 
-        
-        mafile.close() 
+        with open(f"{C.PATH_MODEL_ASSESSMENT_DIR}/{fileDir}/{fileName}_{timestr}.txt", "a") as mafile:
+                mafile.write(f"{hyperparameters}\n")
+                mafile.write(f"{result}\n") 
+
         return mafile, timestr
 
 # Make a file csv with the output and the target of the test
@@ -29,13 +28,20 @@ def Model_Assessment_log(fileDir:str, fileName:str, hyperparameters:str, result:
 # :param: fileDir is the directory of the file
 # :param: fileName is the name of the file
 # :param: timestamp 
-def Model_Assessment_Outputs(results, fileDir:str, fileName:str, timestamp):
-    # name of the column
-    col_names = ['target_y', 'target_x', 'target_z', 'out_y', 'out_x', 'out_z']
-    # add the name of the column in the first row
-    result_with_header = np.vstack([col_names, results])
-    np.savetxt(f'{C.PATH_MODEL_ASSESSMENT_DIR}/{fileDir}/{fileName}_output_{timestamp}.csv', result_with_header, delimiter=',', fmt='%s', header='', comments='')  
+def Model_Assessment_Outputs(results, fileDir:str, fileName:str,col_names = None, timestamp=False):
+        timestamp_str = time.strftime(C.FORMATTIMESTAMP) if timestamp else ""
+        if col_names is None:
+            col_names = ['target_y', 'target_x', 'target_z', 'out_y', 'out_x', 'out_z']
 
+        # Save the array with the correct format specifier
+        np.savetxt(
+            f'{C.PATH_MODEL_ASSESSMENT_DIR}/{fileDir}/{fileName}_output_{timestamp_str}.csv',
+            results,
+            delimiter=',',
+            fmt='%d,%s',
+            header=','.join(col_names),
+            comments=''
+        )
 # Make a file csv for the template for the Cup
 # :param: the result from the test
 # :param: fileDir is the directory of the file
@@ -43,23 +49,20 @@ def Model_Assessment_Outputs(results, fileDir:str, fileName:str, timestamp):
 # :param: timestamp 
 def ML_Cup_Template(results, fileDir:str, fileName:str, timestamp=False):
    # name of the column
-    # Name1 Surname2, Name2 Surname2, Name3 Surname3 
-    # Team Name
-    # ML-CUP23
-    if not timestamp:
-        timestamp:str = time.strftime(C.FORMATTIMESTAMP)
-    header = np.array(['# Giuseppe Lipari', ' Carmine Vitiello','',''])
-    header2 = np.array(['# Team Name ','','',''])
-    header3 = np.array(['# ML-CUP23 ','','',''])
-    col_names = np.array(['# id', ' out_y', ' out_x', ' out_z'])
-    # add the name of the column in the first row
-    listId:list[int] = []
-    for i in range(1, results.shape[0]+1):
-        listId.append(int(i))
-    results = np.concatenate((np.array(listId).astype(int).reshape((results.shape[0],1)), results), axis=1)
-    # print(header.shape, col_names.shape, results.shape)
-    result_with_header = np.vstack([header, header2, header3, col_names, results])
-    np.savetxt(f'{C.PATH_MODEL_ASSESSMENT_DIR}/{fileDir}/{fileName}_output_{timestamp}.csv', result_with_header, delimiter=',', fmt='%s', header='', comments='')  
+        # Name1 Surname2, Name2 Surname2, Name3 Surname3 
+        # Team Name
+        # ML-CUP23
+        if not timestamp:
+            timestamp:str = time.strftime(C.FORMATTIMESTAMP)
+        header = np.array(['# Giuseppe Lipari', ' Carmine Vitiello','',''])
+        header2 = np.array(['# Team Name ','','',''])
+        header3 = np.array(['# ML-CUP23 ','','',''])
+        col_names = np.array(['# id', ' out_y', ' out_x', ' out_z'])
+        listId: list[int] = [int(i) for i in range(1, results.shape[0]+1)]
+        results = np.concatenate((np.array(listId).astype(int).reshape((results.shape[0],1)), results), axis=1)
+        # print(header.shape, col_names.shape, results.shape)
+        result_with_header = np.vstack([header, header2, header3, col_names, results])
+        np.savetxt(f'{C.PATH_MODEL_ASSESSMENT_DIR}/{fileDir}/{fileName}_output_{timestamp}.csv', result_with_header, delimiter=',', fmt='%s', header='', comments='')  
 
 # Initialitation of the logger
 # :param: fileName is the name of the file

@@ -1,4 +1,4 @@
-from dnnPlot import plot_curves
+from dnnPlot import draw_async
 import numpy as np
 import costants as C
 from didacticNeuralNetwork import DidacticNeuralNetwork as dnn
@@ -83,11 +83,11 @@ class KfoldCV:
         if drawPlot:
             #new model train from scratch
             namefile = f"candidate{candidatenumber}fold{fold[C.K_FOLD]}"
-            if pathPlot != None:
+            if pathPlot is not None:
                 plot_path = f'../plot/{pathPlot}/{namefile}'
             else:
                 plot_path = f'../plot/{time.strftime(C.FORMATTIMESTAMP)}/{namefile}'
-                
+
             if model.classification:
                 inYlim = (-0.5, 1.1)
                 inMSELim = (0,0) 
@@ -96,22 +96,18 @@ class KfoldCV:
                 inYlim = (-0.5, 5.)
 
             start = time.time()
-            
-            if theta["classification"]:
-                labelMetric = C.ACCURACY
-            else:
-                labelMetric = 'MEE'
 
-            plot_curves(error['error'], error['validation'], error['metric_tr'], error['metric_val'], error_tr=error['loss'],
+            labelMetric = C.ACCURACY if theta[C.L_CLASSIFICATION] else 'MEE'
+            draw_async(error['error'], error['validation'], error['metric_tr'], error['metric_val'], error_tr=error['loss'],
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = C.LABEL_PLOT_VALIDATION, path = plot_path, 
                         ylim = inYlim, yMSElim = inMSELim, titlePlot = f"Model \#{candidatenumber} fold {fold[C.K_FOLD]}",
                         theta = theta, labelsY = ['Loss', labelMetric])
-            
-           
+
+
             end = time.time()
             print(f'Plot Graph {end-start}')
         #endregion
-        
+
         return error
     
     
@@ -178,13 +174,13 @@ class KfoldCV:
     # Compute the best model
     # :return: the model with the best estimated error
     def the_winner_is(self):
-        means = []
-        for result in self.models_error:
-            # if the error is too much it has not taken it
-            if(not np.isnan(result["mean_mee"])):
-                means.append(result["mean_mee"])
+        means = [
+            result["mean_mee"]
+            for result in self.models_error
+            if (not np.isnan(result["mean_mee"]))
+        ]
         # choose the set of hyperparameters which gives the minimum mean error
-        
+
         lower_mean = np.argmin(means)
         meanmetrics = {key: self.models_error[lower_mean][key] for key in ['mean_train','mean_validation','mean_mae','mean_rmse', 'mean_mee','mean_epochs']}
 

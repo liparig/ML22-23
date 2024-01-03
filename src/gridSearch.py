@@ -53,9 +53,9 @@ def init_grid_search(candidates:CandidatesHyperparameters|Candidate, coarse:bool
 # :param : coarse, a Boolean value
 def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool = True):
     candidates = CandidatesHyperparameters()
-    
+
     init_grid_search(hyperparameters, coarse)
-    
+
     count:int = 0
     if coarse:
         permutation:int = len(possibles_l_dim) * len(possibles_a_functions) * len(possibles_eta)\
@@ -63,8 +63,7 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
          * len(possibles_tau) * len(possibles_patience) * len(possibles_eps)\
          * len(possibles_distribution) *  len(possibles_bias)\
          * len(possibles_epochs) * len(possibles_threshold_variance) *len(possibles_g_clipping) *len(possibles_dropout)
-        
-        """ cycle over all the permutation values of hyperparameters """
+
         for eta in possibles_eta:
             for momentum in possibles_momentum:
                 for tau in possibles_tau:
@@ -72,7 +71,7 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
                         for l_dim in possibles_l_dim:
                             for a_functions in possibles_a_functions:
                                 # if there are some problems with the configuration dimensions of the layer or the activation functions
-                                if len(a_functions) != 1 and len(a_functions) != len(l_dim) - 1:
+                                if len(a_functions) not in [1, len(l_dim) - 1]:
                                     permutation -= 1
                                 else:
                                     for eps in possibles_eps:
@@ -92,7 +91,6 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
                                                                                 bias=bias, classification=classification,patience=patience,early_stop=early_stop,epochs=epochs,seed=seed,treshold_variance=treshold_variance)
 
     else:
-        """ cycle over all the permutation values of hyperparameters """
         permutation:int = len(possibles_eta) * len(possibles_momentum)* len(possibles_tau)  * len(possibles_dim_batch) * len(possibles_eps)  *len(possibles_g_clipping)
         for eta in possibles_eta:
             for momentum in possibles_momentum:
@@ -108,5 +106,6 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
                 dim_batch = dim_batch, momentum=momentum,eps=eps,distribution=hyperparameters.distribution,\
                 bias = hyperparameters.bias, classification=hyperparameters.classification,patience=hyperparameters.patience,\
                     epochs=hyperparameters.epochs ,early_stop=hyperparameters.early_stop,seed=hyperparameters.seed,treshold_variance=hyperparameters.treshold_variance)
-                                
+
+    """ cycle over all the permutation values of hyperparameters """
     return candidates, count

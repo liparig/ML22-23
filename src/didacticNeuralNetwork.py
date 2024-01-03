@@ -44,10 +44,7 @@ class DidacticNeuralNetwork:
                  classification:bool = False, g_clipping=C.G_CLIPPING,dropout=C.DROPOUT, early_stop:bool = True, patience:int = C.PATIENCE, treshold_variance:float = C.TRESHOLDVARIANCE, 
                  dim_batch:int = C.BATCH, plot = None, seed:int = C.R_SEEDS, **kwargs):
         self.gen = Generator(PCG64(seed))
-        if(a_functions == None):
-            self.a_functions = [C.SIGMOID]
-        else:
-            self.a_functions = a_functions
+        self.a_functions = [C.SIGMOID] if a_functions is None else a_functions
         self.__check_init__(l_dim, a_functions)
         if self.a_functions[-1]==C.TANH:
             self.classi=(-1,1)
@@ -79,7 +76,7 @@ class DidacticNeuralNetwork:
             self.eta_tau = tau[1]
         else:
             self.learning_decay = False
-        
+
         self.epochs = epochs
         self.shuffle = batch_shuffle
         self.classification = classification
@@ -88,13 +85,13 @@ class DidacticNeuralNetwork:
         self.treshold_variance = treshold_variance
         self.dim_batch = dim_batch
         self.plot = plot
-        
+
         if g_clipping[0]:
             self.g_clipping_treshold=g_clipping[1]
             self.g_clipping=True
         else:
             self.g_clipping = False
-        
+
         if dropout[0]:
             self.dropout_p=dropout[1]
             self.dropout=True
@@ -163,8 +160,7 @@ class DidacticNeuralNetwork:
     # :param: b is the vector of the biases
     # :return: the network is the summary of the w*x for all the layers
     def linear(self, w, X, b):
-        net =  np.add(X @ w.T, b)
-        return net
+        return np.add(X @ w.T, b)
     
     
     # Compute the forward propagation on the network. Update the network dimension and nets and outputs of the layers
@@ -174,10 +170,7 @@ class DidacticNeuralNetwork:
     # :return: return the output value of the network 
     def forward_propagation(self, inputs, update:bool = False, nesterov:bool=False):            
         in_out = inputs
-        #forward propagation of the input pattern in the network
-        interim = ""
-        if nesterov:
-            interim = "_"
+        interim = "_" if nesterov else ""
         for l in range(1, len(self.l_dim)):
             name_layer:str = str(l)
             w = self.wb[f'W{interim}{name_layer}'] # on the row there are the weights for units
@@ -198,7 +191,7 @@ class DidacticNeuralNetwork:
             net = self.linear(w, in_out, b)
             #apply activation function to the net
             af = activations[self.a_functions[l-1]]
-            
+
             #traspose the result row unit column pattern
             in_out = af(net)
             #if update true record the net and out of the units on the layer
@@ -348,13 +341,13 @@ class DidacticNeuralNetwork:
 
         selfcontrol:int = 0
         eta_0:float = self.eta
-        
+
         #reference dataset in new variable
         x_dev = self.dataset[C.INPUT_TRAINING]
         y_dev = self.dataset[C.OUTPUT_TRAINING]
         #if mini-batch loop the divided input set
         batch_number = math.ceil(self.dataset[C.NUM_PATTERN_X] / self.dim_batch)
-        #train start    
+        #train start
         for epoch in range(self.epochs):
             #initialize variable for training partial error and loss
             batch_terror, batch_tloss = 0, 0
@@ -362,11 +355,11 @@ class DidacticNeuralNetwork:
             #if learning decay used update of eta
             if self.learning_decay and self.decay_step >= epoch:
                 self.eta_decay(eta_0, epoch)
-            
+
             #if mini-batch and shuffled true index of the set are shuffled
             if self.dim_batch != self.dataset[C.NUM_PATTERN_X] and self.shuffle:
                 x_dev, y_dev = self.shuffle_dataset(x_dev, y_dev)    
-            
+
             #batch or minibatch training
             for b in range(batch_number):
                 #initialize penalty term for loss calculation of each mini-batch
@@ -385,10 +378,10 @@ class DidacticNeuralNetwork:
                         #Apply Nesterov momentum computing the interim W_=w+ alpha*oldw
                         if self.momentum == C.NESTEROV and f"wold{l}" in self.deltaOld :
                             self.wb[f"W_{l}"] = self.wb[f"W{l}"] + (self.alpha*self.deltaOld[f"wold{l}"])
-                            self.wb[f"b_{l}"] = self.wb[f"b{l}"] + (self.alpha*self.deltaOld[f"bold{l}"])  
-                    #compute the output of the interim w for delta w computation
-                    if self.momentum == C.NESTEROV  and f"wold{l}" in self.deltaOld:
-                        self.forward_propagation(batch_x.copy(), update=True, nesterov=True)              
+                            self.wb[f"b_{l}"] = self.wb[f"b{l}"] + (self.alpha*self.deltaOld[f"bold{l}"])
+                #compute the output of the interim w for delta w computation
+                if self.momentum == C.NESTEROV  and f"wold{l}" in self.deltaOld:
+                    self.forward_propagation(batch_x.copy(), update=True, nesterov=True)
                 #compute delta using back propagation on target batch
                 gradientsW,gradientsB= self.back_propagation(batch_y)
                 # call update weights function
@@ -406,7 +399,7 @@ class DidacticNeuralNetwork:
             history_terror.append(batch_terror/(b+1))
             if self.regular:
                 history_tloss.append((batch_tloss)/(b+1))"""
-           
+
             out_t = self.training_metrics(metric_tr, c_metric, out_t, batch_number > 1)
             terror = self.l_function.loss(self,  self.dataset[C.OUTPUT_TRAINING], out_t)
             terror = np.sum(terror)/out_t.shape[0]
@@ -419,7 +412,7 @@ class DidacticNeuralNetwork:
             if validation:
                 self.validation_metrics(validation_error, metric_val, c_metric)
             if test:
-                self.test_metrics(test_error, metric_test, c_metric)                       
+                self.test_metrics(test_error, metric_test, c_metric)
             if epoch > 1 and self.early_stop:
                 if validation: 
                     e_stop = np.square(validation_error[-1] - validation_error[-2]) < self.treshold_variance
@@ -433,13 +426,13 @@ class DidacticNeuralNetwork:
                         break
                 else:
                     selfcontrol = 0
-        result = {}
-        result['error'] = history_terror
-        result['loss'] = history_tloss
-        result['metric_tr'] = metric_tr
-        result['c_metrics'] = c_metric
-        result['epochs'] = epoch + 1
-        
+        result = {
+            'error': history_terror,
+            'loss': history_tloss,
+            'metric_tr': metric_tr,
+            'c_metrics': c_metric,
+            'epochs': epoch + 1,
+        }
         if validation:
             result['validation'] = validation_error
             result['metric_val'] = metric_val
@@ -542,11 +535,7 @@ class DidacticNeuralNetwork:
     # :return: clipped_grad clipped gradient if clipped or the original gradient if less then the treshold
     def gradient_clipping_norm(self,grad, threshold):
         grad_norm = np.linalg.norm(grad)
-        if grad_norm > threshold:
-            clipped_grad = threshold * (grad / grad_norm) 
-        else:
-            clipped_grad = grad
-        return clipped_grad
+        return threshold * (grad / grad_norm) if grad_norm > threshold else grad
     
     # Create the dropout mas
     # :param: input shape
@@ -572,9 +561,9 @@ class DidacticNeuralNetwork:
     # :param: msg is the error message
     def check_dimension(self, x, y, dim_batch, msg:str = "[Error check_dimension]"):
         #Check output and input dimension 
-        output_dim = y.ndim if y.ndim == 1 else y.shape[1] 
-        input_dim = x.ndim if x.ndim == 1 else x.shape[1] 
-        error = msg+" "
+        output_dim = y.ndim if y.ndim == 1 else y.shape[1]
+        input_dim = x.ndim if x.ndim == 1 else x.shape[1]
+        error = f"{msg} "
         if output_dim != self.l_dim[-1]:
             error+=f"Output dimension:{output_dim} <> Output Units:{self.l_dim[-1]}. "
         if input_dim != self.l_dim[0]:
@@ -583,7 +572,7 @@ class DidacticNeuralNetwork:
             error+=f"Number of pattern input:{x.shape[0]} <> target:{y.shape[0]}. "
         if dim_batch > 1 and dim_batch > x.shape[0]:
             error+=f"Number of batch:{dim_batch} > number of pattern:{x.shape[0]}. "
-        if len(error) > len(msg+" "):
+        if len(error) > len(f"{msg} "):
             raise ValueError(error)
         return True
 
@@ -597,41 +586,48 @@ class DidacticNeuralNetwork:
     # :param: y_test is the target for the test set
     # :param: dim_batch is the dimension of mini-batch, if 0 is equal to batch, if 1 is stochastic/online update version
     # :param: **kwargs are the extra params for the training
-    def fit(self, x_train, y_train, x_val = [], y_val = [], x_test = [], y_test = [], dim_batch = None):
+    def fit(self, x_train, y_train, x_val=None, y_val=None, x_test=None, y_test=None, dim_batch = None):
+        if x_val is None:
+            x_val = []
+        if y_val is None:
+            y_val = []
+        if x_test is None:
+            x_test = []
+        if y_test is None:
+            y_test = []
         #initialize a dictionary contain dataset information
-        self.dataset = {}
-        self.dataset[C.NUM_PATTERN_X] = x_train.shape[0]
-        self.dataset[C.INPUT_TRAINING]= x_train.copy()
+        self.dataset = {
+            C.NUM_PATTERN_X: x_train.shape[0],
+            C.INPUT_TRAINING: x_train.copy(),
+        }
         self.dataset[C.OUTPUT_TRAINING]= y_train.copy()
-        
+
         validation:bool = False
-        
+
         if  len(x_val) > 0 and len(y_val)> 0:
             self.dataset[C.INPUT_VALIDATION] = x_val.copy()
             self.dataset[C.OUTPUT_VALIDATION] = y_val.copy()
             self.check_dimension(x_val, y_val, 1, msg = "[check_dimension] Error in Validation datasets:")
             validation = True
-            
+
         test:bool = False
-        
+
         if  len(x_test) > 0 and len(y_test) > 0:
             self.dataset[C.INPUT_TEST]= x_test.copy()
             self.dataset[C.OUTPUT_TEST]= y_test.copy()
             self.check_dimension(x_test, y_test, 1, msg = "[check_dimension] Error in Test datasets:")
             test = True
-            
-        
-        if (dim_batch == None):
+
+
+        if dim_batch is None:
             dim_batch = self.dim_batch
         #check parameter batch exist and if minibacth, batch or stochastic
-        
-        if (dim_batch == 0):
-            self.dim_batch = self.dataset[C.NUM_PATTERN_X]
-        else:
-            self.dim_batch = dim_batch
 
+        self.dim_batch = (
+            self.dataset[C.NUM_PATTERN_X] if (dim_batch == 0) else dim_batch
+        )
         self.check_dimension(x_train, y_train, dim_batch, msg = "[check_dimension] Error in Training datasets:")
-        
+
         return self.train(validation, test)
 
     

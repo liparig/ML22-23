@@ -20,12 +20,11 @@ class DnnMetrics:
                     tn += 1
                 else:
                     fn += 1
+            elif target == classi[1]:
+                tp += 1
             else:
-                if target == classi[1]:
-                    tp += 1
-                else:
-                    fp += 1
-            
+                fp += 1
+
 
         accuracy = (tp+tn)/(tp+tn+fp+fn) if tp+tn+fp+fn > 0 else 0
         recall = tp/(tp+fn) if tp+fn > 0 else 0

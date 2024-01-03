@@ -55,7 +55,7 @@ PREFIX_DIR_COARSE:str = "Coarse"
 PREFIX_DIR_FINE:str = "Fine"
 LABEL_PLOT_TRAINING:str = "Training"
 LABEL_PLOT_VALIDATION:str = "Validation"
-PLOT_LOSS=False
+PLOT_LOSS:bool = False
 
 # TYPES OF REGULARITATIONS
 TIKHONOV:str = 'tikhonov'

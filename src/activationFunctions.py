@@ -47,25 +47,18 @@ def relu(net):
     return np.maximum(net, 0)
 
 def d_relu(net):
-    rel=[]
-    for x in net.flatten():
-        rel.append(1 if x > 0 else 0) 
-        
+    rel = [1 if x > 0 else 0 for x in net.flatten()]
     net=np.array(rel).reshape(net.shape)
-   
+
     return net
 
 def leaky_relu(net):
-    rel=[]
-    for x in net.flatten():
-        rel.append(x if x >= 0 else 0.01 * x) 
+    rel = [x if x >= 0 else 0.01 * x for x in net.flatten()]
     net=np.array(rel).reshape(net.shape)
     return net
 
 def d_leaky_relu(net):
-    rel=[]
-    for x in net.flatten():
-        rel.append(1 if x >= 0 else 0.01) 
+    rel = [1 if x >= 0 else 0.01 for x in net.flatten()]
     net=np.array(rel).reshape(net.shape)
     return net
 
