@@ -1,0 +1,276 @@
+---->
+Estimate error for model #1 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0225, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 22, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.075, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11398434227946413 
+Mean Mae 0.469499805461828
+Mean Validation: 0.1169754824228556
+Mean Rmse: 0.4835935477580382
+Mean MEE: 0.06443194052556629
+Mean Epochs: 82.66666666666667
+Classification Accuracy Training: 0.6153603034134006 - Validation 0.6036967418546366
+---->
+Estimate error for model #2 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0225, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 22, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.1, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11398434227946413 
+Mean Mae 0.469499805461828
+Mean Validation: 0.1169754824228556
+Mean Rmse: 0.4835935477580382
+Mean MEE: 0.06443194052556629
+Mean Epochs: 82.66666666666667
+Classification Accuracy Training: 0.6153603034134006 - Validation 0.6036967418546366
+---->
+Estimate error for model #3 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0225, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 22, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.125, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11398434227946413 
+Mean Mae 0.469499805461828
+Mean Validation: 0.1169754824228556
+Mean Rmse: 0.4835935477580382
+Mean MEE: 0.06443194052556629
+Mean Epochs: 82.66666666666667
+Classification Accuracy Training: 0.6153603034134006 - Validation 0.6036967418546366
+---->
+Estimate error for model #4 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0225, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 25, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.075, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11455420370359708 
+Mean Mae 0.4676426311139752
+Mean Validation: 0.11739660631896348
+Mean Rmse: 0.48445676541391686
+Mean MEE: 0.06454664011308474
+Mean Epochs: 87.0
+Classification Accuracy Training: 0.6242625368731564 - Validation 0.5918964076858814
+---->
+Estimate error for model #5 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0225, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 25, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.1, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11455420370359708 
+Mean Mae 0.4676426311139752
+Mean Validation: 0.11739660631896348
+Mean Rmse: 0.48445676541391686
+Mean MEE: 0.06454664011308474
+Mean Epochs: 87.0
+Classification Accuracy Training: 0.6242625368731564 - Validation 0.5918964076858814
+---->
+Estimate error for model #6 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0225, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 25, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.125, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11455420370359708 
+Mean Mae 0.4676426311139752
+Mean Validation: 0.11739660631896348
+Mean Rmse: 0.48445676541391686
+Mean MEE: 0.06454664011308474
+Mean Epochs: 87.0
+Classification Accuracy Training: 0.6242625368731564 - Validation 0.5918964076858814
+---->
+Estimate error for model #7 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0225, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 28, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.075, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11521896330464103 
+Mean Mae 0.4753576149078363
+Mean Validation: 0.11916949521586863
+Mean Rmse: 0.48816961937462194
+Mean MEE: 0.06504249121886173
+Mean Epochs: 119.0
+Classification Accuracy Training: 0.633164770332912 - Validation 0.6216583124477861
+---->
+Estimate error for model #8 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0225, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 28, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.1, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11521896330464103 
+Mean Mae 0.4753576149078363
+Mean Validation: 0.11916949521586863
+Mean Rmse: 0.48816961937462194
+Mean MEE: 0.06504249121886173
+Mean Epochs: 119.0
+Classification Accuracy Training: 0.633164770332912 - Validation 0.6216583124477861
+---->
+Estimate error for model #9 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0225, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 28, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.125, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11521896330464103 
+Mean Mae 0.4753576149078363
+Mean Validation: 0.11916949521586863
+Mean Rmse: 0.48816961937462194
+Mean MEE: 0.06504249121886173
+Mean Epochs: 119.0
+Classification Accuracy Training: 0.633164770332912 - Validation 0.6216583124477861
+---->
+Estimate error for model #10 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.03, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 22, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.075, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11466596574948484 
+Mean Mae 0.4774335341754273
+Mean Validation: 0.11905750164460606
+Mean Rmse: 0.48795462819834556
+Mean MEE: 0.06501461772179275
+Mean Epochs: 105.66666666666667
+Classification Accuracy Training: 0.6183628318584071 - Validation 0.6333542188805347
+---->
+Estimate error for model #11 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.03, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 22, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.1, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11466596574948484 
+Mean Mae 0.4774335341754273
+Mean Validation: 0.11905750164460606
+Mean Rmse: 0.48795462819834556
+Mean MEE: 0.06501461772179275
+Mean Epochs: 105.66666666666667
+Classification Accuracy Training: 0.6183628318584071 - Validation 0.6333542188805347
+---->
+Estimate error for model #12 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.03, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 22, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.125, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11466596574948484 
+Mean Mae 0.4774335341754273
+Mean Validation: 0.11905750164460606
+Mean Rmse: 0.48795462819834556
+Mean MEE: 0.06501461772179275
+Mean Epochs: 105.66666666666667
+Classification Accuracy Training: 0.6183628318584071 - Validation 0.6333542188805347
+---->
+Estimate error for model #13 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.03, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 25, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.075, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11367612225973117 
+Mean Mae 0.46824417258935885
+Mean Validation: 0.11746838278923344
+Mean Rmse: 0.48460285851977
+Mean MEE: 0.0645659554608255
+Mean Epochs: 88.66666666666667
+Classification Accuracy Training: 0.6271860514117152 - Validation 0.5918964076858814
+---->
+Estimate error for model #14 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.03, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 25, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.1, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11367612225973117 
+Mean Mae 0.46824417258935885
+Mean Validation: 0.11746838278923344
+Mean Rmse: 0.48460285851977
+Mean MEE: 0.0645659554608255
+Mean Epochs: 88.66666666666667
+Classification Accuracy Training: 0.6271860514117152 - Validation 0.5918964076858814
+---->
+Estimate error for model #15 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.03, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 25, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.125, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11367612225973117 
+Mean Mae 0.46824417258935885
+Mean Validation: 0.11746838278923344
+Mean Rmse: 0.48460285851977
+Mean MEE: 0.0645659554608255
+Mean Epochs: 88.66666666666667
+Classification Accuracy Training: 0.6271860514117152 - Validation 0.5918964076858814
+---->
+Estimate error for model #16 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.03, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 28, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.075, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11476893194496145 
+Mean Mae 0.47544410846178714
+Mean Validation: 0.11920800410722081
+Mean Rmse: 0.4882496935615091
+Mean MEE: 0.06505301824599295
+Mean Epochs: 120.0
+Classification Accuracy Training: 0.6213390223345976 - Validation 0.6098579782790309
+---->
+Estimate error for model #17 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.03, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 28, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.1, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11476893194496145 
+Mean Mae 0.47544410846178714
+Mean Validation: 0.11920800410722081
+Mean Rmse: 0.4882496935615091
+Mean MEE: 0.06505301824599295
+Mean Epochs: 120.0
+Classification Accuracy Training: 0.6213390223345976 - Validation 0.6098579782790309
+---->
+Estimate error for model #18 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.03, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 28, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.125, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11476893194496145 
+Mean Mae 0.47544410846178714
+Mean Validation: 0.11920800410722081
+Mean Rmse: 0.4882496935615091
+Mean MEE: 0.06505301824599295
+Mean Epochs: 120.0
+Classification Accuracy Training: 0.6213390223345976 - Validation 0.6098579782790309
+---->
+Estimate error for model #19 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0375, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 22, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.075, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11454722120271836 
+Mean Mae 0.4783487053686655
+Mean Validation: 0.11907156256013242
+Mean Rmse: 0.4879842656151399
+Mean MEE: 0.0650186043174199
+Mean Epochs: 109.33333333333333
+Classification Accuracy Training: 0.6243152128107881 - Validation 0.6214494569757728
+---->
+Estimate error for model #20 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0375, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 22, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.1, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11454722120271836 
+Mean Mae 0.4783487053686655
+Mean Validation: 0.11907156256013242
+Mean Rmse: 0.4879842656151399
+Mean MEE: 0.0650186043174199
+Mean Epochs: 109.33333333333333
+Classification Accuracy Training: 0.6243152128107881 - Validation 0.6214494569757728
+---->
+Estimate error for model #21 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0375, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 22, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.125, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11454722120271836 
+Mean Mae 0.4783487053686655
+Mean Validation: 0.11907156256013242
+Mean Rmse: 0.4879842656151399
+Mean MEE: 0.0650186043174199
+Mean Epochs: 109.33333333333333
+Classification Accuracy Training: 0.6243152128107881 - Validation 0.6214494569757728
+---->
+Estimate error for model #22 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0375, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 25, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.075, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11307488225284723 
+Mean Mae 0.4687043304620339
+Mean Validation: 0.11764951652256077
+Mean Rmse: 0.4849777437357825
+Mean MEE: 0.06461583791806702
+Mean Epochs: 88.66666666666667
+Classification Accuracy Training: 0.6272123893805309 - Validation 0.5859440267335004
+---->
+Estimate error for model #23 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0375, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 25, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.1, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11307488225284723 
+Mean Mae 0.4687043304620339
+Mean Validation: 0.11764951652256077
+Mean Rmse: 0.4849777437357825
+Mean MEE: 0.06461583791806702
+Mean Epochs: 88.66666666666667
+Classification Accuracy Training: 0.6272123893805309 - Validation 0.5859440267335004
+---->
+Estimate error for model #24 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0375, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 25, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.125, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11307488225284723 
+Mean Mae 0.4687043304620339
+Mean Validation: 0.11764951652256077
+Mean Rmse: 0.4849777437357825
+Mean MEE: 0.06461583791806702
+Mean Epochs: 88.66666666666667
+Classification Accuracy Training: 0.6272123893805309 - Validation 0.5859440267335004
+---->
+Estimate error for model #25 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0375, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 28, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.075, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11360652061037309 
+Mean Mae 0.47146958095157093
+Mean Validation: 0.11829253301757647
+Mean Rmse: 0.48632444027714095
+Mean MEE: 0.06479548808780371
+Mean Epochs: 105.0
+Classification Accuracy Training: 0.6242098609355247 - Validation 0.6038011695906432
+---->
+Estimate error for model #26 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0375, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 28, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.1, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11360652061037309 
+Mean Mae 0.47146958095157093
+Mean Validation: 0.11829253301757647
+Mean Rmse: 0.48632444027714095
+Mean MEE: 0.06479548808780371
+Mean Epochs: 105.0
+Classification Accuracy Training: 0.6242098609355247 - Validation 0.6038011695906432
+---->
+Estimate error for model #27 of 27
+Model: {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.0375, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 28, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.125, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08} 
+Mean Train: 0.11360652061037309 
+Mean Mae 0.47146958095157093
+Mean Validation: 0.11829253301757647
+Mean Rmse: 0.48632444027714095
+Mean MEE: 0.06479548808780371
+Mean Epochs: 105.0
+Classification Accuracy Training: 0.6242098609355247 - Validation 0.6038011695906432
+----\|/-\|/-\|/----
+
+THE TRUE WINNER IS...
+ Model: 1 
+  Hyperparameters: l_dim:[17, 3, 1],            a_functions:['tanh', 'sigmoid'],           eta:0.0225,           tau: (100, 0.0009),            g_clipping :(False, False)            dropout : (False, False)            reg:('tikhonov', 0.001),            dim_batch:22,            momentum: ('nesterov', 0.4),            epochs:1000,            batch_shuffle:True,            eps: 0.075,            distribution:glorot,            bias:0,            seed: 25,            classification:True,            early_stop:True,            patience: 10,             treshold_variance:1e-08 
+ with MeanMee: 0.06443194052556629   <----

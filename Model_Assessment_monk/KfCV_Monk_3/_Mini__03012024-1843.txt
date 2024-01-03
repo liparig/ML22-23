@@ -1,0 +1,10 @@
+Model Hyperparameters:
+ {'l_dim': [17, 3, 1], 'a_functions': ['tanh', 'sigmoid'], 'eta': 0.01125, 'tau': (100, 0.0009), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': ('tikhonov', 0.001), 'dim_batch': 22, 'momentum': ('nesterov', 0.4), 'epochs': 1000, 'batch_shuffle': True, 'eps': 0.075, 'distribution': 'glorot', 'bias': 0, 'seed': 25, 'classification': True, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-08}
+
+Model Selection Result obtained in 3# folds:
+{'mean_train': 0.08745591538922075, 'mean_validation': 0.08928186068407958, 'mean_mae': 0.3882888745242224, 'mean_rmse': 0.42203015762610957, 'mean_mee': 0.06616895971993812, 'mean_epochs': 63.0}
+Classification values in test:
+{'missclassified': 74, 'classified': 358, 'accuracy': 0.8287037037037037, 'precision': 0.84375, 'recall': 0.8289473684210527, 'specificity': 0.8284313725490197, 'balanced': 0.8286893704850362}
+ Errors in re-trainings:
+63
+
