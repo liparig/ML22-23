@@ -553,7 +553,7 @@ class DidacticNeuralNetwork:
     # :param: input shape
     # :return: matrix dropout mask with probability p
     def dropout_mask(self, input_shape):
-        mask = (self.gen.random(*input_shape) < (1 - self.dropout_p)).astype(float)
+        mask = (self.gen.random(input_shape) < (1 - self.dropout_p)).astype(float)
 
         #Normalizzazione output
         mask = mask / (1 - self.dropout_p)

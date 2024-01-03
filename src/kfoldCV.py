@@ -92,7 +92,7 @@ class KfoldCV:
                 inYlim = (-0.5, 1.1)
                 inMSELim = (0,0) 
             else:
-                inMSELim = (0.2,(error['error'][-1]*2) )
+                inMSELim = (0.2,(error['error'][-1]*100) )
                 inYlim = (-0.5, 5.)
 
             start = time.time()
