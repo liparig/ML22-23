@@ -39,16 +39,16 @@ def holdoutTest(winner,TR_x_set,TR_y_set,TS_x_set,TS_y_set,val_per=0.25,meanepoc
 
     out = model.forward_propagation(TS_x_set)
     result = np.concatenate((TS_y_set, out), axis=1)
-    if model.a_functions[-1]==C.TANH:
-            classi=(-1,1)
-            threshold_accuracy=0.3
+    if model.a_functions[-1] == C.TANH:
+            classi = (-1,1)
+            threshold_accuracy = 0.3
     else:
-        classi=(0,1)
-        threshold_accuracy=0.5
+        classi = (0,1)
+        threshold_accuracy = 0.5
     classificationAccuracy = model.metrics.metrics_binary_classification(TS_y_set, out, treshold= threshold_accuracy,classi = classi)
     print("Test Accuracy:", classificationAccuracy[C.ACCURACY], "\nClassified:", classificationAccuracy[C.CLASSIFIED], "Missclassified:", classificationAccuracy[C.MISSCLASSIFIED],"Precision",classificationAccuracy[C.PRECISION])
     
-    return errors,classificationAccuracy,result
+    return errors, classificationAccuracy, result
 
 def savePlotFig(errors, dirName, fileName, title, theta):
     # Path
@@ -198,7 +198,7 @@ def main():
     print("Inizio TestMonk 3 DropOUT:")
     theta_mini[C.L_NET]=[17,20,1]
     theta_mini[C.L_DIMBATCH]= 15
-    theta_mini[C.DROPOUT]=(C.DROPOUT,0.7)
+    theta_mini[C.L_DROPOUT]=[C.DROPOUT, (True, 0.7)]
     monk_model_evaluation(
         TR_x_monk3,
         TR_y_monk3,
