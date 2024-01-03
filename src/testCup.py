@@ -88,7 +88,7 @@ def ensemble_Cup(models,tr_x, tr_y,Ts_x,Ts_y, dirname, filename):
         euclidianAccuracy = model.metrics.mean_euclidean_error(Ts_y, mean_outs)
         result = np.concatenate((Ts_y, mean_outs), axis=1)
         print("Ensembe EuclidianError:", euclidianAccuracy)
-        kfoldLog.Model_Assessment_Outputs(result, dirname, filename)
+        kfoldLog.Model_Assessment_Outputs(result, dirname, f'{filename}_MEE_{euclidianAccuracy}')
     else:
         result = mean_outs
         euclidianAccuracy = None
