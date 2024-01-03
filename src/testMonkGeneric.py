@@ -21,7 +21,7 @@ def monk_model_evaluation(TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, theta, dir
     model = Candidate(theta)
     trerrors, classification, result = holdoutTest(model.get_dictionary(), TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, val_per=0, meanepochs = theta[C.L_EPOCHS])
     savePlotFig(trerrors, dirName, prefixFilename, f"{dirName}{prefixFilename}", theta = model.get_dictionary())
-    mafile, timestr = kfoldLog.Model_Assessment_log(dirName, prefixFilename, f"Model Hyperparameters:\n {theta}\n", f"{trerrors}")
+    mafile, timestr = kfoldLog.Model_Assessment_log(dirName, prefixFilename, f"Model Hyperparameters:\n {theta}\n", f"\nTR Mse:{trerrors['error'][-1]}\n TS Mse: {trerrors[C.TEST][-1]} \n TR Accuracy: {trerrors['training_accuracy'][-1]} \n TS Accuracy: {trerrors['test_accuracy'][-1]}\nAll the error and metrics:\n{trerrors}")
     kfoldLog.Model_Assessment_Outputs(result, dirName, prefixFilename, col_names = ["Target Class", "Predicted Class"], timestamp = timestr)
 
     print("Classification", classification)
