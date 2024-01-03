@@ -1,4 +1,6 @@
-#Types Activation functions
+#SO
+UNIX:bool = False
+#TYPES ACTIVATION FUNCTIONS
 SIGMOID:str = 'sigmoid'
 TANH:str = 'tanh'
 RELU:str = 'relu'
@@ -7,7 +9,7 @@ IDENTITY:str = 'identity'
 
 MSE:str = 'mse'
 
-#DataSet columns
+#DATASET COLUMNS
 NUM_PATTERN_X:str = 'p_tx'
 INPUT_TRAINING:str = 'x_train'
 OUTPUT_TRAINING:str = 'y_train'

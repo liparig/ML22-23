@@ -11,18 +11,18 @@ import numpy as np
 def monk_KfoldCV_evaluation(TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, theta, dirName, prefixFilename, fold = 2):
     kfCV = KfoldCV(TR_x_monk, TR_y_monk, fold) 
     winner,meanmetrics = kfCV.validate(inTheta =  theta, FineGS = True, prefixFilename = dirName+prefixFilename)
-    winnerTheta=winner.get_dictionary()
-    trerrors,classification,result=holdoutTest(winnerTheta, TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, val_per = 0, meanepochs = int(meanmetrics['mean_epochs']))
+    winnerTheta = winner.get_dictionary()
+    trerrors,classification,result = holdoutTest(winnerTheta, TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, val_per = 0, meanepochs = int(meanmetrics['mean_epochs']))
     savePlotFig(trerrors, dirName, prefixFilename, f"Test_s{dirName}{prefixFilename}", theta = winnerTheta)
-    mafile, timestr=kfoldLog.Model_Assessment_log(dirName,prefixFilename,f"Model Hyperparameters:\n {str(winnerTheta)}\n",f"Model Selection Result obtained in {fold}# folds:\n{meanmetrics}\nClassification values in test:\n{classification}\n Errors in re-trainings:\n{trerrors['epochs']}\n")
-    kfoldLog.Model_Assessment_Outputs(result,dirName,dirName+prefixFilename,col_names=["Target Class", "Predicted Class"],timestamp=timestr)
+    mafile, timestr = kfoldLog.Model_Assessment_log(dirName, prefixFilename, f"Model Hyperparameters:\n {str(winnerTheta)}\n", f"Model Selection Result obtained in {fold}# folds:\n{meanmetrics}\nClassification values in test:\n{classification}\n Errors in re-trainings:\n{trerrors['epochs']}\n")
+    kfoldLog.Model_Assessment_Outputs(result, dirName, dirName+prefixFilename, col_names = ["Target Class", "Predicted Class"], timestamp = timestr)
 
 def monk_model_evaluation(TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, theta, dirName, prefixFilename):
-    model=Candidate(theta)
-    trerrors,classification, result=holdoutTest(model.get_dictionary(), TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, val_per=0, meanepochs = theta[C.L_EPOCHS])
+    model = Candidate(theta)
+    trerrors,classification, result = holdoutTest(model.get_dictionary(), TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, val_per=0, meanepochs = theta[C.L_EPOCHS])
     savePlotFig(trerrors, dirName, prefixFilename, f"{dirName}{prefixFilename}", theta = model.get_dictionary())
-    mafile, timestr=kfoldLog.Model_Assessment_log(dirName,prefixFilename,f"Model Hyperparameters:\n {str(model)}\n",f"{trerrors}")
-    kfoldLog.Model_Assessment_Outputs(result,dirName,prefixFilename,col_names=["Target Class", "Predicted Class"],timestamp=timestr)
+    mafile, timestr = kfoldLog.Model_Assessment_log(dirName, prefixFilename, f"Model Hyperparameters:\n {str(model)}\n", f"{trerrors}")
+    kfoldLog.Model_Assessment_Outputs(result, dirName, prefixFilename, col_names = ["Target Class", "Predicted Class"], timestamp = timestr)
 
     print("Classification", classification)
 
@@ -62,10 +62,12 @@ def savePlotFig(errors, dirName, fileName, title, theta):
     if len(errors['test'])>0:
         labelError='test'
         metric='metric_test'
-    draw_async(errors['error'], errors[labelError], errors['metric_tr'], errors[metric], error_tr = inError_tr,
+    process = draw_async(errors['error'], errors[labelError], errors['metric_tr'], errors[metric], error_tr = inError_tr,
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = labelError.capitalize(), path = f"{path_dir_models_coarse}/{fileName}", 
                         ylim = (-0.5, 1.5), titlePlot = title,
                         theta = theta, labelsY = ['Loss',  C.ACCURACY])
+    if(process != None and not C.UNIX):
+        process.join()
      
 def main():
     theta_batch = {

@@ -81,43 +81,20 @@ def __theta_toCaption(theta:dict):
     return caption
 
 # Use a additional process for make the plot. In a linux system is more faster than windows os
-# :param: loss_tr is vector with the training error values
-# :param: loss_vs is vector with the validation error values
-# :param: metr_tr is vector with the training metric values
-# :param: val_metr is vector with the validation metric values
-# :param: error_tr is a flag for print the loss values. Default = false
-# :param: path if not None, path is the location where to save the plot (otherwise it will be displayed)
-# :param: ylim is the value for "set_ylim" of pyplot in accuracy and metrics plot
-# :param: yMSElim is the value for "set_ylim" of pyplot in training/validation/test plot
-# :param: lbl_tr is the label for the training curve
-# :param: lbl_vs is label for the validation curve
-# :param: titlePlot is the title for the plot
-# :param: theta is the configuration object
-# :param: labelsX is the list of the label on the x axes
-# :param: labelsY is the list of the label on the y axes
-def plot_curves(loss_tr, loss_vs, metr_tr, val_metr, error_tr = False, path = None, ylim = (0., 10.), yMSElim = (0, 0), lbl_tr:str = C.LABEL_PLOT_TRAINING, lbl_vs:str = C.LABEL_PLOT_VALIDATION, titlePlot:str = '', theta: dict = None, labelsX: list[str] = None, labelsY: list[str] = None):
-    if theta is None:
-        theta = {}
-    if labelsX is None:
-        labelsX = ['Epochs','Epochs']
-    if labelsY is None:
-        labelsY = ['Loss','Metric']
-    proc=mp.Process(target=draw, args=(loss_tr, loss_vs, metr_tr, val_metr,error_tr, path, ylim ,yMSElim, lbl_tr,lbl_vs, titlePlot, theta, labelsX, labelsY))
-    proc.daemon=False
-    proc.start()
-    proc.join()
-    
-
 def draw_async(*args, **kwargs):
-    # Creare un processo e passare la funzione draw come target
+    # make a new process
     draw_process = mp.Process(target=draw, args=args, kwargs=kwargs)
-
-    # Avviare il processo
+    
+    draw_process.daemon = False
+    
+    # Strarts the drawing process
     draw_process.start()
-
-    # Attendere la fine del processo (opzionale)
+    
+    # wait the end of the drawing process
     # draw_process.join()
-
+    # print('async draw finished')
+    # print(draw_process)
+    return draw_process
 
 
 # Plot the curves of training loss, training metric, validation loss, validation metric

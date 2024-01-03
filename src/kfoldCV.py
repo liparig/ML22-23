@@ -98,17 +98,17 @@ class KfoldCV:
             start = time.time()
 
             labelMetric = C.ACCURACY if theta[C.L_CLASSIFICATION] else 'MEE'
-            draw_async(error['error'], error['validation'], error['metric_tr'], error['metric_val'], error_tr=error['loss'],
+            process = draw_async(error['error'], error['validation'], error['metric_tr'], error['metric_val'], error_tr = error['loss'],
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = C.LABEL_PLOT_VALIDATION, path = plot_path, 
                         ylim = inYlim, yMSElim = inMSELim, titlePlot = f"Model \#{candidatenumber} fold {fold[C.K_FOLD]}",
                         theta = theta, labelsY = ['Loss', labelMetric])
 
-
             end = time.time()
             print(f'Plot Graph {end-start}')
         #endregion
-
-        return error
+        # print('train fold')
+        # print(process)
+        return error, process
     
     
     # Compute the error of a set of hyperparametric values and return the mean between the errors
@@ -117,9 +117,9 @@ class KfoldCV:
     # :param: inCandidatenumber is input candidate number
     # :param: plot is a flag for draw the plot
     # :param: pathPlot is the path for the plot
-    # :return: error_mean means of the different metrics validation error
+    # :return: processes for drawing plot
     def estimate_model_error(self, hyperparameters, log = None, inCandidatenumber:int = 0, plot:bool = True, pathPlot:str = None):
-        
+        processes = []
         # t_mse Mean Square Error of the training data
         # v_mse Mean Square Error of the validation data
         # mae   Mean Absolute error
@@ -129,7 +129,11 @@ class KfoldCV:
         
         for fold in self.kfolds:
             start = time.time()
-            errors = self.train_fold(fold, hyperparameters, candidatenumber = inCandidatenumber, drawPlot = plot, pathPlot = pathPlot)
+            errors, process = self.train_fold(fold, hyperparameters, candidatenumber = inCandidatenumber, drawPlot = plot, pathPlot = pathPlot)
+            # print('estimate_model_error')
+            # print(process)
+            
+            processes.append(process)
             end = time.time()
             print(f'seconds for train fold {end-start}')
             h_train = errors['error']
@@ -170,6 +174,9 @@ class KfoldCV:
 
         kfoldLog.model_performance(log, hyperparameters, model_error)
         self.models_error.append(model_error)
+        # print('estimate_model_error')
+        # print(processes)
+        return processes
         
     # Compute the best model
     # :return: the model with the best estimated error
@@ -195,6 +202,7 @@ class KfoldCV:
     # :param: clearOldThetaWinner is for clear old theta of old winner
     # :return: the winner of the validation and its mean metrics
     def validate(self, inDefault:str = C.MONK, inTheta = None, FineGS:bool = False, plot:bool = True, prefixFilename:str = "", clearOldThetaWinner:bool = True):
+        processes = []
         if clearOldThetaWinner:
             self.models_error.clear()
         self.candidates_hyperparameters.set_project_hyperparameters(default = inDefault, theta = inTheta)
@@ -204,7 +212,7 @@ class KfoldCV:
         all_candidates, total = gridSearch.grid_search(hyperparameters = self.candidates_hyperparameters)
         if len(all_candidates.get_all_candidates_dict()) == 0:
             print("The new candidates were not created, probably the activate functions were setted very bad")
-        log, timestr = kfoldLog.start_log("ModelSelection")
+        log, timestr = kfoldLog.start_log(f"{prefixFilename}_ModelSelection")
         
         # Directory
         new_directory_name:str = f"{prefixFilename}{C.PREFIX_DIR_COARSE}{timestr}"
@@ -216,16 +224,26 @@ class KfoldCV:
             os.makedirs(path_dir_models_coarse)
         for i, theta in enumerate(all_candidates.get_all_candidates_dict()):
             kfoldLog.estimate_model(log, i+1, total)
-            self.estimate_model_error(theta, log, inCandidatenumber = i+1, plot = plot, pathPlot = path_dir_models_coarse)
-            
+            inProcesses = self.estimate_model_error(theta, log, inCandidatenumber = i+1, plot = plot, pathPlot = path_dir_models_coarse)
+            # print('validate')
+            # print(inProcesses)
+            # input('premi')
+            if(not C.UNIX):
+                processes.extend(inProcesses)
+            if(len(processes) > 20):
+                clearProcesses(processes)
+        clearProcesses(processes)
+        
+        
         winner, modelnumber, meanmetrics = self.the_winner_is()
         winner = Candidate(winner)
         kfoldLog.the_winner_is(log, modelnumber, winner.to_string())
         kfoldLog.end_log(log)
 
         if FineGS:
+            processes = []
             self.models_error.clear()
-            log, timestr = kfoldLog.start_log("FineModelSelection")
+            log, timestr = kfoldLog.start_log(f"{prefixFilename}_FineModelSelection")
             possible_winners, total = gridSearch.grid_search(hyperparameters = winner, coarse = False)
             print("---Start Fine Grid search...\n")
             # Directory
@@ -239,10 +257,24 @@ class KfoldCV:
         
             for j, theta in enumerate(possible_winners.get_all_candidates_dict()):
                 kfoldLog.estimate_model(log, j+1, total)
-                self.estimate_model_error(theta, log, inCandidatenumber = j+1, plot = plot, pathPlot = path_dir_models_fine)
-
+                inProcesses = self.estimate_model_error(theta, log, inCandidatenumber = j+1, plot = plot, pathPlot = path_dir_models_fine)
+                if(not C.UNIX):
+                    processes.extend(inProcesses)
+                if(len(processes) > 20):
+                    clearProcesses(processes)
             winner, modelnumber,meanmetrics = self.the_winner_is()
             winner = Candidate(winner)
             kfoldLog.the_fine_winner_is(log, modelnumber, winner.to_string(), metric = f"MeanMee: {meanmetrics['mean_mee']}")
             kfoldLog.end_log(log)
+            
         return winner, meanmetrics
+    
+def clearProcesses(processes):
+    if(not C.UNIX):
+        for process in processes:
+            if(process != None):
+                # print('join')
+                process.join()
+            else:
+                print('The process is None, Something is wrong')
+        processes = []
