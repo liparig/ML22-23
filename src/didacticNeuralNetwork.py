@@ -41,7 +41,7 @@ class DidacticNeuralNetwork:
     
     def __init__(self, l_dim:list[int] = None, a_functions:list[str] = None, l_function:str = C.MSE, eta:float = C.ETA, 
                  tau = C.TAU, epochs:int = C.EPOCHS, batch_shuffle:bool = C.BATCH_SHUFFLE, reg = C.REG, momentum = C.MOMENTUM, 
-                 classification:bool = False, g_clipping=C.G_CLIPPING,dropout=C.DROPOUT, early_stop:bool = True, patience:int = C.PATIENCE, treshold_variance:float = C.TRESHOLDVARIANCE, 
+                 classification:bool = False, g_clipping = C.G_CLIPPING, dropout = C.DROPOUT, early_stop:bool = True, patience:int = C.PATIENCE, treshold_variance:float = C.TRESHOLDVARIANCE, 
                  dim_batch:int = C.BATCH, plot = None, seed:int = C.R_SEEDS, **kwargs):
         self.gen = Generator(PCG64(seed))
         self.a_functions = [C.SIGMOID] if a_functions is None else a_functions
@@ -179,7 +179,7 @@ class DidacticNeuralNetwork:
             if self.dim_batch != self.dataset[C.NUM_PATTERN_X] and self.dropout:
                 #If update true we are in a training phaso so we switch of input unit with probability p
                 if update:
-                    mask = self.dropoutMask(in_out.shape)
+                    mask = self.dropout_mask(in_out.shape)
                     in_out= mask * in_out
                 #if we are not in training  the unit is always present andthe weights are multiplied by p. The output at test time is same as the expected output at training time.
                 # Prova Normalizzato nel dropout
@@ -239,12 +239,12 @@ class DidacticNeuralNetwork:
         for l in range(len(self.l_dim) - 1, 0, -1):
             name_layer:str = str(l)
             
-            gradw = np.divide(gradientsW[l-1] , pattern)
-            gradb = np.divide(gradientsB[l-1] , pattern)
+            gradw = np.divide(gradientsW[l-1], pattern)
+            gradb = np.divide(gradientsB[l-1], pattern)
 
             if self.g_clipping:
-                gradw=self.gradient_clipping_norm(gradw,self.g_clipping_treshold)
-                gradb=self.gradient_clipping_norm(gradb,self.g_clipping_treshold)
+                gradw = self.gradient_clipping_norm(gradw, self.g_clipping_treshold)
+                gradb = self.gradient_clipping_norm(gradb, self.g_clipping_treshold)
 
 
             #gradb = np.divide(np.sum(delta[l-1], axis=0, keepdims=True) ,pattern)
@@ -259,8 +259,8 @@ class DidacticNeuralNetwork:
             #if momentum classic is set add the momentum deltaW
             if self.momentum == C.CLASSIC:
                 if f'wold{name_layer}' in self.deltaOld:
-                    deltaW = np.add(deltaW,self.alpha*self.deltaOld[f'wold{name_layer}'])
-                    deltaB = np.add(deltaB,self.alpha*self.deltaOld[f'bold{name_layer}'])
+                    deltaW = np.add(deltaW, self.alpha * self.deltaOld[f'wold{name_layer}'])
+                    deltaB = np.add(deltaB, self.alpha * self.deltaOld[f'bold{name_layer}'])
                 #save the old gradient for the momentum if needed
                 self.deltaOld[f'wold{name_layer}'] = deltaW
                 self.deltaOld[f'bold{name_layer}'] = deltaB
@@ -278,8 +278,8 @@ class DidacticNeuralNetwork:
     # :return:  the lists gradients of w and b matrix of each layer. Last element is the last elements gradient matrix
     def back_propagation(self, y):
         delta_t = []
-        gradientsW=[]
-        gradientsB=[]
+        gradientsW = []
+        gradientsB = []
         num_layers:int = len(self.l_dim) - 1
         interim:str = ""
         if self.momentum == C.NESTEROV and "wold1" in self.deltaOld:
@@ -381,13 +381,13 @@ class DidacticNeuralNetwork:
                             self.wb[f"b_{l}"] = self.wb[f"b{l}"] + (self.alpha*self.deltaOld[f"bold{l}"])
                 #compute the output of the interim w for delta w computation
                 if self.momentum == C.NESTEROV  and f"wold{l}" in self.deltaOld:
-                    self.forward_propagation(batch_x.copy(), update=True, nesterov=True)
+                    self.forward_propagation(batch_x.copy(), update = True, nesterov = True)
                 #compute delta using back propagation on target batch
-                gradientsW,gradientsB= self.back_propagation(batch_y)
+                gradientsW,gradientsB = self.back_propagation(batch_y)
                 # call update weights function
-                self.update_wb(gradientsW,gradientsB,batch_x.shape[0])
+                self.update_wb(gradientsW, gradientsB, batch_x.shape[0])
                 # update bacth error
-                out_t = self.forward_propagation(batch_x, update=False)
+                out_t = self.forward_propagation(batch_x, update = False)
 
                 """terror = self.l_function.loss(self, batch_y, out_t)
                 terror = np.sum(terror)/out_t.shape[0]
@@ -445,7 +445,7 @@ class DidacticNeuralNetwork:
     # :param: metric_tr is the metric for the evaluation of the training error
     # :param: c_metric is the object with all the metrics of training, validation and test
     # :param: out_t is predicted output object
-    # :param: evaluate_out_t is a flag for a new evaluation of the output <- TODO: check this
+    # :param: evaluate_out_t is a flag for a new evaluation of the output
     # :return: output predicted
     def training_metrics(self, metric_tr, c_metric, out_t, evaluate_out_t:bool):
         if evaluate_out_t:
@@ -533,18 +533,18 @@ class DidacticNeuralNetwork:
     # :param: grad the gradients to clip
     # :param: threshold is the max value of norm
     # :return: clipped_grad clipped gradient if clipped or the original gradient if less then the treshold
-    def gradient_clipping_norm(self,grad, threshold):
+    def gradient_clipping_norm(self, grad, threshold):
         grad_norm = np.linalg.norm(grad)
         return threshold * (grad / grad_norm) if grad_norm > threshold else grad
     
     # Create the dropout mas
     # :param: input shape
     # :return: matrix dropout mask with probability p
-    def dropoutMask(self,input_shape):
-        mask = (np.random.rand(*input_shape) < (1 - self.dropout_p)).astype(float)
+    def dropout_mask(self, input_shape):
+        mask = (self.gen.random(input_shape) < (1 - self.dropout_p)).astype(float)
 
         #Normalizzazione output
-        mask=mask / (1 - self.dropout_p)
+        mask = mask / (1 - self.dropout_p)
         return mask
     
     # Compute the eta decay with the formula

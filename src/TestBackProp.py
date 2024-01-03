@@ -166,7 +166,7 @@ def update_wb(eta,l_dim ,delta, wb,pattern):
     '''
 def metrics_binary_classification( y, y_hat, treshold = 0.5):
         if np.squeeze(y).shape != np.squeeze(y_hat).shape:
-            raise Exception(f"Sets have different shape Y:{y.shape} Y_hat:{y_hat.shape}")
+            raise ValueError(f"Sets have different shape Y:{y.shape} Y_hat:{y_hat.shape}")
 
         tp,tn,fp,fn=0,0,0,0
         for predicted, target in zip(y_hat.flatten(),y.flatten()):

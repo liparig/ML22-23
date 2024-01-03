@@ -36,9 +36,7 @@ def cup_evaluation(TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, theta, dirName, prefi
     TS_x_CUP_blind = readMC.get_blind_test_CUP()
     TR_x_CUP_All, TR_y_CUP_All,_,_ = readMC.get_cup_house_test(perc = 0)
     _, _, resultsBlind = holdoutTest(winnerTheta,  TR_x_CUP_All, TR_y_CUP_All, TS_x_CUP_blind, [], val_per =  0.25, meanepochs = int(meanmetrics['mean_epochs']))
-    kfoldLog.ML_Cup_Template(
-        resultsBlind, dirName, f'{prefixFilename}_blind', timestamp
-    )
+    kfoldLog.ML_Cup_Template(resultsBlind, dirName, f'{prefixFilename}_blind', timestamp)
     return winnerTheta
 
 # Execute the holdout test
@@ -111,7 +109,7 @@ def savePlotFig(errors, dirName, fileName, title, theta):
         metric = 'metric_test'
     plot_curves(errors['error'], errors[labelError], errors['metric_tr'], errors[metric], error_tr = inError_tr,
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = labelError.capitalize(), path = f"{path_dir_models_coarse}/{fileName}", 
-                        ylim = (-0.5, 10),yMSElim=(0,(errors['error'][-1])*1000) ,titlePlot = title,
+                        ylim = (-0.5, 10),yMSElim=(0,(errors['error'][-1])*100) ,titlePlot = title,
                         theta = theta, labelsY = ['Loss',  "MEE"])
      
 def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):

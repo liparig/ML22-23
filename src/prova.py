@@ -1,8 +1,10 @@
 
 import os
+from matplotlib.pylab import PCG64
 
 import numpy as np
 import kfoldLog
+import readMonkAndCup as readMC
 
 # BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # dirName = BASE_DIR+"/CupDatasets/Cup23"
@@ -55,16 +57,20 @@ result = np.array(['ciao', 'come', 'stai', 'a', 'v', 'bv'])
 
 
 # Original arrays
-array1 = np.array([1, 3, 4, 2, 5])
-array2 = np.array([2, 4, 3, 5, 1])
+# array1 = np.array([1, 3, 4, 2, 5])
+# array2 = np.array([2, 4, 3, 5, 1])
 
-# Get the indices that would sort array1
-original_order_indices = np.argsort(array1)
-print(original_order_indices)
+# # Get the indices that would sort array1
+# original_order_indices = np.argsort(array1)
+# print(original_order_indices)
 
-# Reorder array2 based on the original order of array1
-reordered_array2 = array2[original_order_indices]
+# # Reorder array2 based on the original order of array1
+# reordered_array2 = array2[original_order_indices]
 
-print("Original array1:", array1)
-print("Original array2:", array2)
-print("Reordered array2:", reordered_array2)
+# print("Original array1:", array1)
+# print("Original array2:", array2)
+# print("Reordered array2:", reordered_array2)
+
+# print(np.random.Generator(PCG64()).random((3,2) < 0.5)).astype(float)
+print((np.random.Generator(PCG64()).random(3) < 0.2).astype(float))
+# print((np.random.rand(3) < (0.5)).astype(float))

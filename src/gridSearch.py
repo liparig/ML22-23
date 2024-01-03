@@ -10,7 +10,7 @@ def init_grid_search(candidates:CandidatesHyperparameters|Candidate, coarse:bool
     
     global possibles_eta, possibles_momentum, possibles_reg, possibles_dim_batch, possibles_l_dim, possibles_a_functions,\
     possibles_tau, possibles_eps, possibles_distribution, possibles_bias, possibles_patience, classification, early_stop,\
-    possibles_epochs, possibles_threshold_variance,seed,possibles_g_clipping,possibles_dropout
+    possibles_epochs, possibles_threshold_variance, seed, possibles_g_clipping, possibles_dropout
 
     possibles_l_dim              = candidates.l_dim
     possibles_a_functions        = candidates.a_functions
@@ -61,9 +61,10 @@ def grid_search(hyperparameters:CandidatesHyperparameters|Candidate, coarse:bool
         permutation:int = len(possibles_l_dim) * len(possibles_a_functions) * len(possibles_eta)\
          * len(possibles_momentum) * len(possibles_reg) * len(possibles_dim_batch)\
          * len(possibles_tau) * len(possibles_patience) * len(possibles_eps)\
-         * len(possibles_distribution) *  len(possibles_bias)\
-         * len(possibles_epochs) * len(possibles_threshold_variance) *len(possibles_g_clipping) *len(possibles_dropout)
-
+         * len(possibles_distribution) * len(possibles_bias)\
+         * len(possibles_epochs) * len(possibles_threshold_variance) * len(possibles_g_clipping) * len(possibles_dropout)
+        
+        """ cycle over all the permutation values of hyperparameters """
         for eta in possibles_eta:
             for momentum in possibles_momentum:
                 for tau in possibles_tau:
