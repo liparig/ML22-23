@@ -38,7 +38,7 @@ def Model_Assessment_Outputs(results, fileDir:str, fileName:str,col_names = None
             f'{C.PATH_MODEL_ASSESSMENT_DIR}/{fileDir}/{fileName}_output_{timestamp_str}.csv',
             results,
             delimiter=',',
-            fmt='%d,%s',
+            fmt='%s',
             header=','.join(col_names),
             comments=''
         )
