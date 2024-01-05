@@ -1,0 +1,51 @@
+{'l_dim': [10, 8, 5, 3], 'a_functions': ['leakyRelu', 'leakyRelu', 'identity'], 'eta': 0.004, 'tau': (False, False), 'g_clipping': (True, 7), 'dropout': (False, False), 'reg': (False, False), 'dim_batch': 0, 'momentum': ('classic', 0.7), 'epochs': 2000, 'batch_shuffle': True, 'eps': 0.01, 'distribution': 'glorot', 'bias': 0, 'seed': [52], 'classification': False, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-10} 
+Fold mee: 0.2534621156832292
+Model: {'l_dim': [10, 15, 3], 'a_functions': ['tanh', 'identity'], 'eta': 0.004, 'tau': (False, False), 'g_clipping': (True, 7), 'dropout': (False, False), 'reg': (False, False), 'dim_batch': 0, 'momentum': ('classic', 0.7), 'epochs': 2000, 'batch_shuffle': True, 'eps': 0.01, 'distribution': 'glorot', 'bias': 0, 'seed': [52], 'classification': False, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-10}
+Fold MEE: 0.22366547639548343
+Model: {'l_dim': [10, 15, 3], 'a_functions': ['leakyRelu', 'identity'], 'eta': 0.008, 'tau': (500, 0.0008), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': (False, False), 'dim_batch': 0, 'momentum': ('classic', 0.7), 'epochs': 2000, 'batch_shuffle': True, 'eps': 0.01, 'distribution': 'glorot', 'bias': 0, 'seed': [52], 'classification': False, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-10} 
+Mean MEE: 0.22793621945794137
+Model: {'l_dim': [10, 15, 3], 'a_functions': ['tanh', 'identity'], 'eta': 0.008, 'tau': (500, 0.0008), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': (False, False), 'dim_batch': 0, 'momentum': ('classic', 0.7), 'epochs': 2000, 'batch_shuffle': True, 'eps': 0.01, 'distribution': 'glorot', 'bias': 0, 'seed': [52], 'classification': False, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-10} 
+Mean MEE: 0.2410396295113343
+Model: {'l_dim': [10, 15, 3], 'a_functions': ['leakyRelu', 'identity'], 'eta': 0.008, 'tau': (500, 0.0008), 'g_clipping': (True, 7), 'dropout': (False, False), 'reg': (False, False), 'dim_batch': 0, 'momentum': ('classic', 0.7), 'epochs': 2000, 'batch_shuffle': True, 'eps': 0.01, 'distribution': 'glorot', 'bias': 0, 'seed': [52], 'classification': False, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-10} 
+Mean MEE: 0.24392879642729764
+Model: {'l_dim': [10, 8, 5, 3], 'a_functions': ['leakyRelu', 'leakyRelu', 'identity'], 'eta': 0.004, 'tau': (False, False), 'g_clipping': (True, 7), 'dropout': (False, False), 'reg': (False, False), 'dim_batch': 0, 'momentum': ('classic', 0.7), 'epochs': 2000, 'batch_shuffle': True, 'eps': 0.01, 'distribution': 'glorot', 'bias': 0, 'seed': [52], 'classification': False, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-10} 
+Mean MEE: 0.2534621156832292
+Model: {'l_dim': [10, 15, 3], 'a_functions': ['tanh', 'identity'], 'eta': 0.004, 'tau': (False, False), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': (False, False), 'dim_batch': 0, 'momentum': ('classic', 0.7), 'epochs': 2000, 'batch_shuffle': True, 'eps': 0.01, 'distribution': 'glorot', 'bias': 0, 'seed': [52], 'classification': False, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-10} 
+Mean Train: 1.9744002649766963 
+Mean MEE: 0.18757966288185762
+Model: {'l_dim': [10, 15, 3], 'a_functions': ['leakyRelu', 'identity'], 'eta': 0.004, 'tau': (False, False), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': (False, False), 'dim_batch': 0, 'momentum': ('classic', 0.7), 'epochs': 2000, 'batch_shuffle': True, 'eps': 0.01, 'distribution': 'glorot', 'bias': 0, 'seed': [52], 'classification': False, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-10} 
+Mean Train: 1.9719180879612832
+Mean MEE: 0.18515978078619028
+Model: {'l_dim': [10, 15, 3], 'a_functions': ['tanh', 'identity'], 'eta': 0.008, 'tau': (False, False), 'g_clipping': (True, 7), 'dropout': (False, False), 'reg': (False, False), 'dim_batch': 0, 'momentum': ('classic', 0.7), 'epochs': 2000, 'batch_shuffle': True, 'eps': 0.01, 'distribution': 'glorot', 'bias': 0, 'seed': [52], 'classification': False, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-10} 
+Mean Train: 1.77222128250633 
+Mean MEE: 0.1859683093407078
+Model: {'l_dim': [10, 15, 3], 'a_functions': ['tanh', 'identity'], 'eta': 0.008, 'tau': (False, False), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': (False, False), 'dim_batch': 0, 'momentum': ('classic', 0.7), 'epochs': 2000, 'batch_shuffle': True, 'eps': 0.01, 'distribution': 'glorot', 'bias': 0, 'seed': [52], 'classification': False, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-10} 
+Mean Train: 1.5792945221680117 
+Mean MEE: 0.17223442732759323
+Model: {'l_dim': [10, 8, 5, 3], 'a_functions': ['leakyRelu', 'leakyRelu', 'identity'], 'eta': 0.05, 'tau': (500, 0.004), 'g_clipping': (True, 10), 'dropout': (False, False), 'reg': (False, False), 'dim_batch': 0, 'momentum': ('classic', 0.7), 'epochs': 2000, 'batch_shuffle': True, 'eps': 0.0125, 'distribution': 'glorot', 'bias': 0, 'seed': [52], 'classification': False, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-10} 
+Mean Train: 3.445247641321841 
+Mean MEE: 0.23729180238511965
+Model: {'l_dim': [10, 8, 5, 3], 'a_functions': ['leakyRelu', 'leakyRelu', 'identity'], 'eta': 0.04, 'tau': (500, 0.004), 'g_clipping': (True, 10), 'dropout': (False, False), 'reg': (False, False), 'dim_batch': 0, 'momentum': ('classic', 0.7), 'epochs': 2000, 'batch_shuffle': True, 'eps': 0.01, 'distribution': 'glorot', 'bias': 0, 'seed': [52], 'classification': False, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-10} 
+Mean Train: 3.835317378479182 
+Mean MEE: 0.26315187175612725
+theta_batch = {
+        C.L_NET:[[10,8,5,3],[10, 8, 5, 3],[10,12,6,3]],
+        C.L_ACTIVATION:[[C.LEAKYRELU,C.LEAKYRELU,C.IDENTITY],[C.TANH,C.TANH,C.IDENTITY],[C.TANH,C.SIGMOID,C.IDENTITY][C.TANH, C.IDENTITY]],
+        C.L_ETA:[0.04, 0.4],
+        C.L_TAU: [(False,False),(500,0.004)],
+        C.L_REG:[(C.TIKHONOV,0.0002),(C.TIKHONOV,0.02),(False,False)],
+        C.L_DIMBATCH:[0],
+        C.L_MOMENTUM: [(C.CLASSIC, 0.7),(C.NESTEROV, 0.5)],
+        C.L_EPOCHS:[1000],
+        C.L_SHUFFLE:True,
+        C.L_EPS: [0.01],
+        C.L_DISTRIBUTION:[C.GLOROT],
+        C.L_G_CLIPPING:[(True,10),(True,7),C.G_CLIPPING],
+        C.L_DROPOUT:[C.DROPOUT],
+        C.L_BIAS:[0,0.1],
+        C.L_SEED: [52],
+        C.L_CLASSIFICATION:False,
+        C.L_EARLYSTOP:True,
+        C.L_PATIENCE: [10],
+        C.L_TRESHOLD_VARIANCE:[1.e-8]    
+    }
