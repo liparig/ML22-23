@@ -187,7 +187,8 @@ class KfoldCV:
             if (not np.isnan(result["mean_mee"]))
         ]
         # choose the set of hyperparameters which gives the minimum mean error
-
+        if(len(means) == 0):
+            raise ValueError('Nobody is the winner')
         lower_mean = np.argmin(means)
         meanmetrics = {key: self.models_error[lower_mean][key] for key in ['mean_train','mean_validation','mean_mae','mean_rmse', 'mean_mee','mean_epochs']}
 

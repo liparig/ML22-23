@@ -73,16 +73,24 @@ def holdoutTest(winner, TR_x_set, TR_y_set, TS_x_set, TS_y_set, val_per:float = 
     
     return errors, euclidianAccuracy, result
 
-def ensemble_Cup(models,tr_x, tr_y,Ts_x=[],Ts_y=[], dirname="Ensamble_cup", filename="CUPs"):
+# Takes some the best winners models and computes the mean errors and outputs
+# :param: models is the list of the configurations
+# :param: tr_x is training dataset
+# :param: tr_y is training targets dataset
+# :param: TS_x_cup is test dataset if i want to use a specific dataset instead it reads the blind dataset
+# :param: TS_y_cup is test targets dataset if it has a output dataset for check the error between targets and mean outputs
+# :param: dirname is the name of the directory where will be the file with ensemble
+# :param: filename is the name of the file was produced by method
+def ensemble_Cup(models, tr_x, tr_y, Ts_x = [], Ts_y = [], dirname = "Ensamble_cup", filename = "CUPs"):
     inputs = readMC.get_blind_test_CUP() if (isinstance(Ts_x, list)) else Ts_x
     outs = []
     errors = []
     for model in models:
-        model= dnn(**model)
+        model = dnn(**model)
         errors.append(model.fit(tr_x, tr_y))
         outs.append(model.forward_propagation(inputs))
     #BEFORE MEANS of OUTPUT and THEN EVALUATION OF THE METRICS
-    mean_outs = np.mean(outs, axis=0)
+    mean_outs = np.mean(outs, axis = 0)
     #CHECK IF BLIND 
     if (not isinstance(Ts_y, list)):
         euclidianAccuracy = model.metrics.mean_euclidean_error(Ts_y, mean_outs)
@@ -94,14 +102,19 @@ def ensemble_Cup(models,tr_x, tr_y,Ts_x=[],Ts_y=[], dirname="Ensamble_cup", file
         euclidianAccuracy = None
         kfoldLog.ML_Cup_Template(result, dirname, f'{filename}_Blind')
    
-
+# Makes the plots of the test in multi processing
+# :param: errors is the list of the computed errors
+# :param: dirname is the name of the directory where will be the new plot file
+# :param: filename is the name of the file was produced by method
+# :param: title is the title on the plot
+# :param: theta is the configuration object for add in the subtitle of the plot
 def savePlotFig(errors, dirName, fileName, title, theta):
     # Path
     path_dir_models_coarse = os.path.join(C.PATH_PLOT_DIR, dirName)
     if not os.path.exists(path_dir_models_coarse):
             os.makedirs(path_dir_models_coarse)
     # is false if the loss is zero else take the loss 
-    inError_tr = False if errors['loss']==0 else errors['loss']
+    inError_tr = False if errors['loss'] == 0 else errors['loss']
     labelError = 'validation'
     metric = 'metric_val'
     if len(errors['test']) > 0:

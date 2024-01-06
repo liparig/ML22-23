@@ -176,7 +176,7 @@ def read_blind_test_cup(name):
 
     cup_dataset.set_index('Id', inplace=True)
     
-    inputs = cup_dataset.to_numpy(dtype=np.float64)
+    inputs = cup_dataset.to_numpy(dtype = np.float64)
     # transform labels from pandas dataframe to numpy ndarray
     
     return inputs
