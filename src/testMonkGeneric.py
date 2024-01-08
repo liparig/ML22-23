@@ -10,18 +10,23 @@ import numpy as np
 
 def monk_KfoldCV_evaluation(TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, theta, dirName, prefixFilename, fold = 2):
     kfCV = KfoldCV(TR_x_monk, TR_y_monk, fold) 
-    winner, meanmetrics = kfCV.validate(inTheta =  theta, FineGS = True, prefixFilename = dirName+prefixFilename)
-    winnerTheta = winner.get_dictionary()
-    trerrors, classification, result = holdoutTest(winnerTheta, TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, val_per = 0, meanepochs = int(meanmetrics['mean_epochs']))
-    savePlotFig(trerrors, dirName, prefixFilename, f"Test_s{dirName}{prefixFilename}", theta = winnerTheta)
-    mafile, timestr = kfoldLog.Model_Assessment_log(dirName, prefixFilename, f"Model Hyperparameters:\n {str(winnerTheta)}\n", f"Model Selection Result obtained in {fold}# folds:\n{meanmetrics}\nClassification values in test:\n{classification}\n Errors in re-trainings:\n{trerrors['epochs']}\n")
-    kfoldLog.Model_Assessment_Outputs(result, dirName, dirName+prefixFilename, col_names = ["Target Class", "Predicted Class"], timestamp = timestr)
+    winners_list = kfCV.validate(inTheta =  theta, FineGS = True, prefixFilename = dirName+prefixFilename)
+    for winner_object in winners_list:
+        winner = Candidate(winner_object[C.HYPERPARAMETERS])
+        winnerTheta = winner.get_dictionary()
+        trerrors, classification, result = holdoutTest(winnerTheta, TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, val_per = 0, meanepochs = int(winner_object[C.MEAN_METRICS]['mean_epochs']))
+        savePlotFig(trerrors, dirName, prefixFilename, f"Test_s{dirName}{prefixFilename}", theta = winnerTheta)
+        mafile, timestr = kfoldLog.Model_Assessment_log(dirName, prefixFilename, f"Model Hyperparameters:\n {str(winnerTheta)}\n", f"Model Selection Result obtained in {fold}# folds:\n{winner_object[C.MEAN_METRICS]}\nClassification values in test:\n{classification}\n Errors in re-trainings:\n{trerrors['epochs']}\n")
+        kfoldLog.Model_Assessment_Outputs(result, dirName, dirName+prefixFilename, col_names = ["Target Class", "Predicted Class"], timestamp = timestr)
 
 def monk_model_evaluation(TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, theta, dirName, prefixFilename):
     model = Candidate(theta)
     trerrors, classification, result = holdoutTest(model.get_dictionary(), TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, val_per=0, meanepochs = theta[C.L_EPOCHS])
     savePlotFig(trerrors, dirName, prefixFilename, f"{dirName}{prefixFilename}", theta = model.get_dictionary())
-    mafile, timestr = kfoldLog.Model_Assessment_log(dirName, prefixFilename, f"Model Hyperparameters:\n {theta}\n", f"\nTR Mse:{trerrors['error'][-1]}\n TS Mse: {trerrors[C.TEST][-1]} \n TR Accuracy: {trerrors['training_accuracy'][-1]} \n TS Accuracy: {trerrors['test_accuracy'][-1]}\nAll the error and metrics:\n{trerrors}")
+    result_text:str = f"\nAll the error and metrics:\n{trerrors}"
+    if('training_accuracy' in trerrors):
+        result_text = f"\nTR Mse:{trerrors['error'][-1]}\n TS Mse: {trerrors[C.TEST][-1]} \n TR Accuracy: {trerrors['training_accuracy'][-1]} \n TS Accuracy: {trerrors['test_accuracy'][-1]}\nAll the error and metrics:\n{trerrors}"
+    mafile, timestr = kfoldLog.Model_Assessment_log(dirName, prefixFilename, f"Model Hyperparameters:\n {theta}\n", result_text)
     kfoldLog.Model_Assessment_Outputs(result, dirName, prefixFilename, col_names = ["Target Class", "Predicted Class"], timestamp = timestr)
 
     print("Classification", classification)
@@ -32,7 +37,7 @@ def holdoutTest(winner, TR_x_set, TR_y_set, TS_x_set, TS_y_set, val_per = 0.25, 
     if val_per > 0:
         tr_x, tr_y, val_x, val_y = readMC.split_Tr_Val(TR_x_set, TR_y_set, perc = val_per)
         errors = model.fit(tr_x, tr_y, val_x, val_y, TS_x_set, TS_y_set)
-        print("Size Dataset x", tr_x.shape,"y",tr_y.shape,"valx",val_x.shape,"valy",val_y.shape)
+        print("Size Dataset x", tr_x.shape, "y", tr_y.shape, "valx", val_x.shape, "valy", val_y.shape)
     else:
         model.epochs = meanepochs
         errors = model.fit(TR_x_set, TR_y_set, [], [], TS_x_set, TS_y_set)
@@ -131,7 +136,7 @@ def main():
         C.L_TRESHOLD_VARIANCE:1.e-8  
     }
     print("Inizio TestMonk 1:")
-    dirName="TestMonk_1"
+    dirName = "TestMonk_1"
     theta_mini = single_model.copy()
     theta_mini[C.L_ETA]= 0.08
     theta_mini[C.L_TAU]= C.TAU

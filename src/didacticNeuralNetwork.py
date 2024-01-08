@@ -541,10 +541,10 @@ class DidacticNeuralNetwork:
     # :param: input shape
     # :return: matrix dropout mask with probability p
     def dropout_mask(self, input_shape):
-        mask = (self.gen.random(input_shape) < (1 - self.dropout_p)).astype(float)
+        mask = (self.gen.random(input_shape) < (1 - self.dropout_p[1])).astype(float)
 
         #Normalizzazione output
-        mask = mask / (1 - self.dropout_p)
+        mask = mask / (1 - self.dropout_p[1])
         return mask
     
     # Compute the eta decay with the formula

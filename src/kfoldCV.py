@@ -156,8 +156,8 @@ class KfoldCV:
         mean_epochs = epochs / self.k
 
         model_error = {
-            "candidateNumber": inCandidatenumber,
-            "hyperparameters": hyperparameters,
+            C.CANDIDATE_NUMBER: inCandidatenumber,
+            C.HYPERPARAMETERS: hyperparameters,
             "mean_train": mean_train,
             "mean_mae": mean_mae,
             'mean_validation':mean_validation  ,
@@ -180,19 +180,32 @@ class KfoldCV:
         
     # Compute the best model
     # :return: the model with the best estimated error
-    def the_winner_is(self):
+    def the_winners_are(self, num_best_models:int = C.NUM_WINNER):
         means = [
             result["mean_mee"]
             for result in self.models_error
             if (not np.isnan(result["mean_mee"]))
         ]
-        # choose the set of hyperparameters which gives the minimum mean error
-        if(len(means) == 0):
-            raise ValueError('Nobody is the winner')
-        lower_mean = np.argmin(means)
-        meanmetrics = {key: self.models_error[lower_mean][key] for key in ['mean_train','mean_validation','mean_mae','mean_rmse', 'mean_mee','mean_epochs']}
 
-        return self.models_error[lower_mean]["hyperparameters"], self.models_error[lower_mean]["candidateNumber"], meanmetrics
+        # choose the set of hyperparameters which gives the minimum mean error
+        means_length = len(means)
+        if(means_length == 0):
+            raise ValueError('Nobody is the winner')
+        means.sort()
+        self.models_error = sorted(self.models_error, key = lambda d: d['mean_mee'] if not np.isnan(d['mean_mee']) else 1.e+10, reverse = False)
+        winners_list = []
+
+        if(num_best_models > means_length):
+            num_best_models = means_length
+        for index in range(num_best_models):
+            meanmetrics = {key: self.models_error[index][key] for key in ['mean_train','mean_validation','mean_mae','mean_rmse', 'mean_mee','mean_epochs']}
+            winner = {
+                C.HYPERPARAMETERS:self.models_error[index][C.HYPERPARAMETERS], 
+                C.CANDIDATE_NUMBER:self.models_error[index][C.CANDIDATE_NUMBER],
+                C.MEAN_METRICS: meanmetrics
+            }
+            winners_list.append(winner)
+        return winners_list
     
     # Execute tht Kfold validation
     # :param: inDefault is the input default configuration name 
@@ -236,9 +249,9 @@ class KfoldCV:
         clearProcesses(processes)
         
         
-        winner, modelnumber, meanmetrics = self.the_winner_is()
-        winner = Candidate(winner)
-        kfoldLog.the_winner_is(log, modelnumber, winner.to_string())
+        winners_list = self.the_winners_are()
+        winner = Candidate(winners_list[0][C.HYPERPARAMETERS])
+        kfoldLog.the_winner_is(log, winners_list[0][C.CANDIDATE_NUMBER], winner.to_string())
         kfoldLog.end_log(log)
 
         if FineGS:
@@ -263,12 +276,11 @@ class KfoldCV:
                     processes.extend(inProcesses)
                 if(len(processes) > 20):
                     clearProcesses(processes)
-            winner, modelnumber,meanmetrics = self.the_winner_is()
-            winner = Candidate(winner)
-            kfoldLog.the_fine_winner_is(log, modelnumber, winner.to_string(), metric = f"MeanMee: {meanmetrics['mean_mee']}")
+            winners_list = self.the_winners_are()
+            for winner in winners_list:
+                kfoldLog.the_fine_winner_is(log, winner[C.CANDIDATE_NUMBER], Candidate(winner[C.HYPERPARAMETERS]).to_string(), metric = f"MeanMee: {winner[C.MEAN_METRICS]['mean_mee']}")  
             kfoldLog.end_log(log)
-            
-        return winner, meanmetrics
+        return winners_list
     
 def clearProcesses(processes):
     if(not C.UNIX):

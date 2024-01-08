@@ -5,6 +5,7 @@ from matplotlib.pylab import PCG64
 import numpy as np
 import kfoldLog
 import readMonkAndCup as readMC
+from operator import itemgetter
 
 # BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # dirName = BASE_DIR+"/CupDatasets/Cup23"
@@ -72,5 +73,21 @@ result = np.array(['ciao', 'come', 'stai', 'a', 'v', 'bv'])
 # print("Reordered array2:", reordered_array2)
 
 # print(np.random.Generator(PCG64()).random((3,2) < 0.5)).astype(float)
-print((np.random.Generator(PCG64()).random(3) < 0.2).astype(float))
+# print((np.random.Generator(PCG64()).random(3) < 0.2).astype(float))
 # print((np.random.rand(3) < (0.5)).astype(float))
+
+m = 10
+a = [1,4,5,62,1,4,7,9,121,675,76,1,-1]
+b1 = {'1': 10}
+b2 = {'1': 0}
+b3 = {'1': 5}
+b = [b1, b2, b3]
+print(b)
+# bnew = sorted(b, key=itemgetter('1') and itemgetter('1') != 5, reverse = False)
+bnew = sorted(b, key=lambda d : d['1'] if d['1'] != 5 else 10000, reverse = False)
+print(bnew)
+# print()
+# a.sort()
+# print(a[:m])
+# print(np.argmin(a))
+# print(a[np.argmin(a)])

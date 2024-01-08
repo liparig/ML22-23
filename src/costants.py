@@ -19,6 +19,9 @@ INPUT_TEST:str = 'x_test'
 OUTPUT_TEST:str = 'y_test'
 K_FOLD:str = 'k'
 
+#NUMBER OF WINNER IN THE VALIDATION PHASE
+NUM_WINNER:int = 10
+
 FORMATTIMESTAMP:str = '%d%m%Y-%H%M'
 #INITIAL HYPERPARAMETERS
 R_SEEDS:int = 22
@@ -106,3 +109,8 @@ TEST:str = 'test'
 # PREFIX FILE NAME AND DIRECTORYS
 PREFIXBATCH:str = '_Batch_'
 PREFIXMINIBATCH:str = '_Mini_'
+
+# WINNER OBJECTS
+HYPERPARAMETERS:str = 'hyperparameters'
+CANDIDATE_NUMBER:str = 'candidateNumber'
+MEAN_METRICS: str = 'meanMetrics'

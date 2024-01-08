@@ -1,4 +1,5 @@
 # Evaluate the cup dataset
+from candidateHyperparameters import Candidate
 from dnnPlot import draw_async
 from didacticNeuralNetwork import DidacticNeuralNetwork as dnn
 from kfoldCV import KfoldCV
@@ -20,23 +21,24 @@ import numpy as np
 def cup_evaluation(TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, theta, dirName, prefixFilename, fold = 2):
     #MODEL SELECTION KFCV
     kfCV = KfoldCV(TR_x_cup, TR_y_cup, fold)
-    winner, meanmetrics = kfCV.validate(inTheta =  theta, FineGS = True, prefixFilename = prefixFilename)
-    winnerTheta = winner.get_dictionary()
+    winners_list = kfCV.validate(inTheta =  theta, FineGS = False, prefixFilename = prefixFilename)
+    
+    for winner_object in winners_list:
+        winner = Candidate(winner_object[C.HYPERPARAMETERS])
+        winnerTheta = winner.get_dictionary()
 
-    #MODEL ASSESSMENT HOLDOUT
-    trerrors, euclidianAccuracy, results = holdoutTest(winnerTheta, TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, val_per = 0.25, meanepochs = int(meanmetrics['mean_epochs']))
-    _, timestamp = kfoldLog.Model_Assessment_log(dirName, prefixFilename, f"Model Hyperparameters:\n {str(winnerTheta)}\n", f"Model Selection Result obtained in {fold}# folds:\n{meanmetrics}\n Mean Euclidian Error:\n{euclidianAccuracy}\n")
-    kfoldLog.Model_Assessment_Outputs(
-        results, dirName, f'{prefixFilename}_HouseTest', timestamp=timestamp
-    )
-    savePlotFig(trerrors, dirName, prefixFilename, f"{dirName}{prefixFilename}", theta = winnerTheta)
+        #MODEL ASSESSMENT HOLDOUT
+        trerrors, euclidianAccuracy, results = holdoutTest(winnerTheta, TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, val_per = 0.25, meanepochs = int(winner_object[C.MEAN_METRICS]['mean_epochs']))
+        _, timestamp = kfoldLog.Model_Assessment_log(dirName, prefixFilename, f"Model Hyperparameters:\n {str(winnerTheta)}\n", f"Model Selection Result obtained in {fold}# folds:\n{winner_object[C.MEAN_METRICS]}\n Mean Euclidian Error:\n{euclidianAccuracy}\n")
+        kfoldLog.Model_Assessment_Outputs(results, dirName, f'{prefixFilename}_HouseTest', timestamp = timestamp)
+        savePlotFig(trerrors, dirName, prefixFilename, f"{dirName}{prefixFilename}", theta = winnerTheta)
 
-    #BLIND TEST
-    TS_x_CUP_blind = readMC.get_blind_test_CUP()
-    TR_x_CUP_All, TR_y_CUP_All,_,_ = readMC.get_cup_house_test(perc = 0)
-    _, _, resultsBlind = holdoutTest(winnerTheta,  TR_x_CUP_All, TR_y_CUP_All, TS_x_CUP_blind, [], val_per =  0.25, meanepochs = int(meanmetrics['mean_epochs']))
-    kfoldLog.ML_Cup_Template(resultsBlind, dirName, f'{prefixFilename}_blind', timestamp)
-    return winnerTheta
+        #BLIND TEST
+        TS_x_CUP_blind = readMC.get_blind_test_CUP()
+        TR_x_CUP_All, TR_y_CUP_All,_,_ = readMC.get_cup_house_test(perc = 0)
+        _, _, resultsBlind = holdoutTest(winnerTheta,  TR_x_CUP_All, TR_y_CUP_All, TS_x_CUP_blind, [], val_per =  0.25, meanepochs = int(winner_object[C.MEAN_METRICS]['mean_epochs']))
+        kfoldLog.ML_Cup_Template(resultsBlind, dirName, f'{prefixFilename}_blind', timestamp)
+    return winners_list
 
 # Execute the holdout test
 # :param: winner is the configuration object
@@ -86,6 +88,7 @@ def ensemble_Cup(models, tr_x, tr_y, Ts_x = [], Ts_y = [], dirname = "Ensamble_c
     outs = []
     errors = []
     for model in models:
+        model = Candidate(model)
         model = dnn(**model)
         errors.append(model.fit(tr_x, tr_y))
         outs.append(model.forward_propagation(inputs))
