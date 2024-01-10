@@ -88,8 +88,7 @@ def ensemble_Cup(models, tr_x, tr_y, Ts_x = [], Ts_y = [], dirname = "Ensamble_c
     outs = []
     errors = []
     for model in models:
-        model = Candidate(model)
-        model = dnn(**model)
+        model = dnn(**model[C.HYPERPARAMETERS])
         errors.append(model.fit(tr_x, tr_y))
         outs.append(model.forward_propagation(inputs))
     #BEFORE MEANS of OUTPUT and THEN EVALUATION OF THE METRICS
@@ -117,15 +116,15 @@ def savePlotFig(errors, dirName, fileName, title, theta):
     if not os.path.exists(path_dir_models_coarse):
             os.makedirs(path_dir_models_coarse)
     # is false if the loss is zero else take the loss 
-    inError_tr = False if errors['loss'] == 0 else errors['loss']
+    inError_tr = False if errors[C.LOSS] == 0 else errors[C.LOSS]
     labelError = 'validation'
     metric = 'metric_val'
     if len(errors['test']) > 0:
         labelError = 'test'
         metric = 'metric_test'
-    process = draw_async(errors['error'], errors[labelError], errors['metric_tr'], errors[metric], error_tr = inError_tr,
+    process = draw_async(errors[C.ERROR], errors[labelError], errors[C.METRIC_TR], errors[metric], error_tr = inError_tr,
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = labelError.capitalize(), path = f"{path_dir_models_coarse}/{fileName}", 
-                        ylim = (-0.5, 10),yMSElim=(0,(errors['error'][-1])*100) ,titlePlot = title,
+                        ylim = (-0.5, 10),yMSElim=(0,(errors[C.ERROR][-1])*100) ,titlePlot = title,
                         theta = theta, labelsY = ['Loss',  "MEE"])
     if(process != None and not C.UNIX):
         process.join()

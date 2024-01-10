@@ -55,26 +55,18 @@ class KfoldCV:
     # :param: drawPlot is a flag for draw the plot
     # :param: pathPlot is the path for the plot
     # :return: error a list with validation error of current fold
+    @kfoldLog.timeit
     def train_fold(self, fold, theta, candidatenumber:int, drawPlot:bool = True, pathPlot:str = None):
         #recover hyperparameters
         x_train = fold[C.INPUT_TRAINING]
         y_train = fold[C.OUTPUT_TRAINING]
         x_val = fold[C.INPUT_VALIDATION]
         y_val = fold[C.OUTPUT_VALIDATION]
-        start = time.time()
-        print("THETA",theta)
+        print("THETA", theta)
         model = dnn(**theta)
-        end = time.time()
-        print(f'seconds for make model {end-start}')
         #train
-        start = time.time()
         error = model.fit(x_train, y_train, x_val, y_val)
-        end = time.time()
-        print(f'seconds for train the model {end-start}')
-        start = time.time()
         out = model.forward_propagation(x_val)
-        end = time.time()
-        print(f'seconds for compute output {end-start}')
         error['mean_absolute_error'] = model.metrics.mean_absolute_error(y_val, out)
         error['root_mean_squared_error'] = model.metrics.root_mean_squared_error(y_val, out)
         error['mean_euclidean_error'] = model.metrics.mean_euclidean_error(y_val, out)
@@ -92,19 +84,19 @@ class KfoldCV:
                 inYlim = (-0.5, 1.1)
                 inMSELim = (0,0) 
             else:
-                inMSELim = (0.2,(error['error'][-1]*100) )
+                inMSELim = (0.2,(error[C.ERROR][-1]*100) )
                 inYlim = (-0.5, 5.)
 
-            start = time.time()
+            # start = time.time()
 
             labelMetric = C.ACCURACY if theta[C.L_CLASSIFICATION] else 'MEE'
-            process = draw_async(error['error'], error['validation'], error['metric_tr'], error['metric_val'], error_tr = error['loss'],
+            process = draw_async(error[C.ERROR], error['validation'], error[C.METRIC_TR], error['metric_val'], error_tr = error[C.LOSS],
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = C.LABEL_PLOT_VALIDATION, path = plot_path, 
                         ylim = inYlim, yMSElim = inMSELim, titlePlot = f"Model \#{candidatenumber} fold {fold[C.K_FOLD]}",
                         theta = theta, labelsY = ['Loss', labelMetric])
 
-            end = time.time()
-            print(f'Plot Graph {end-start}')
+            # end = time.time()
+            # print(f'Plot Graph {end-start}')
         #endregion
         # print('train fold')
         # print(process)
@@ -118,6 +110,7 @@ class KfoldCV:
     # :param: plot is a flag for draw the plot
     # :param: pathPlot is the path for the plot
     # :return: processes for drawing plot
+    @kfoldLog.timeit
     def estimate_model_error(self, hyperparameters, log = None, inCandidatenumber:int = 0, plot:bool = True, pathPlot:str = None):
         processes = []
         # t_mse Mean Square Error of the training data
@@ -128,25 +121,22 @@ class KfoldCV:
         t_mse, v_mse, mae, rmse, mee, epochs ,t_accuracy, v_accuracy = 0, 0, 0, 0, 0, 0, 0, 0
         
         for fold in self.kfolds:
-            start = time.time()
             errors, process = self.train_fold(fold, hyperparameters, candidatenumber = inCandidatenumber, drawPlot = plot, pathPlot = pathPlot)
             # print('estimate_model_error')
             # print(process)
             
             processes.append(process)
-            end = time.time()
-            print(f'seconds for train fold {end-start}')
-            h_train = errors['error']
+            h_train = errors[C.ERROR]
             h_validation = errors['validation']
             t_mse   += h_train[-1]
             v_mse   += h_validation[-1]
             mae     += errors['mean_absolute_error']
             rmse    += errors['root_mean_squared_error']
             mee     += errors['mean_euclidean_error']
-            epochs  += errors['epochs']
-            if errors['c_metrics'][f'{C.VALIDATION}_accuracy']:
-                t_accuracy += errors['c_metrics'][f'{C.TRAINING}_accuracy'][-1]
-                v_accuracy += errors['c_metrics'][f'{C.VALIDATION}_accuracy'][-1]
+            epochs  += errors[C.EPOCHS]
+            if errors[C.C_METRICS][f'{C.VALIDATION}_{C.ACCURACY}']:
+                t_accuracy += errors[C.C_METRICS][f'{C.TRAINING}_{C.ACCURACY}'][-1]
+                v_accuracy += errors[C.C_METRICS][f'{C.VALIDATION}_{C.ACCURACY}'][-1]
 
         mean_train  = t_mse / self.k
         mean_validation = v_mse / self.k
@@ -166,11 +156,11 @@ class KfoldCV:
             'mean_epochs':mean_epochs,
         }
 
-        if errors['c_metrics'][f'{C.VALIDATION}_accuracy']:
+        if errors[C.C_METRICS][f'{C.VALIDATION}_{C.ACCURACY}']:
             mean_t_accuracy = t_accuracy / self.k
             mean_v_accuracy = v_accuracy / self.k
-            model_error[f'mean_{C.TRAINING}_accuracy'] = mean_t_accuracy
-            model_error[f'mean_{C.VALIDATION}_accuracy'] = mean_v_accuracy
+            model_error[f'mean_{C.TRAINING}_{C.ACCURACY}'] = mean_t_accuracy
+            model_error[f'mean_{C.VALIDATION}_{C.ACCURACY}'] = mean_v_accuracy
 
         kfoldLog.model_performance(log, hyperparameters, model_error)
         self.models_error.append(model_error)
@@ -180,6 +170,7 @@ class KfoldCV:
         
     # Compute the best model
     # :return: the model with the best estimated error
+    @kfoldLog.timeit
     def the_winners_are(self, num_best_models:int = C.NUM_WINNER):
         means = [
             result["mean_mee"]
@@ -215,6 +206,7 @@ class KfoldCV:
     # :param: prefixFilename is the prefix to add to the file name for manage the dirctory and the produced plots
     # :param: clearOldThetaWinner is for clear old theta of old winner
     # :return: the winner of the validation and its mean metrics
+    @kfoldLog.timeit
     def validate(self, inDefault:str = C.MONK, inTheta = None, FineGS:bool = False, plot:bool = True, prefixFilename:str = "", clearOldThetaWinner:bool = True):
         processes = []
         if clearOldThetaWinner:

@@ -114,3 +114,19 @@ PREFIXMINIBATCH:str = '_Mini_'
 HYPERPARAMETERS:str = 'hyperparameters'
 CANDIDATE_NUMBER:str = 'candidateNumber'
 MEAN_METRICS: str = 'meanMetrics'
+
+# RESULT METRICS
+MISCLASSIFIED:str = 'misclassified'
+CLASSIFIED:str = 'classified'
+BALANCED:str = 'balanced'
+SPECIFICITY:str = 'specificity'
+RECALL:str = 'recall'
+PRECISION:str = 'precision'
+ACCURACY:str = 'accuracy'
+
+# RESULT TRAINING
+ERROR:str = 'error'
+LOSS:str = 'loss'
+METRIC_TR:str = 'metric_tr'
+C_METRICS:str = 'c_metrics'
+EPOCHS:str = 'epochs'

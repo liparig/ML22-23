@@ -24,8 +24,8 @@ def monk_model_evaluation(TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, theta, dir
     trerrors, classification, result = holdoutTest(model.get_dictionary(), TR_x_monk, TR_y_monk, TS_x_monk, TS_y_monk, val_per=0, meanepochs = theta[C.L_EPOCHS])
     savePlotFig(trerrors, dirName, prefixFilename, f"{dirName}{prefixFilename}", theta = model.get_dictionary())
     result_text:str = f"\nAll the error and metrics:\n{trerrors}"
-    if('training_accuracy' in trerrors):
-        result_text = f"\nTR Mse:{trerrors['error'][-1]}\n TS Mse: {trerrors[C.TEST][-1]} \n TR Accuracy: {trerrors['training_accuracy'][-1]} \n TS Accuracy: {trerrors['test_accuracy'][-1]}\nAll the error and metrics:\n{trerrors}"
+    if('training_{C.ACCURACY}' in trerrors):
+        result_text = f"\nTR Mse:{trerrors[C.ERROR][-1]}\n TS Mse: {trerrors[C.TEST][-1]} \n TR Accuracy: {trerrors['training_{C.ACCURACY}'][-1]} \n TS Accuracy: {trerrors['test_{C.ACCURACY}'][-1]}\nAll the error and metrics:\n{trerrors}"
     mafile, timestr = kfoldLog.Model_Assessment_log(dirName, prefixFilename, f"Model Hyperparameters:\n {theta}\n", result_text)
     kfoldLog.Model_Assessment_Outputs(result, dirName, prefixFilename, col_names = ["Target Class", "Predicted Class"], timestamp = timestr)
 
@@ -61,13 +61,13 @@ def savePlotFig(errors, dirName, fileName, title, theta):
     if not os.path.exists(path_dir_models_coarse):
             os.makedirs(path_dir_models_coarse)
     # is false if the loss is zero else take the loss 
-    inError_tr = False if errors['loss']==0 else errors['loss']
+    inError_tr = False if errors[C.LOSS] == 0 else errors[C.LOSS]
     labelError='validation'
     metric='metric_val'
     if len(errors['test'])>0:
         labelError='test'
         metric='metric_test'
-    process = draw_async(errors['error'], errors[labelError], errors['metric_tr'], errors[metric], error_tr = inError_tr,
+    process = draw_async(errors[C.ERROR], errors[labelError], errors[C.METRIC_TR], errors[metric], error_tr = inError_tr,
                         lbl_tr = C.LABEL_PLOT_TRAINING, lbl_vs = labelError.capitalize(), path = f"{path_dir_models_coarse}/{fileName}", 
                         ylim = (-0.5, 1.5), titlePlot = title,
                         theta = theta, labelsY = ['Loss',  C.ACCURACY])

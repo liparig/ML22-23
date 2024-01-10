@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import time
 from activationFunctions  import activations
 from activationFunctions  import derivatives
 import costants as C
@@ -10,6 +11,7 @@ from metrics import DnnMetrics
 import math
 import numpy as np
 from numpy.random import Generator, PCG64
+import kfoldLog
 
 """Didactic Neural Network"""
 class DidacticNeuralNetwork:
@@ -46,12 +48,12 @@ class DidacticNeuralNetwork:
         self.gen = Generator(PCG64(seed))
         self.a_functions = [C.SIGMOID] if a_functions is None else a_functions
         self.__check_init__(l_dim, a_functions)
-        if self.a_functions[-1]==C.TANH:
-            self.classi=(-1,1)
-            self.threshold_accuracy=0.3
+        if self.a_functions[-1] == C.TANH:
+            self.classi = (-1,1)
+            self.threshold_accuracy = 0.3
         else:
-            self.classi=(0,1)
-            self.threshold_accuracy=0.5
+            self.classi = (0,1)
+            self.threshold_accuracy = 0.5
         self.l_dim = l_dim
         self.l_function = loss[l_function]
         self.wb = self.init_wb(l_dim, **kwargs)
@@ -93,8 +95,8 @@ class DidacticNeuralNetwork:
             self.g_clipping = False
 
         if dropout[0]:
-            self.dropout_p=dropout[1]
-            self.dropout=True
+            self.dropout_p = dropout[1]
+            self.dropout = True
         else:
             self.dropout = False
         
@@ -180,7 +182,7 @@ class DidacticNeuralNetwork:
                 #If update true we are in a training phaso so we switch of input unit with probability p
                 if update:
                     mask = self.dropout_mask(in_out.shape)
-                    in_out= mask * in_out
+                    in_out = mask * in_out
                 #if we are not in training  the unit is always present andthe weights are multiplied by p. The output at test time is same as the expected output at training time.
                 # Prova Normalizzato nel dropout
                 #else:
@@ -235,6 +237,7 @@ class DidacticNeuralNetwork:
     # :param: delta is array contains the delta matrix computed in the backpropagation
     # :param: gradients is the list of the gradients that are computed in the backpropagation
     # :param: pattern is number of pattern predicted  
+    #@kfoldLog.timeit
     def update_wb(self, gradientsW,gradientsB, pattern):
         for l in range(len(self.l_dim) - 1, 0, -1):
             name_layer:str = str(l)
@@ -276,6 +279,7 @@ class DidacticNeuralNetwork:
     # Compute the back propagation algorithm
     # :param: y is target set
     # :return:  the lists gradients of w and b matrix of each layer. Last element is the last elements gradient matrix
+    # @kfoldLog.timeit
     def back_propagation(self, y):
         delta_t = []
         gradientsW = []
@@ -308,35 +312,36 @@ class DidacticNeuralNetwork:
     # :param: validation is the flag for validation
     # :param: test is th flag for test
     # :return: the result object with some metrics of the validation, training and test 
+    @kfoldLog.timeit
     def train(self, validation:bool = False, test:bool = False):
         #initialize error/loss variable
         history_terror, history_tloss, validation_error, test_error = [], [], [], []
         metric_tr, metric_val, metric_test = [], [], []
         c_metric:dict[str, list] = {
             #training
-            f'{C.TRAINING}_misclassified': [],
-            f'{C.TRAINING}_classified':[],
-            f'{C.TRAINING}_accuracy':[],
-            f'{C.TRAINING}_precision':[],
-            f'{C.TRAINING}_recall':[],
-            f'{C.TRAINING}_specificity':[],
-            f'{C.TRAINING}_balanced':[],
+            f'{C.TRAINING}_{C.MISCLASSIFIED}': [],
+            f'{C.TRAINING}_{C.CLASSIFIED}':[],
+            f'{C.TRAINING}_{C.ACCURACY}':[],
+            f'{C.TRAINING}_{C.PRECISION}':[],
+            f'{C.TRAINING}_{C.RECALL}':[],
+            f'{C.TRAINING}_{C.SPECIFICITY}':[],
+            f'{C.TRAINING}_{C.BALANCED}':[],
             #validation
-            f'{C.VALIDATION}_misclassified': [],
-            f'{C.VALIDATION}_classified':[],
-            f'{C.VALIDATION}_accuracy':[],
-            f'{C.VALIDATION}_precision':[],
-            f'{C.VALIDATION}_recall':[],
-            f'{C.VALIDATION}_specificity':[],
-            f'{C.VALIDATION}_balanced':[],
+            f'{C.VALIDATION}_{C.MISCLASSIFIED}': [],
+            f'{C.VALIDATION}_{C.CLASSIFIED}':[],
+            f'{C.VALIDATION}_{C.ACCURACY}':[],
+            f'{C.VALIDATION}_{C.PRECISION}':[],
+            f'{C.VALIDATION}_{C.RECALL}':[],
+            f'{C.VALIDATION}_{C.SPECIFICITY}':[],
+            f'{C.VALIDATION}_{C.BALANCED}':[],
             #test
-            f'{C.TEST}_misclassified': [],
-            f'{C.TEST}_classified':[],
-            f'{C.TEST}_accuracy':[],
-            f'{C.TEST}_precision':[],
-            f'{C.TEST}_recall':[],
-            f'{C.TEST}_specificity':[],
-            f'{C.TEST}_balanced':[]
+            f'{C.TEST}_{C.MISCLASSIFIED}': [],
+            f'{C.TEST}_{C.CLASSIFIED}':[],
+            f'{C.TEST}_{C.ACCURACY}':[],
+            f'{C.TEST}_{C.PRECISION}':[],
+            f'{C.TEST}_{C.RECALL}':[],
+            f'{C.TEST}_{C.SPECIFICITY}':[],
+            f'{C.TEST}_{C.BALANCED}':[]
         }
 
         selfcontrol:int = 0
@@ -425,14 +430,15 @@ class DidacticNeuralNetwork:
                         print("Lost Patience")
                         break
                 else:
-                    selfcontrol = 0
+                    selfcontrol = 0        
         result = {
-            'error': history_terror,
-            'loss': history_tloss,
-            'metric_tr': metric_tr,
-            'c_metrics': c_metric,
-            'epochs': epoch + 1,
+            C.ERROR: history_terror,
+            C.LOSS: history_tloss,
+            C.METRIC_TR: metric_tr,
+            C.C_METRICS: c_metric,
+            C.EPOCHS: epoch + 1
         }
+        
         if validation:
             result['validation'] = validation_error
             result['metric_val'] = metric_val
@@ -453,7 +459,7 @@ class DidacticNeuralNetwork:
         if self.classification:
             self.append_binary_classification_metric(c_metric, out_t, self.dataset[C.OUTPUT_TRAINING], treshold = self.threshold_accuracy, classi = self.classi, dataset = C.TRAINING)
             self.metrics.metrics_binary_classification(self.dataset[C.OUTPUT_TRAINING], out_t, treshold = 0.5)
-            metric_tr.append(c_metric[f'{C.TRAINING}_accuracy'][-1])
+            metric_tr.append(c_metric[f'{C.TRAINING}_{C.ACCURACY}'][-1])
         else:
             metric_tr.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_TRAINING], out_t))
         return out_t
@@ -469,7 +475,7 @@ class DidacticNeuralNetwork:
         validation_error.append(v_error)
         if self.classification:
             self.append_binary_classification_metric(c_metric, out_v, self.dataset[C.OUTPUT_VALIDATION], treshold = self.threshold_accuracy, classi = self.classi, dataset = C.VALIDATION)
-            metric_val.append(c_metric[f'{C.VALIDATION}_accuracy'][-1])
+            metric_val.append(c_metric[f'{C.VALIDATION}_{C.ACCURACY}'][-1])
         else:
             metric_val.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_VALIDATION], out_v))
 
@@ -484,7 +490,7 @@ class DidacticNeuralNetwork:
         test_error.append(test_loss)
         if self.classification:
             self.append_binary_classification_metric(c_metric, out_test, self.dataset[C.OUTPUT_TEST], treshold = self.threshold_accuracy, classi = self.classi, dataset =C.TEST)
-            metric_test.append(c_metric[f'{C.TEST}_accuracy'][-1])
+            metric_test.append(c_metric[f'{C.TEST}_{C.ACCURACY}'][-1])
         else:
             metric_test.append(self.metrics.mean_euclidean_error(self.dataset[C.OUTPUT_TEST], out_test))
     
@@ -498,13 +504,13 @@ class DidacticNeuralNetwork:
     # :param: dataset is the name of the data as Training, Validation or Test
     def append_binary_classification_metric(self, c_metric, predicted, target, treshold:float = 0.5, classi = (0,1), dataset:str = C.VALIDATION):
         mbc = self.metrics.metrics_binary_classification(target, predicted, treshold, classi)
-        c_metric[f'{dataset}_accuracy'].append(mbc[C.ACCURACY])
-        c_metric[f'{dataset}_precision'].append(mbc[C.PRECISION])
-        c_metric[f'{dataset}_recall'].append(mbc[C.RECALL])
-        c_metric[f'{dataset}_specificity'].append(mbc[C.SPECIFICITY])
-        c_metric[f'{dataset}_balanced'].append(mbc[C.BALANCED])
-        c_metric[f'{dataset}_misclassified'].append(mbc[C.MISSCLASSIFIED])
-        c_metric[f'{dataset}_classified'].append(mbc[C.CLASSIFIED])                
+        c_metric[f'{dataset}_{C.ACCURACY}'].append(mbc[C.ACCURACY])
+        c_metric[f'{dataset}_{C.PRECISION}'].append(mbc[C.PRECISION])
+        c_metric[f'{dataset}_{C.RECALL}'].append(mbc[C.RECALL])
+        c_metric[f'{dataset}_{C.SPECIFICITY}'].append(mbc[C.SPECIFICITY])
+        c_metric[f'{dataset}_{C.BALANCED}'].append(mbc[C.BALANCED])
+        c_metric[f'{dataset}_{C.MISCLASSIFIED}'].append(mbc[C.MISSCLASSIFIED])
+        c_metric[f'{dataset}_{C.CLASSIFIED}'].append(mbc[C.CLASSIFIED])                
 
     # Compute the sets of the batch
     # :param: x is the dataset for compute the predictions 
@@ -541,10 +547,10 @@ class DidacticNeuralNetwork:
     # :param: input shape
     # :return: matrix dropout mask with probability p
     def dropout_mask(self, input_shape):
-        mask = (self.gen.random(input_shape) < (1 - self.dropout_p[1])).astype(float)
+        mask = (self.gen.random(input_shape) < (1 - self.dropout_p)).astype(float)
 
         #Normalizzazione output
-        mask = mask / (1 - self.dropout_p[1])
+        mask = mask / (1 - self.dropout_p)
         return mask
     
     # Compute the eta decay with the formula

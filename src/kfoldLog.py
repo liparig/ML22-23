@@ -3,6 +3,31 @@ import costants as C
 import time
 import os
 import numpy as np
+from functools import wraps
+
+# It's an annotation for write the timing of the execution function
+def timeit(func):
+    @wraps(func)
+    def timeit_wrapper(*args, **kwargs):
+        timesDir:str = '../times'   
+        if(not(os.path.isdir(timesDir))):
+            os.makedirs(timesDir)     
+        # timestr:str = time.strftime(C.FORMATTIMESTAMP)
+        w = open(os.path.join(f'{timesDir}',f"time_{func.__name__}.txt"), "a")
+        start_time = time.perf_counter()
+        result = func(*args, **kwargs)
+        end_time = time.perf_counter()
+        total_time = end_time - start_time
+        #print(f'Function {func.__name__}{args} {kwargs} Took {total_time:.4f} seconds')
+        w.write(f"Function {func.__name__} Took {total_time:.4f} seconds\n")
+        if(func.__name__ == 'estimate_model_error'):
+            for arg in args:             
+                w.write(f"{arg}\n")
+            for key, value in kwargs.items(): 
+                w.write(f"{key} == {value}\n")
+        w.close()
+        return result
+    return timeit_wrapper
 
 # Write on a file the model assesment
 # :param: fileDir is the directory of the file
@@ -86,7 +111,20 @@ def estimate_model(file:TextIOWrapper, index:int, total:int, stdoutput:bool = Tr
     if(stdoutput):
         print(msg)
     if(txt):
-        file.write(f"{msg}\n")  
+        file.write(f"{msg}\n")
+        # Specify the directory path
+        directory_path = "../times"
+
+        # Specify the string you want to append to each file
+        string_to_append = "=================================================\n"
+
+        # Iterate over files in the directory
+        for filename in os.listdir(directory_path):
+            # Check if the item is a file (not a directory)
+            if os.path.isfile(os.path.join(directory_path, filename)):
+                # Open the file in append mode and write the string
+                with open(os.path.join(directory_path, filename), 'a') as file:
+                    file.write(string_to_append + '\n')  # Add a newline if needed
 
 # Logger the coarse winner model
 # :param: file is the object for write and read in the logger file 
@@ -128,8 +166,8 @@ def model_performance(file:TextIOWrapper, hyperparameters, model_error, stdoutpu
             f"\nMean MEE: {model_error['mean_mee']}"\
             f"\nMean Epochs: {model_error['mean_epochs']}"\
             f"\n"
-    if(model_error.get(f'mean_{C.VALIDATION}_accuracy') !=None):
-        msg = f"{msg}Classification Accuracy Training: {model_error[f'mean_{C.TRAINING}_accuracy']} - Validation {model_error[f'mean_{C.VALIDATION}_accuracy']}"
+    if(model_error.get(f'mean_{C.VALIDATION}_{C.ACCURACY}') !=None):
+        msg = f"{msg}Classification Accuracy Training: {model_error[f'mean_{C.TRAINING}_{C.ACCURACY}']} - Validation {model_error[f'mean_{C.VALIDATION}_{C.ACCURACY}']}"
     if(stdoutput):
         print(msg)
     if(txt):
