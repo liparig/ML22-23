@@ -21,7 +21,7 @@ import numpy as np
 def cup_evaluation(TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, theta, dirName, prefixFilename, fold = 2):
     #MODEL SELECTION KFCV
     kfCV = KfoldCV(TR_x_cup, TR_y_cup, fold)
-    winners_list = kfCV.validate(inTheta =  theta, FineGS = False, prefixFilename = prefixFilename)
+    winners_list = kfCV.validate(inTheta =  theta, FineGS = True, prefixFilename = prefixFilename)
     
     for winner_object in winners_list:
         winner = Candidate(winner_object[C.HYPERPARAMETERS])
