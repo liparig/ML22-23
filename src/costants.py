@@ -1,5 +1,5 @@
 #SO
-UNIX:bool = False
+UNIX:bool = True
 #TYPES ACTIVATION FUNCTIONS
 SIGMOID:str = 'sigmoid'
 TANH:str = 'tanh'

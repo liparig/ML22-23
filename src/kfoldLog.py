@@ -55,6 +55,8 @@ def Model_Assessment_log(fileDir:str, fileName:str, hyperparameters:str, result:
 # :param: timestamp 
 def Model_Assessment_Outputs(results, fileDir:str, fileName:str,col_names = None, timestamp=False):
         timestamp_str = time.strftime(C.FORMATTIMESTAMP) if timestamp else ""
+        if(not(os.path.isdir(f'{C.PATH_MODEL_ASSESSMENT_DIR}/{fileDir}/'))):
+            os.makedirs(f'{C.PATH_MODEL_ASSESSMENT_DIR}/{fileDir}/')
         if col_names is None:
             col_names = ['target_y', 'target_x', 'target_z', 'out_y', 'out_x', 'out_z']
 

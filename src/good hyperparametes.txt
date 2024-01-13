@@ -49,3 +49,64 @@ theta_batch = {
         C.L_PATIENCE: [10],
         C.L_TRESHOLD_VARIANCE:[1.e-8]    
     }
+
+Grid Search con questi parametri circa 380 modelli ho diminuito le epoche perché ho notato che learly stop non scatta mai (per qualche motivo non funziona)
+ e a circa 400 e 500 si raggiungeva un minimo in una precedente grid search con 1000 max epoch 
+    #MINI batch_shuffle
+    theta_mini = {
+        C.L_NET:[[10,15,3],[10,8,8,8,3]],
+        C.L_ACTIVATION:[[C.LEAKYRELU,C.LEAKYRELU,C.LEAKYRELU,C.IDENTITY],[C.LEAKYRELU,C.IDENTITY]],
+        C.L_ETA:[0.005,0.05],
+        C.L_TAU: [(500,0.005),(False,False)],
+        C.L_REG:[(C.TIKHONOV,0.001),(False,False)],
+        C.L_DIMBATCH:[100,50,150],
+        C.L_MOMENTUM: [(C.CLASSIC,0.7)],
+        C.L_EPOCHS:[400,500],
+        C.L_SHUFFLE:True,
+        C.L_EPS: [0.001],
+        C.L_DISTRIBUTION:[C.GLOROT],
+        C.L_G_CLIPPING:[C.G_CLIPPING,(True,10)],
+        C.L_DROPOUT:[C.DROPOUT,(True,0.7)],
+        C.L_BIAS:[0],
+        C.L_SEED: [52],
+        C.L_CLASSIFICATION:False,
+        C.L_EARLYSTOP:False,
+        C.L_PATIENCE: [10],
+        C.L_TRESHOLD_VARIANCE:[1.e-5]    
+    }
+
+THE TRUE WINNER IS...
+ Model: 6 
+  Hyperparameters: l_dim:[10, 15, 3],            a_functions:['leakyRelu', 'identity'],           eta:0.0375,           tau: (500, 0.005),            g_clipping :(True, 10)            dropout : (False, False)            reg:(False, False),            dim_batch:100,            momentum: ('classic', 0.7),            epochs:500,            batch_shuffle:True,            eps: 0.00125,            distribution:glorot,            bias:0,            seed: [52],            classification:False,            early_stop:False,            patience: 10,             treshold_variance:1e-05 
+ with MeanMee: 0.17123393591892228   <----
+ Size Dataset x (562, 10) y (562, 3) valx (188, 10) valy (188, 3)
+Test euclidianError: 0.13018162711464457
+Size Dataset x (750, 10) y (750, 3) valx (250, 10) valy (250, 3)
+Size Dataset x (562, 10) y (562, 3) valx (188, 10) valy (188, 3)
+Test euclidianError: 0.12213522541823969
+Size Dataset x (750, 10) y (750, 3) valx (250, 10) valy (250, 3)
+Size Dataset x (562, 10) y (562, 3) valx (188, 10) valy (188, 3)
+Test euclidianError: 0.12700405476671825
+Size Dataset x (750, 10) y (750, 3) valx (250, 10) valy (250, 3)
+Size Dataset x (562, 10) y (562, 3) valx (188, 10) valy (188, 3)
+Test euclidianError: 0.12577998909267335
+Size Dataset x (750, 10) y (750, 3) valx (250, 10) valy (250, 3)
+Size Dataset x (562, 10) y (562, 3) valx (188, 10) valy (188, 3)
+Test euclidianError: 0.11656157754480805
+Size Dataset x (750, 10) y (750, 3) valx (250, 10) valy (250, 3)
+Size Dataset x (562, 10) y (562, 3) valx (188, 10) valy (188, 3)
+Test euclidianError: 0.12610104155926674
+Size Dataset x (750, 10) y (750, 3) valx (250, 10) valy (250, 3)
+Size Dataset x (562, 10) y (562, 3) valx (188, 10) valy (188, 3)
+Test euclidianError: 0.12827531904471423
+Size Dataset x (750, 10) y (750, 3) valx (250, 10) valy (250, 3)
+Size Dataset x (562, 10) y (562, 3) valx (188, 10) valy (188, 3)
+Test euclidianError: 0.1300926500755491
+Size Dataset x (750, 10) y (750, 3) valx (250, 10) valy (250, 3)
+Size Dataset x (562, 10) y (562, 3) valx (188, 10) valy (188, 3)
+Test euclidianError: 0.12647163694361255
+Size Dataset x (750, 10) y (750, 3) valx (250, 10) valy (250, 3)
+Size Dataset x (562, 10) y (562, 3) valx (188, 10) valy (188, 3)
+Test euclidianError: 0.12920376087859825
+Size Dataset x (750, 10) y (750, 3) valx (250, 10) valy (250, 3)
+ Ensembe EuclidianError: 0.10471042425323139
