@@ -1,4 +1,4 @@
-from cupEvaluation import cup_evaluation, ensemble_Cup
+from cupEvaluation import ensemble_Cup
 import readMonkAndCup as readMC
 import time
 import costants as C
