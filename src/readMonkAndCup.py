@@ -140,30 +140,27 @@ def read_cup(name):
 def get_cup_house_test(perc:float = 0.25):
     test_inputs, test_targets = [], []
     # get directory
-    
+
     # read csv
     col_names = ['Id', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10', 'target_x', 'target_y','target_z']
     cup_dataset = pd.read_csv(TRAINCUP, sep=',', skiprows = range(7), names = col_names)
-    
+
     cup_dataset.set_index('Id', inplace=True)
-    
+
     # shuffle the DataFrame rows 
     cup_dataset = cup_dataset.sample(frac = 1)
-    
+
     if perc > 0:
         dim = math.ceil(len(cup_dataset) * perc)
         inputs = cup_dataset.to_numpy(dtype = np.float64)[: -dim,:]
-        inputs, targets = inputs[:, :-3], inputs[:, -3:]
         test_inputs = cup_dataset.to_numpy(dtype = np.float64)[-dim:,:]
         # get targets aside
         test_inputs, test_targets = test_inputs[:, :-3], test_inputs[:, -3:]
     else:
         inputs = cup_dataset.to_numpy(dtype = np.float64)
-        inputs, targets = inputs[:, :-3], inputs[:, -3:]
-    
-    
+    inputs, targets = inputs[:, :-3], inputs[:, -3:]
     # transform labels from pandas dataframe to numpy ndarray
-    
+
     return inputs, targets, test_inputs, test_targets
 
 def read_blind_test_cup(name):

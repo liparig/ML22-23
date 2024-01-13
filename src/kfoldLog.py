@@ -9,24 +9,23 @@ from functools import wraps
 def timeit(func):
     @wraps(func)
     def timeit_wrapper(*args, **kwargs):
-        timesDir:str = '../times'   
+        timesDir:str = '../times'
         if(not(os.path.isdir(timesDir))):
-            os.makedirs(timesDir)     
-        # timestr:str = time.strftime(C.FORMATTIMESTAMP)
-        w = open(os.path.join(f'{timesDir}',f"time_{func.__name__}.txt"), "a")
-        start_time = time.perf_counter()
-        result = func(*args, **kwargs)
-        end_time = time.perf_counter()
-        total_time = end_time - start_time
-        #print(f'Function {func.__name__}{args} {kwargs} Took {total_time:.4f} seconds')
-        w.write(f"Function {func.__name__} Took {total_time:.4f} seconds\n")
-        if(func.__name__ == 'estimate_model_error'):
-            for arg in args:             
-                w.write(f"{arg}\n")
-            for key, value in kwargs.items(): 
-                w.write(f"{key} == {value}\n")
-        w.close()
+            os.makedirs(timesDir)
+        with open(os.path.join(f'{timesDir}',f"time_{func.__name__}.txt"), "a") as w:
+            start_time = time.perf_counter()
+            result = func(*args, **kwargs)
+            end_time = time.perf_counter()
+            total_time = end_time - start_time
+            #print(f'Function {func.__name__}{args} {kwargs} Took {total_time:.4f} seconds')
+            w.write(f"Function {func.__name__} Took {total_time:.4f} seconds\n")
+            if(func.__name__ == 'estimate_model_error'):
+                for arg in args:             
+                    w.write(f"{arg}\n")
+                for key, value in kwargs.items(): 
+                    w.write(f"{key} == {value}\n")
         return result
+
     return timeit_wrapper
 
 # Write on a file the model assesment

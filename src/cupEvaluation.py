@@ -18,10 +18,10 @@ import numpy as np
 # :param: dirName is directory name
 # :param: prefixFilename is prefix of the file name
 # :param: fold is number of the folds
-def cup_evaluation(TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, theta, dirName, prefixFilename, fold = 2):
+def cup_evaluation(TR_x_cup, TR_y_cup, TS_x_cup, TS_y_cup, theta, dirName, prefixFilename, fold = 2,FineGS=True):
     #MODEL SELECTION KFCV
     kfCV = KfoldCV(TR_x_cup, TR_y_cup, fold)
-    winners_list = kfCV.validate(inTheta =  theta, FineGS = True, prefixFilename = prefixFilename)
+    winners_list = kfCV.validate(inTheta =  theta, FineGS = FineGS, prefixFilename = prefixFilename)
     
     for winner_object in winners_list:
         winner = Candidate(winner_object[C.HYPERPARAMETERS])
@@ -83,7 +83,11 @@ def holdoutTest(winner, TR_x_set, TR_y_set, TS_x_set, TS_y_set, val_per:float = 
 # :param: TS_y_cup is test targets dataset if it has a output dataset for check the error between targets and mean outputs
 # :param: dirname is the name of the directory where will be the file with ensemble
 # :param: filename is the name of the file was produced by method
-def ensemble_Cup(models, tr_x, tr_y, Ts_x = [], Ts_y = [], dirname = "Ensamble_cup", filename = "CUPs"):
+def ensemble_Cup(models, tr_x, tr_y, Ts_x=None, Ts_y=None, dirname = "Ensamble_cup", filename = "CUPs"):
+    if Ts_x is None:
+        Ts_x = []
+    if Ts_y is None:
+        Ts_y = []
     inputs = readMC.get_blind_test_CUP() if (isinstance(Ts_x, list)) else Ts_x
     outs = []
     errors = []

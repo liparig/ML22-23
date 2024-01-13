@@ -183,11 +183,10 @@ class KfoldCV:
         if(means_length == 0):
             raise ValueError('Nobody is the winner')
         means.sort()
-        self.models_error = sorted(self.models_error, key = lambda d: d['mean_mee'] if not np.isnan(d['mean_mee']) else 1.e+10, reverse = False)
+        self.models_error = sorted(self.models_error, key = lambda d: 1.e+10 if np.isnan(d['mean_mee']) else d['mean_mee'], reverse = False)
         winners_list = []
 
-        if(num_best_models > means_length):
-            num_best_models = means_length
+        num_best_models = min(num_best_models, means_length)
         for index in range(num_best_models):
             meanmetrics = {key: self.models_error[index][key] for key in ['mean_train','mean_validation','mean_mae','mean_rmse', 'mean_mee','mean_epochs']}
             winner = {
