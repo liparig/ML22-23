@@ -75,9 +75,9 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
     batch4 = {
         'l_dim': [[10, 15, 8, 3]],
         'a_functions': [['leakyRelu', 'leakyRelu', 'identity']],
-        'eta': [0.05],
+        'eta': [0.01],
         'tau': [[500, 0.004]],
-        'g_clipping': [[True, 7]],
+        'g_clipping': [[True, 5]],
         'dropout': [[False, False]],
         'reg': [[False, False]],
         'dim_batch': [0],
@@ -94,17 +94,18 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
         'treshold_variance': [1e-10],
     }
 
+    """
     dropout1 = {
         'l_dim': [[10, 20, 20, 20, 3]],
         'a_functions': [['leakyRelu', 'leakyRelu', 'leakyRelu', 'identity']],
-        'eta': [0.004],
-        'tau': [[1000, 0.0004]],
-        'g_clipping': [[True, 10]],
-        'dropout': [[True, 0.7]],
+        'eta': [0.0004],
+        'tau': [[1000, 0.00004]],
+        'g_clipping': [[True, 4]],
+        'dropout': [[True, 0.8]],
         'reg': [['tikhonov', 0.0002]],
         'dim_batch': [200],
         'momentum': [['classic', 0.7]],
-        'epochs': [1000],
+        'epochs': [500],
         'batch_shuffle': [True],
         'eps': [0.0075],
         'distribution': ['glorot'],
@@ -114,18 +115,18 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
         'early_stop': True,
         'patience': [15],
         'treshold_variance': [1e-08],
-    }
+    }"""
 
     minibatch1 = {
         'l_dim': [[10, 15, 3]],
         'a_functions': [['leakyRelu', 'identity']],
-        'eta': [0.005],
-        'tau': [[500, 0.0005]],
-        'g_clipping': [[True, 10]],
-        'dropout': [[False, False]],
-        'reg': [[False, False]],
-        'dim_batch': [150],
-        'momentum': [['classic', 0.7]],
+        'eta': [0.00625],
+        'tau': [(False, False)],
+        'g_clipping': [(True, 3)],
+        'dropout': [(False, False)],
+        'reg': [(False, False)],
+        'dim_batch': [50],
+        'momentum': [('classic', 0.7)],
         'epochs': [500],
         'batch_shuffle': [True],
         'eps': [0.001],
@@ -141,16 +142,16 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
     minibatch2 = {
         'l_dim': [[10, 15, 3]],
         'a_functions': [['leakyRelu', 'identity']],
-        'eta': [0.00375],
-        'tau': [[500, 0.0005]],
-        'g_clipping': [[True, 10]],
+        'eta': [0.005],
+        'tau': [(False,False)],
+        'g_clipping': [[True, 3]],
         'dropout': [[False, False]],
         'reg': [[False, False]],
-        'dim_batch': [100],
+        'dim_batch': [45],
         'momentum': [['classic', 0.7]],
         'epochs': [500],
         'batch_shuffle': [True],
-        'eps': [0.001],
+        'eps': [0.00125],
         'distribution': ['glorot'],
         'bias': [0],
         'seed': [52],
@@ -170,9 +171,11 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
 
     best = cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, batch4, dirName, prefixFilename = "Batch4_", fold = 5,FineGS=False)
     models.extend(best)
-
+    """
+    #Non mi convice, serve una altra cross validation e trovarne uno migliore oppure si dice che abbiamo provato ma fallito tra le note, ci sta
     best = cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dropout1, dirName, prefixFilename = "Dropout1_", fold = 5,FineGS=False)
     models.extend(best)
+    """
 
     best = cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, minibatch1, dirName, prefixFilename = "MiniBatch1_", fold = 5,FineGS=False)
     models.extend(best)
@@ -180,9 +183,9 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
     best = cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, minibatch2, dirName, prefixFilename = "MiniBatch2_", fold = 5,FineGS=False)
     models.extend(best)
 
-    ensemble_Cup(models, inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName, filename = "BestModelesEnsemble_")
+    ensemble_Cup(models, inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirname=dirName, filename = "BestModelesEnsemble_")
     all_tr_x_cup,all_tr_y_cup,_,_= readMC.get_cup_house_test(perc=0)
-    ensemble_Cup(models,all_tr_x_cup,all_tr_y_cup,dirName=dirName,filename="BlindEnsemble_")
+    ensemble_Cup(models,all_tr_x_cup,all_tr_y_cup,dirname=dirName,filename="BlindEnsemble_")
 if __name__ == "__main__":
     start = time.time()
     TR_x_CUP, TR_y_CUP,  TS_x_CUP, TS_y_CUP = readMC.get_cup_house_test()

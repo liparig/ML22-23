@@ -53,8 +53,8 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
     #batchWinners_list = cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, theta_batch, dirName, prefixFilename = C.PREFIXBATCH, fold = 5)
     models = []
     #models.extend(batchWinners_list)
-    """theta_mini = {
-        C.L_NET:[[10,20,3],[10,15,5,3]],
+    """ theta_mini = {
+        C.L_NET:[[10,20,3],[10,15,15,3]],
         C.L_ACTIVATION:[[C.RELU,C.RELU,C.IDENTITY],[C.TANH,C.IDENTITY]],
         C.L_ETA:[0.00003],
         C.L_TAU: [(20,0.0003)],
@@ -73,25 +73,25 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
         C.L_TRESHOLD_VARIANCE:[1.e-1]    
     }"""
     theta_mini = {
-        C.L_NET:[[10,15,3],[10,8,8,8,3]],
-        C.L_ACTIVATION:[[C.LEAKYRELU,C.LEAKYRELU,C.LEAKYRELU,C.IDENTITY],[C.LEAKYRELU,C.IDENTITY]],
-        C.L_ETA:[0.005,0.05],
-        C.L_TAU: [(500,0.005),(False,False)],
-        C.L_REG:[(C.TIKHONOV,0.001),(False,False)],
+        C.L_NET:[[10,20,20,20,3]],
+        C.L_ACTIVATION:[[C.LEAKYRELU,C.LEAKYRELU,C.LEAKYRELU,C.IDENTITY]],
+        C.L_ETA:[0.005],
+        C.L_TAU: [(500,0.0005),(False,False)],
+        C.L_REG:[(C.TIKHONOV,0.0001),(False,False)],
         C.L_DIMBATCH:[100,50,150],
         C.L_MOMENTUM: [(C.CLASSIC,0.7)],
         C.L_EPOCHS:[400,500],
         C.L_SHUFFLE:True,
         C.L_EPS: [0.001],
         C.L_DISTRIBUTION:[C.GLOROT],
-        C.L_G_CLIPPING:[C.G_CLIPPING,(True,10)],
-        C.L_DROPOUT:[C.DROPOUT,(True,0.7)],
+        C.L_G_CLIPPING:[(True,3)],
+        C.L_DROPOUT:[(True, 0.5)],
         C.L_BIAS:[0],
         C.L_SEED: [52],
         C.L_CLASSIFICATION:False,
-        C.L_EARLYSTOP:False,
+        C.L_EARLYSTOP:True,
         C.L_PATIENCE: [10],
-        C.L_TRESHOLD_VARIANCE:[1.e-5]    
+        C.L_TRESHOLD_VARIANCE:[1.e-8]    
     }
 
     minibatchWinners_list = cup_evaluation(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, theta_mini, dirName, prefixFilename = C.PREFIXMINIBATCH, fold = 5)
