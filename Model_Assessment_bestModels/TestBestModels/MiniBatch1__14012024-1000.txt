@@ -1,0 +1,16 @@
+Model Hyperparameters:
+ {'l_dim': [10, 15, 3], 'a_functions': ['leakyRelu', 'identity'], 'eta': 0.00625, 'tau': (False, False), 'g_clipping': (False, False), 'dropout': (False, False), 'reg': (False, False), 'dim_batch': 50, 'momentum': ('classic', 0.7), 'epochs': 500, 'batch_shuffle': True, 'eps': 0.001, 'distribution': 'glorot', 'bias': 0, 'seed': [52], 'classification': False, 'early_stop': False, 'patience': 10, 'treshold_variance': 1e-08}
+
+Model Selection Result obtained in 5# folds:
+{'mean_train': 1.6561106984642922, 'mean_validation': 2.3854479523932945, 'mean_mae': 0.9102902859159387, 'mean_rmse': 1.2603877731644504, 'mean_mee': 0.178245748265839, 'mean_epochs': 500.0}
+ Mean Euclidian Error:
+0.12613501094308896
+
+Model Hyperparameters:
+ {'l_dim': [10, 15, 3], 'a_functions': ['leakyRelu', 'identity'], 'eta': 0.00625, 'tau': (False, False), 'g_clipping': (True, 3), 'dropout': (False, False), 'reg': (False, False), 'dim_batch': 50, 'momentum': ('classic', 0.7), 'epochs': 500, 'batch_shuffle': True, 'eps': 0.001, 'distribution': 'glorot', 'bias': 0, 'seed': [52], 'classification': False, 'early_stop': False, 'patience': 10, 'treshold_variance': 1e-08}
+
+Model Selection Result obtained in 5# folds:
+{'mean_train': 1.8697883732947236, 'mean_validation': 2.500108696025802, 'mean_mae': 0.9372090032947226, 'mean_rmse': 1.2901271136574317, 'mean_mee': 0.18245152613195953, 'mean_epochs': 500.0}
+ Mean Euclidian Error:
+0.14267394925155413
+

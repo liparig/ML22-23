@@ -1,0 +1,8 @@
+Model Hyperparameters:
+ {'l_dim': [10, 15, 3], 'a_functions': ['leakyRelu', 'identity'], 'eta': 0.004, 'tau': [False, False], 'g_clipping': [False, False], 'dropout': [False, False], 'reg': [False, False], 'dim_batch': 0, 'momentum': ['classic', 0.7], 'epochs': 2000, 'batch_shuffle': True, 'eps': 0.01, 'distribution': 'glorot', 'bias': 0, 'seed': [52], 'classification': False, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-10}
+
+Model Selection Result obtained in 5# folds:
+{'mean_train': 2.05568540058315, 'mean_validation': 2.592658957331966, 'mean_mae': 0.9612794313837456, 'mean_rmse': 1.3146102272095033, 'mean_mee': 0.18591396125540557, 'mean_epochs': 2000.0}
+ Mean Euclidian Error:
+0.13787906918083606
+

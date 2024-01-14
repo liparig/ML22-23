@@ -122,7 +122,7 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
         'a_functions': [['leakyRelu', 'identity']],
         'eta': [0.00625],
         'tau': [(False, False)],
-        'g_clipping': [(True, 3)],
+        'g_clipping': [(True, 3),(False, False)],
         'dropout': [(False, False)],
         'reg': [(False, False)],
         'dim_batch': [50],
@@ -134,7 +134,7 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
         'bias': [0],
         'seed': [52],
         'classification': False,
-        'early_stop': True,
+        'early_stop': False,
         'patience': [10],
         'treshold_variance': [1e-08],
     }
@@ -144,7 +144,7 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
         'a_functions': [['leakyRelu', 'identity']],
         'eta': [0.005],
         'tau': [(False,False)],
-        'g_clipping': [[True, 3]],
+        'g_clipping': [[True, 3], [False, False]],
         'dropout': [[False, False]],
         'reg': [[False, False]],
         'dim_batch': [45],
@@ -158,7 +158,7 @@ def main(inTR_x_cup, inTR_y_cup, inTS_x_cup, inTS_y_cup, dirName):
         'classification': False,
         'early_stop': True,
         'patience': [10],
-        'treshold_variance': [1e-08],
+        'treshold_variance': [1e-05],
     }   
     models = []
     best = cup_evaluation(inTR_x_cup,inTR_y_cup,inTS_x_cup,inTS_y_cup,batch1,dirName=dirName,prefixFilename="Batch1_",fold=5,FineGS=False)

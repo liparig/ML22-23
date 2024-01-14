@@ -1,0 +1,18 @@
+---->
+Estimate error for model #1 of 1
+Model: {'l_dim': [10, 15, 3], 'a_functions': ['leakyRelu', 'identity'], 'eta': 0.004, 'tau': [False, False], 'g_clipping': [False, False], 'dropout': [False, False], 'reg': [False, False], 'dim_batch': 0, 'momentum': ['classic', 0.7], 'epochs': 2000, 'batch_shuffle': True, 'eps': 0.01, 'distribution': 'glorot', 'bias': 0, 'seed': [52], 'classification': False, 'early_stop': True, 'patience': 10, 'treshold_variance': 1e-10} 
+Mean Train: 2.05568540058315 
+Mean Mae 0.9612794313837456
+Mean Validation: 2.592658957331966
+Mean Rmse: 1.3146102272095033
+Mean MEE: 0.18591396125540557
+Mean Epochs: 2000.0
+
+----\|/-\|/-\|/----
+
+THE WINNER IS...
+  Model: 1 
+  Hyperparameters: l_dim:[10, 15, 3],            a_functions:['leakyRelu', 'identity'],           eta:0.004,           tau: [False, False],            g_clipping :[False, False]            dropout : [False, False]            reg:[False, False],            dim_batch:0,            momentum: ['classic', 0.7],            epochs:2000,            batch_shuffle:True,            eps: 0.01,            distribution:glorot,            bias:0,            seed: [52],            classification:False,            early_stop:True,            patience: 10,             treshold_variance:1e-10
+
+----\|/-\|/-\|/----
+We try to do better... with a fine grid search ---->
